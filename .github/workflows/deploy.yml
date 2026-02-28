@@ -65,7 +65,7 @@ jobs:
             --concurrency 80 \
             --timeout 300s \
             --set-env-vars "AI_PROVIDER=${{ secrets.AI_PROVIDER }}" \
-            --set-secrets "ANTHROPIC_API_KEY=alphastream-anthropic-key:latest,OPENAI_API_KEY=alphastream-openai-key:latest,GOOGLE_GENERATIVE_AI_API_KEY=alphastream-google-key:latest,BRAVE_SEARCH_API_KEY=alphastream-brave-key:latest" \
+            --set-secrets "GOOGLE_GENERATIVE_AI_API_KEY=alphastream-google-key:latest,BRAVE_SEARCH_API_KEY=alphastream-brave-key:latest" \
             --service-account "alphastream-runner@${PROJECT_ID}.iam.gserviceaccount.com" \
             --allow-unauthenticated \
             --project "${PROJECT_ID}"

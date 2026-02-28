@@ -1,0 +1,151 @@
+"use client";
+
+import { useState } from "react";
+import { useJobWithPolling, useJobStatus } from "@/hooks/use-job";
+import { JOB_STATUS_COLORS } from "@/lib/constants";
+import { timeAgo } from "@/lib/utils";
+import {
+  Download,
+  ScanSearch,
+  BarChart3,
+  Brain,
+  Loader2,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Zap,
+} from "lucide-react";
+import type { JobStatusResponse } from "@/lib/types";
+
+const JOB_CONFIGS = [
+  {
+    type: "download",
+    title: "Download Data",
+    description: "Download OHLCV data for all universe tickers",
+    icon: Download,
+  },
+  {
+    type: "screen",
+    title: "Bulk Screen",
+    description: "Run technical screener on all downloaded data",
+    icon: ScanSearch,
+  },
+  {
+    type: "indexes",
+    title: "Index Analysis",
+    description: "Analyze indices, sectors, crypto, commodities",
+    icon: BarChart3,
+  },
+  {
+    type: "indexes-ai",
+    title: "Index + AI",
+    description: "Index analysis with AI-powered market synthesis",
+    icon: Brain,
+  },
+];
+
+function StatusIcon({ status }: { status: string }) {
+  switch (status) {
+    case "pending":
+      return <Clock className="h-4 w-4 text-slate-400" />;
+    case "running":
+      return <Loader2 className="h-4 w-4 text-blue-400 animate-spin" />;
+    case "completed":
+      return <CheckCircle className="h-4 w-4 text-green-400" />;
+    case "failed":
+      return <XCircle className="h-4 w-4 text-red-400" />;
+    default:
+      return null;
+  }
+}
+
+function JobTriggerCard({
+  type,
+  title,
+  description,
+  icon: Icon,
+}: {
+  type: string;
+  title: string;
+  description: string;
+  icon: React.ElementType;
+}) {
+  const { startJob, status, activeJobId, trigger, completionMessage } = useJobWithPolling(type);
+  const isRunning =
+    status.data?.status === "pending" || status.data?.status === "running";
+  const isPending = trigger.isPending;
+
+  return (
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+      <div className="flex items-start gap-3 mb-3">
+        <div className="p-2 rounded-md bg-[var(--accent)]/10">
+          <Icon className="h-5 w-5 text-[var(--accent)]" />
+        </div>
+        <div>
+          <h3 className="font-medium text-[var(--text-primary)]">{title}</h3>
+          <p className="text-xs text-[var(--text-muted)] mt-0.5">{description}</p>
+        </div>
+      </div>
+
+      {activeJobId && status.data && (
+        <div className="flex items-center gap-2 mb-3 px-2 py-1.5 rounded bg-[var(--bg-primary)]">
+          <StatusIcon status={status.data.status} />
+          <span className="text-xs text-[var(--text-muted)] capitalize">
+            {status.data.status}
+          </span>
+          {status.data.status === "completed" && status.data.result && (
+            <span className="text-xs text-green-400 ml-auto">
+              {JSON.stringify(status.data.result).substring(0, 60)}...
+            </span>
+          )}
+          {status.data.error && (
+            <span className="text-xs text-red-400 ml-auto truncate max-w-48">
+              {status.data.error}
+            </span>
+          )}
+        </div>
+      )}
+
+      {completionMessage && (
+        <div className="flex items-center gap-2 mb-3 px-2 py-1.5 rounded bg-green-500/10 border border-green-500/20">
+          <CheckCircle className="h-3.5 w-3.5 text-green-400 flex-shrink-0" />
+          <span className="text-xs text-green-400">{completionMessage}</span>
+        </div>
+      )}
+
+      <button
+        onClick={() => startJob()}
+        disabled={isRunning || isPending}
+        className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium bg-[var(--accent)] text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+      >
+        {isPending || isRunning ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            {isRunning ? "Running..." : "Starting..."}
+          </>
+        ) : (
+          <>
+            <Zap className="h-4 w-4" />
+            Trigger
+          </>
+        )}
+      </button>
+    </div>
+  );
+}
+
+export default function JobsPage() {
+  return (
+    <div>
+      <h1 className="text-2xl font-semibold text-[var(--text-primary)] mb-6">
+        Jobs
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {JOB_CONFIGS.map((config) => (
+          <JobTriggerCard key={config.type} {...config} />
+        ))}
+      </div>
+    </div>
+  );
+}

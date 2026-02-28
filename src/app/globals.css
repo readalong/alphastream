@@ -1,0 +1,279 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #0a0a0f;
+  --color-bg-card: #12121a;
+  --color-bg-sidebar: #0e0e16;
+  --color-border: #1e1e2e;
+  --color-text-primary: #e2e8f0;
+  --color-text-muted: #64748b;
+  --color-accent: #6366f1;
+  --color-green: #22c55e;
+  --color-red: #ef4444;
+  --color-amber: #f59e0b;
+  --color-blue: #3b82f6;
+  --color-gold: #fbbf24;
+  --color-cyan: #06b6d4;
+  --color-emerald: #10b981;
+  --color-purple: #a855f7;
+  --color-slate: #64748b;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  :root {
+    --bg-primary: #ffffff;
+    --bg-card: #f8f9fa;
+    --bg-sidebar: #f1f3f5;
+    --border: #e2e8f0;
+    --text-primary: #1a202c;
+    --text-muted: #94a3b8;
+    --accent: #4f46e5;
+  }
+
+  .dark {
+    --bg-primary: #0a0a0f;
+    --bg-card: #12121a;
+    --bg-sidebar: #0e0e16;
+    --border: #1e1e2e;
+    --text-primary: #e2e8f0;
+    --text-muted: #64748b;
+    --accent: #6366f1;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ── AI Report — shared base styles (preamble + fallback) ── */
+.ai-report-content {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.ai-report-content h1,
+.ai-report-content h2,
+.ai-report-content h3,
+.ai-report-content h4,
+.ai-report-content h5,
+.ai-report-content h6 {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 1.25em;
+  margin-bottom: 0.4em;
+  line-height: 1.3;
+}
+
+.ai-report-content h1 { font-size: 1.25rem; }
+.ai-report-content h2 { font-size: 1.1rem; }
+.ai-report-content h3 { font-size: 1rem; }
+
+.ai-report-content p { margin-bottom: 0.6em; }
+.ai-report-content p:last-child { margin-bottom: 0; }
+
+.ai-report-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ai-report-content ul,
+.ai-report-content ol {
+  padding-left: 1.25em;
+  margin-bottom: 0.6em;
+}
+.ai-report-content ul { list-style-type: disc; }
+.ai-report-content ol { list-style-type: decimal; }
+.ai-report-content li { margin-bottom: 0.15em; }
+
+.ai-report-content strong { color: var(--text-primary); }
+
+.ai-report-content code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+}
+
+.ai-report-content pre {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75em;
+  overflow-x: auto;
+  margin-bottom: 0.75em;
+  font-size: 0.8125rem;
+}
+
+.ai-report-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.ai-report-content blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.75em;
+  margin: 0.75em 0;
+  color: var(--text-muted);
+}
+
+.ai-report-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1em 0;
+}
+
+.ai-report-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+/* ── Tables (shared between fallback and tiles) ── */
+.ai-report-content table,
+.ai-report-tile-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  font-size: 0.8125rem;
+}
+
+.ai-report-content th,
+.ai-report-content td,
+.ai-report-tile-content th,
+.ai-report-tile-content td {
+  border: 1px solid var(--border);
+  padding: 0.4em 0.6em;
+  text-align: left;
+}
+
+.ai-report-content th,
+.ai-report-tile-content th {
+  background: var(--bg-primary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+/* ── Tile content styles ── */
+.ai-report-tile-content {
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.ai-report-tile-content p { margin-bottom: 0.5em; }
+.ai-report-tile-content p:last-child { margin-bottom: 0; }
+
+.ai-report-tile-content strong { color: var(--text-primary); }
+
+.ai-report-tile-content ul,
+.ai-report-tile-content ol {
+  padding-left: 1.25em;
+  margin-bottom: 0.5em;
+}
+.ai-report-tile-content ul { list-style-type: disc; }
+.ai-report-tile-content ol { list-style-type: decimal; }
+.ai-report-tile-content li { margin-bottom: 0.1em; }
+
+.ai-report-tile-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ai-report-tile-content h4,
+.ai-report-tile-content h5,
+.ai-report-tile-content h6 {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  margin-top: 0.75em;
+  margin-bottom: 0.25em;
+  color: var(--text-primary);
+}
+
+.ai-report-tile-content code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+}
+
+.ai-report-tile-content blockquote {
+  border-left: 2px solid var(--border);
+  padding-left: 0.75em;
+  margin: 0.5em 0;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.ai-report-tile-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* ── Collapsible details/summary (fallback mode) ── */
+.ai-report-content details {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 0.75em;
+  overflow: hidden;
+}
+
+.ai-report-content summary {
+  cursor: pointer;
+  padding: 0.75em 1em;
+  font-weight: 600;
+  background: var(--bg-primary);
+  user-select: none;
+  list-style: none;
+}
+
+.ai-report-content summary::-webkit-details-marker {
+  display: none;
+}
+
+.ai-report-content summary::before {
+  content: "\25B6";
+  display: inline-block;
+  margin-right: 0.5em;
+  font-size: 0.7em;
+  transition: transform 0.2s ease;
+}
+
+.ai-report-content details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.ai-report-content details > *:not(summary) {
+  padding: 0 1em;
+}
+
+.ai-report-content details > p:last-child,
+.ai-report-content details > div:last-child {
+  padding-bottom: 0.75em;
+}

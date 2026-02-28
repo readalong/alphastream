@@ -16,43 +16,32 @@ import type {
   MarketReport,
 } from "./types";
 
-function getConfig() {
-  if (typeof window === "undefined") {
-    return {
-      apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
-      apiKey: null as string | null,
-      llmKey: null as string | null,
-    };
-  }
+// All Trading Engine calls are proxied through /api/trading/[...path]
+// The proxy (src/app/api/trading/[...path]/route.ts) adds X-API-Key server-side.
+function proxyPath(path: string): string {
+  // /api/screen/AAPL → /api/trading/screen/AAPL
+  return path.replace(/^\/api\//, "/api/trading/");
+}
+
+function getLlmKey(): string | null {
+  if (typeof window === "undefined") return null;
   try {
     const stored = localStorage.getItem("alphastream-config");
     if (stored) {
       const parsed = JSON.parse(stored);
-      return {
-        apiBaseUrl:
-          (parsed.state?.apiBaseUrl as string) ||
-          process.env.NEXT_PUBLIC_API_URL ||
-          "http://localhost:8000",
-        apiKey: (parsed.state?.apiKey as string) || null,
-        llmKey: (parsed.state?.llmKey as string) || null,
-      };
+      return (parsed.state?.llmKey as string) || null;
     }
   } catch {
-    // ignore parse errors
+    // ignore
   }
-  return {
-    apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
-    apiKey: null,
-    llmKey: null,
-  };
+  return null;
 }
 
 async function apiFetch<T>(
   path: string,
   options?: RequestInit & { timeout?: number; withLlmKey?: boolean }
 ): Promise<T> {
-  const { apiBaseUrl, apiKey, llmKey } = getConfig();
-  const url = `${apiBaseUrl}${path}`;
+  const url = proxyPath(path);
   const timeout = options?.timeout ?? 30_000;
 
   const headers: Record<string, string> = {
@@ -60,12 +49,9 @@ async function apiFetch<T>(
     ...(options?.headers as Record<string, string>),
   };
 
-  if (apiKey) {
-    headers["X-API-Key"] = apiKey;
-  }
-
-  if (options?.withLlmKey && llmKey) {
-    headers["X-LLM-Key"] = llmKey;
+  if (options?.withLlmKey) {
+    const llmKey = getLlmKey();
+    if (llmKey) headers["X-LLM-Key"] = llmKey;
   }
 
   const controller = new AbortController();
@@ -119,10 +105,8 @@ export const api = {
   sessionReport: (sessionId: string) =>
     apiFetch<MarketReport>(`/api/sessions/${sessionId}/report`, { withLlmKey: true }),
 
-  sessionDownload: (sessionId: string) => {
-    const { apiBaseUrl } = getConfig();
-    return `${apiBaseUrl}/api/sessions/${sessionId}/download`;
-  },
+  sessionDownload: (sessionId: string) =>
+    proxyPath(`/api/sessions/${sessionId}/download`),
 
   triggerJob: (jobType: string, tickers?: string) => {
     const query = tickers ? `?tickers=${tickers}` : "";
@@ -165,13 +149,7 @@ export const api = {
     apiFetch<GlobalMarketReport>(`/api/sessions/${sessionId}/global-report`, { withLlmKey: true }),
 
   resistanceChart: async (ticker: string): Promise<string> => {
-    const { apiBaseUrl, apiKey } = getConfig();
-    const headers: Record<string, string> = {};
-    if (apiKey) headers["X-API-Key"] = apiKey;
-    const res = await fetch(
-      `${apiBaseUrl}/api/resistance/${ticker}?format=png`,
-      { headers }
-    );
+    const res = await fetch(proxyPath(`/api/resistance/${ticker}?format=png`));
     if (!res.ok) throw new Error(`API Error ${res.status}`);
     const blob = await res.blob();
     return URL.createObjectURL(blob);

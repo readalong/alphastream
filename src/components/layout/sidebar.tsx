@@ -17,6 +17,8 @@ import {
 import { cn } from "@/lib/utils";
 import { SidebarFavorites } from "./sidebar-favorites";
 
+const IS_PRODUCTION = process.env.NEXT_PUBLIC_APP_ENV === "production";
+
 const NAV_SECTIONS = [
   {
     label: "DISCOVER",
@@ -25,20 +27,20 @@ const NAV_SECTIONS = [
       { name: "Global Markets", href: "/markets", icon: Globe },
       { name: "Screener", href: "/screener", icon: ScanSearch },
       { name: "Sectors", href: "/sectors", icon: BarChart3 },
-      { name: "Uptrend Analysis", href: "/uptrend", icon: TrendingUp },
+      ...(!IS_PRODUCTION ? [{ name: "Uptrend Analysis", href: "/uptrend", icon: TrendingUp }] : []),
     ],
   },
   {
     label: "ANALYZE",
     items: [
       { name: "Ticker Lookup", href: "/ticker", icon: Search },
-      { name: "Sessions", href: "/sessions", icon: FolderOpen },
+      ...(!IS_PRODUCTION ? [{ name: "Sessions", href: "/sessions", icon: FolderOpen }] : []),
     ],
   },
   {
     label: "MANAGE",
     items: [
-      { name: "Jobs", href: "/jobs", icon: Zap },
+      ...(!IS_PRODUCTION ? [{ name: "Jobs", href: "/jobs", icon: Zap }] : []),
       { name: "Settings", href: "/settings", icon: Settings },
     ],
   },

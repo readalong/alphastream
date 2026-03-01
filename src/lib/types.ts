@@ -30,6 +30,7 @@ export interface AiAnalysis {
     trend_structure?: string;
     key_levels?: string;
     obv_analysis?: string;
+    cci_analysis?: string;
   };
   decision?: {
     verdict?: string;
@@ -162,19 +163,6 @@ export interface UptrendReport {
 
 // --- Global Markets Types ---
 
-export interface GlobalSynthesis {
-  overall_regime: "Risk-On" | "Risk-Off" | "Mixed" | "Neutral";
-  regional_leaders: string[];
-  regional_laggards: string[];
-  risk_appetite: "High" | "Moderate" | "Low";
-  strongest_index: string;
-  weakest_index: string;
-  asia_pacific_assessment: string;
-  europe_assessment: string;
-  us_implication: string;
-  executive_summary: string;
-}
-
 export interface GlobalIndexScreening {
   stage: string | null;
   category: string | null;
@@ -193,6 +181,7 @@ export interface GlobalIndexAI {
     trend_strength: string;
     sma_alignment: string;
     momentum: string;
+    cci_signal?: string;
   };
   market_signal?: {
     bias: "BULLISH" | "NEUTRAL" | "BEARISH";
@@ -217,11 +206,31 @@ export interface GlobalIndexEntry {
   ai_analysis: GlobalIndexAI;
 }
 
+export interface GlobalSynthesis {
+  global_breadth?: {
+    bullish_markets: number;
+    bearish_markets: number;
+    assessment: string;
+  };
+  regional_analysis?: {
+    strongest_region: string;
+    weakest_region: string;
+    key_divergences: string;
+  };
+  us_implications?: {
+    global_backdrop: string;
+    risk_signal: string;
+    confidence: number;
+  };
+  executive_summary?: string;
+}
+
 export interface GlobalMarketReport {
-  generated_at: string;
-  session: string;
-  indexes: Record<string, GlobalIndexEntry>;
-  global_synthesis: GlobalSynthesis;
+  _session_id?: string;
+  generated_at?: string;
+  session?: string;
+  indexes?: Record<string, GlobalIndexEntry>;
+  global_synthesis?: GlobalSynthesis;
 }
 
 // --- Market Report (session report, JSON format) ---
@@ -232,6 +241,7 @@ export interface InstrumentAI {
     trend_strength: string;
     sma_alignment: string;
     momentum: string;
+    cci_signal?: string;
   };
   market_signal?: {
     bias: "BULLISH" | "NEUTRAL" | "BEARISH";

@@ -44,6 +44,44 @@ const JOB_CONFIGS = [
   },
 ];
 
+function JobResultSummary({
+  type,
+  result,
+}: {
+  type: string;
+  result: Record<string, unknown>;
+}) {
+  const parts: string[] = [];
+
+  if (type === "indexes-ai" || type === "indexes") {
+    if (result.instruments_analyzed != null)
+      parts.push(`${result.instruments_analyzed} domestic`);
+    if (result.global_instruments_analyzed != null)
+      parts.push(`${result.global_instruments_analyzed} global`);
+    if (type === "indexes-ai")
+      parts.push(result.ai_success ? "AI ✓" : "AI ✗");
+  } else if (type === "screen") {
+    if (result.tickers_screened != null)
+      parts.push(`${result.tickers_screened} screened`);
+    if (result.session) parts.push(String(result.session));
+  } else if (type === "download") {
+    if (result.tickers_processed != null)
+      parts.push(`${result.tickers_processed} tickers`);
+  } else {
+    return (
+      <span className="text-xs text-green-400 ml-auto truncate max-w-48">
+        {JSON.stringify(result).substring(0, 60)}
+      </span>
+    );
+  }
+
+  return (
+    <span className="text-xs text-green-400 ml-auto whitespace-nowrap">
+      {parts.join(" · ")}
+    </span>
+  );
+}
+
 function StatusIcon({ status }: { status: string }) {
   switch (status) {
     case "pending":
@@ -94,9 +132,7 @@ function JobTriggerCard({
             {status.data.status}
           </span>
           {status.data.status === "completed" && status.data.result && (
-            <span className="text-xs text-green-400 ml-auto">
-              {JSON.stringify(status.data.result).substring(0, 60)}...
-            </span>
+            <JobResultSummary type={type} result={status.data.result} />
           )}
           {status.data.error && (
             <span className="text-xs text-red-400 ml-auto truncate max-w-48">

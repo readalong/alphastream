@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { Globe, Sparkles, ArrowRight } from "lucide-react";
 import { useGlobalReport } from "@/hooks/use-global-report";
+import { useSessions } from "@/hooks/use-sessions";
 import { STAGE_COLORS } from "@/lib/constants";
 import type { GlobalIndexEntry, GlobalSynthesis } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -14,7 +15,6 @@ export const COUNTRY_FLAGS: Record<string, string> = {
   Japan: "🇯🇵", "South Korea": "🇰🇷", Taiwan: "🇹🇼",
   India: "🇮🇳", Australia: "🇦🇺", "United Kingdom": "🇬🇧", Europe: "🇪🇺",
 };
-
 export function getCountryFlag(country: string) { return COUNTRY_FLAGS[country] ?? "🌐"; }
 
 export function getStageKey(stage: string | null): string | null {
@@ -48,16 +48,23 @@ export const BIAS_STYLES = {
   NEUTRAL: "text-amber-400 bg-amber-500/10 border-amber-500/25",
 } as const;
 
-export const REGIME_STYLES = {
-  "Risk-On": { chip: "text-green-400 bg-green-500/10 border-green-500/25", border: "#22c55e" },
-  "Risk-Off": { chip: "text-red-400 bg-red-500/10 border-red-500/25",     border: "#ef4444" },
-  Mixed:     { chip: "text-amber-400 bg-amber-500/10 border-amber-500/25", border: "#f59e0b" },
-  Neutral:   { chip: "text-slate-400 bg-slate-500/10 border-slate-500/25", border: "#64748b" },
-} as const;
+export const RISK_SIGNAL_STYLES: Record<string, string> = {
+  "Risk-On":  "text-green-400 bg-green-500/10 border-green-500/25",
+  "Risk-Off": "text-red-400 bg-red-500/10 border-red-500/25",
+  Neutral:    "text-amber-400 bg-amber-500/10 border-amber-500/25",
+};
 
-export const APPETITE_COLORS = {
-  High: "text-green-400", Moderate: "text-amber-400", Low: "text-red-400",
-} as const;
+export const BACKDROP_STYLES: Record<string, string> = {
+  Supportive: "text-green-400 bg-green-500/10 border-green-500/25",
+  Headwind:   "text-red-400 bg-red-500/10 border-red-500/25",
+  Neutral:    "text-amber-400 bg-amber-500/10 border-amber-500/25",
+};
+
+export const ASSESSMENT_STYLES: Record<string, string> = {
+  "Synchronized Rally":  "text-green-400 bg-green-500/10 border-green-500/25",
+  "Regional Divergence": "text-amber-400 bg-amber-500/10 border-amber-500/25",
+  "Broad Weakness":      "text-red-400 bg-red-500/10 border-red-500/25",
+};
 
 // ── GlobalIndexCard (overview — links to /markets?index=ticker) ────────────
 
@@ -141,46 +148,76 @@ function GlobalIndexCard({ entry }: { entry: GlobalIndexEntry }) {
 // ── GlobalSynthesisCard ────────────────────────────────────────────────────
 
 export function GlobalSynthesisCard({ synthesis }: { synthesis: GlobalSynthesis }) {
-  const regime = REGIME_STYLES[synthesis.overall_regime];
+  const { global_breadth, regional_analysis, us_implications, executive_summary } = synthesis;
+  const total = global_breadth ? global_breadth.bullish_markets + global_breadth.bearish_markets : 0;
+  const bullishPct = total > 0 ? (global_breadth!.bullish_markets / total) * 100 : 0;
+
   return (
-    <div
-      className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4"
-      style={{ borderLeft: `2px solid ${regime.border}` }}
-    >
-      <div className="flex flex-wrap items-center gap-2 mb-3">
-        <span className={cn("text-[10px] font-bold px-2 py-1 rounded border uppercase tracking-widest", regime.chip)}>
-          {synthesis.overall_regime}
-        </span>
-        <div className="flex items-center gap-1 text-[11px] text-[var(--text-muted)]">
-          Risk Appetite:
-          <span className={cn("font-semibold", APPETITE_COLORS[synthesis.risk_appetite])}>
-            {synthesis.risk_appetite}
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3">
+      {/* Breadth */}
+      {global_breadth && (
+        <div className="flex items-center gap-2.5">
+          <div className="flex-1 h-2 rounded-full bg-[var(--border)] overflow-hidden">
+            <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: `${bullishPct}%` }} />
+          </div>
+          <span className="text-[11px] text-[var(--text-muted)] tabular-nums shrink-0">
+            {global_breadth.bullish_markets}/{total} bullish
+          </span>
+          <span className={cn(
+            "text-[10px] font-semibold px-1.5 py-0.5 rounded border shrink-0",
+            ASSESSMENT_STYLES[global_breadth.assessment] ?? ASSESSMENT_STYLES["Regional Divergence"],
+          )}>
+            {global_breadth.assessment}
           </span>
         </div>
-      </div>
-      <div className="flex flex-wrap gap-x-5 gap-y-1.5 mb-4">
-        {synthesis.regional_leaders.length > 0 && (
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Leaders</span>
-            {synthesis.regional_leaders.map((l) => (
-              <span key={l} className="text-[10px] font-medium px-1.5 py-0.5 rounded border text-green-400 bg-green-500/10 border-green-500/20">{l}</span>
-            ))}
+      )}
+
+      {/* Regional */}
+      {regional_analysis && (
+        <>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+            <div className="flex items-center gap-1">
+              <span className="text-[var(--text-muted)]">Strongest</span>
+              <span className="font-medium text-green-400">{regional_analysis.strongest_region}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-[var(--text-muted)]">Weakest</span>
+              <span className="font-medium text-red-400">{regional_analysis.weakest_region}</span>
+            </div>
           </div>
-        )}
-        {synthesis.regional_laggards.length > 0 && (
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Laggards</span>
-            {synthesis.regional_laggards.map((l) => (
-              <span key={l} className="text-[10px] font-medium px-1.5 py-0.5 rounded border text-red-400 bg-red-500/10 border-red-500/20">{l}</span>
-            ))}
+          {regional_analysis.key_divergences && (
+            <p className="text-xs text-[var(--text-muted)] leading-relaxed">{regional_analysis.key_divergences}</p>
+          )}
+        </>
+      )}
+
+      {/* US implications */}
+      {us_implications && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={cn(
+            "text-[10px] font-semibold px-1.5 py-0.5 rounded border",
+            RISK_SIGNAL_STYLES[us_implications.risk_signal] ?? RISK_SIGNAL_STYLES.Neutral,
+          )}>
+            {us_implications.risk_signal}
+          </span>
+          <span className={cn(
+            "text-[10px] font-semibold px-1.5 py-0.5 rounded border",
+            BACKDROP_STYLES[us_implications.global_backdrop] ?? BACKDROP_STYLES.Neutral,
+          )}>
+            {us_implications.global_backdrop}
+          </span>
+          <div className="flex items-center gap-1.5 ml-auto">
+            <div className="w-16 h-1.5 rounded-full bg-[var(--border)] overflow-hidden">
+              <div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${us_implications.confidence}%` }} />
+            </div>
+            <span className="text-[10px] text-[var(--text-muted)] tabular-nums">{us_implications.confidence}%</span>
           </div>
-        )}
-      </div>
-      <p className="text-xs text-[var(--text-muted)] leading-relaxed">{synthesis.executive_summary}</p>
-      {synthesis.us_implication && (
-        <p className="text-xs text-[var(--text-muted)]/70 leading-relaxed mt-2 pt-2 border-t border-[var(--border)]">
-          <span className="text-[var(--accent)] font-medium">US implication: </span>
-          {synthesis.us_implication}
+        </div>
+      )}
+
+      {executive_summary && (
+        <p className="text-xs text-[var(--text-muted)] leading-relaxed pt-1 border-t border-[var(--border)]">
+          {executive_summary}
         </p>
       )}
     </div>
@@ -215,17 +252,36 @@ export function RegionLabel({ label }: { label: string }) {
 const REGION_ORDER: Array<GlobalIndexEntry["region"]> = ["Asia Pacific", "Europe"];
 
 export function GlobalMarketsPanel() {
-  const { data, isLoading, isError } = useGlobalReport();
-  const updated = useMemo(() => (data ? formatUpdated(data.generated_at) : null), [data]);
+  const { data: sessions } = useSessions();
+  const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
+
+  // Sessions that have index data, ordered most-recent first (API returns newest first)
+  const indexSessions = sessions?.filter((s) => s.has_index_data) ?? [];
+  const session = indexSessions.find((s) => !failedIds.has(s.session_id));
+
+  // When session is undefined: calls /api/global-report/latest (natural fallback)
+  // When session is defined: calls /api/sessions/{id}/global-report
+  const { data, isLoading, isError } = useGlobalReport(session?.session_id);
+
+  useEffect(() => {
+    if (isError && session) {
+      setFailedIds((prev) => new Set(prev).add(session.session_id));
+    }
+  }, [isError, session]);
+
+  const updated = useMemo(() => (data?.generated_at ? formatUpdated(data.generated_at) : null), [data]);
 
   const byRegion = useMemo(() => {
-    if (!data) return {} as Record<string, GlobalIndexEntry[]>;
+    if (!data?.indexes) return {} as Record<string, GlobalIndexEntry[]>;
     return Object.values(data.indexes).reduce((acc, entry) => {
       if (!acc[entry.region]) acc[entry.region] = [];
       acc[entry.region].push(entry);
       return acc;
     }, {} as Record<string, GlobalIndexEntry[]>);
   }, [data]);
+
+  // All candidate sessions exhausted and no data
+  const noData = !isLoading && !data && (isError || (!session && sessions !== undefined));
 
   return (
     <section className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
@@ -260,12 +316,12 @@ export function GlobalMarketsPanel() {
           </div>
         )}
 
-        {isError && !isLoading && (
+        {noData && (
           <div className="py-5 text-center">
             <p className="text-xs text-[var(--text-muted)]">
               Global market data unavailable —{" "}
-              <code className="font-mono text-[10px] bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">--indexes --ai</code>{" "}
-              to generate
+              <code className="font-mono text-[10px] bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">indexes-ai</code>{" "}
+              job required
             </p>
           </div>
         )}
@@ -287,10 +343,12 @@ export function GlobalMarketsPanel() {
               );
             })}
 
-            <div>
-              <RegionLabel label="Global Synthesis" />
-              <GlobalSynthesisCard synthesis={data.global_synthesis} />
-            </div>
+            {data.global_synthesis && (
+              <div>
+                <RegionLabel label="Global Synthesis" />
+                <GlobalSynthesisCard synthesis={data.global_synthesis} />
+              </div>
+            )}
           </>
         )}
       </div>

@@ -4,12 +4,12 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Globe, TrendingUp, Zap, BarChart3, FileText, Sparkles } from "lucide-react";
 import { useGlobalReport } from "@/hooks/use-global-report";
+import { useSessions } from "@/hooks/use-sessions";
 import { useChart } from "@/hooks/use-chart";
 import { StaticChart } from "@/components/charts/static-chart";
 import {
   getCountryFlag, getStageKey, formatPct, formatUpdated,
-  BIAS_STYLES, REGIME_STYLES, APPETITE_COLORS,
-  GlobalSynthesisCard, RegionLabel,
+  BIAS_STYLES, GlobalSynthesisCard, RegionLabel,
 } from "@/components/overview/global-markets-panel";
 import { STAGE_COLORS } from "@/lib/constants";
 import type { GlobalIndexEntry } from "@/lib/types";
@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 
 const REGION_ORDER: Array<GlobalIndexEntry["region"]> = ["Asia Pacific", "Europe"];
 
-// ── Index card (selectable, used on the markets page left column) ──────────
+// ── Index card (selectable) ────────────────────────────────────────────────
 
 function IndexCard({
   entry, isSelected, onClick,
@@ -228,6 +228,9 @@ function IndexDetail({ entry }: { entry: GlobalIndexEntry }) {
                 <AnalysisRow label="Strength"      value={ai_analysis.trend_analysis.trend_strength} />
                 <AnalysisRow label="SMA Alignment" value={ai_analysis.trend_analysis.sma_alignment} />
                 <AnalysisRow label="Momentum"      value={ai_analysis.trend_analysis.momentum} />
+                {ai_analysis.trend_analysis.cci_signal && (
+                  <AnalysisRow label="CCI Signal" value={ai_analysis.trend_analysis.cci_signal} />
+                )}
               </div>
             </div>
           )}
@@ -309,24 +312,37 @@ function EmptyState() {
   );
 }
 
-// ── Page content (needs Suspense for useSearchParams) ─────────────────────
+// ── Page content ───────────────────────────────────────────────────────────
 
 function GlobalMarketsContent() {
   const searchParams = useSearchParams();
-  const { data, isLoading, isError } = useGlobalReport();
+  const { data: sessions } = useSessions();
+  const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
 
-  // Auto-select index from URL param (e.g. /markets?index=%5EN225)
+  // Sessions that have index data, ordered most-recent first
+  const indexSessions = sessions?.filter((s) => s.has_index_data) ?? [];
+  const session = indexSessions.find((s) => !failedIds.has(s.session_id));
+
+  const { data, isLoading, isError } = useGlobalReport(session?.session_id);
+
+  useEffect(() => {
+    if (isError && session) {
+      setFailedIds((prev) => new Set(prev).add(session.session_id));
+    }
+  }, [isError, session]);
+
   useEffect(() => {
     const index = searchParams.get("index");
-    if (index && data?.indexes[index]) {
+    if (index && data?.indexes?.[index]) {
       setSelectedTicker(index);
     }
   }, [searchParams, data]);
 
-  const updated = data ? formatUpdated(data.generated_at) : null;
+  const updated = data?.generated_at ? formatUpdated(data.generated_at) : null;
+  const noData = !isLoading && !data && (isError || (!session && sessions !== undefined));
 
-  const byRegion = data
+  const byRegion = data?.indexes
     ? Object.values(data.indexes).reduce((acc, entry) => {
         if (!acc[entry.region]) acc[entry.region] = [];
         acc[entry.region].push(entry);
@@ -334,7 +350,7 @@ function GlobalMarketsContent() {
       }, {} as Record<string, GlobalIndexEntry[]>)
     : {} as Record<string, GlobalIndexEntry[]>;
 
-  const selectedEntry = selectedTicker ? (data?.indexes[selectedTicker] ?? null) : null;
+  const selectedEntry = selectedTicker ? (data?.indexes?.[selectedTicker] ?? null) : null;
 
   return (
     <div>
@@ -371,13 +387,13 @@ function GlobalMarketsContent() {
       )}
 
       {/* Error */}
-      {isError && !isLoading && (
+      {noData && (
         <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] py-16 text-center">
           <Globe className="h-8 w-8 text-[var(--text-muted)]/40 mx-auto mb-3" />
           <p className="text-sm text-[var(--text-muted)]">
             Global market data unavailable —{" "}
-            <code className="font-mono text-[10px] bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">--indexes --ai</code>{" "}
-            to generate
+            <code className="font-mono text-[10px] bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">indexes-ai</code>{" "}
+            job required
           </p>
         </div>
       )}
@@ -410,13 +426,15 @@ function GlobalMarketsContent() {
               );
             })}
 
-            <div>
-              <RegionLabel label="Global Synthesis" />
-              <GlobalSynthesisCard synthesis={data.global_synthesis} />
-            </div>
+            {data.global_synthesis && (
+              <div>
+                <RegionLabel label="Global Synthesis" />
+                <GlobalSynthesisCard synthesis={data.global_synthesis} />
+              </div>
+            )}
           </div>
 
-          {/* Right: detail panel — offset to align with first index card row */}
+          {/* Right: detail panel */}
           <div className="lg:sticky lg:top-4">
             {/* Invisible spacer that matches RegionLabel height + mb-2.5 */}
             <div className="flex items-center gap-2 mb-2.5 invisible" aria-hidden>

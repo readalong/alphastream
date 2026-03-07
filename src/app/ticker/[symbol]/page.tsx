@@ -16,9 +16,10 @@ import { AlphaLensPanel } from "@/components/alpha-lens/alpha-lens-panel";
 import type { AlphaLensContext } from "@/lib/alpha-lens-context";
 import { RefreshCw, Brain, ChevronDown, ChevronUp, AlertCircle, Info, Heart } from "lucide-react";
 import { useFavoritesStore } from "@/stores/favorites-store";
+import { TickerNewsPanel, NewsTickerCard } from "@/components/news/ticker-news-panel";
 import type { ScreenerResult, AiAnalysis, ChartResponse } from "@/lib/types";
 
-type Tab = "technical" | "resistance";
+type Tab = "technical" | "resistance" | "news";
 
 function BusinessSummaryCard({ summary }: { summary: string }) {
   const [expanded, setExpanded] = useState(false);
@@ -417,6 +418,7 @@ export default function TickerDetailPage() {
   const tabs: { key: Tab; label: string; disabled?: boolean }[] = [
     { key: "technical", label: "Technical Analysis" },
     { key: "resistance", label: "Resistance" },
+    { key: "news", label: "News" },
   ];
 
   return (
@@ -495,6 +497,7 @@ export default function TickerDetailPage() {
               <div className="lg:col-span-2 space-y-4">
                 {businessSummary && <BusinessSummaryCard summary={businessSummary} />}
                 {screener && <ScreenerCard screener={screener} />}
+                <NewsTickerCard ticker={symbol} onMoreNews={() => setActiveTab("news")} />
                 {analyzeFetching && <AiLoadingCard elapsed={elapsed} />}
                 {analyzeError && !analyzeFetching && (
                   <AiErrorCard
@@ -515,6 +518,11 @@ export default function TickerDetailPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* News tab */}
+      {activeTab === "news" && (
+        <TickerNewsPanel ticker={symbol} />
       )}
 
       {/* Alpha Lens floating chat */}

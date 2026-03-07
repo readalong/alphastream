@@ -48,23 +48,21 @@ export const BIAS_STYLES = {
   NEUTRAL: "text-amber-400 bg-amber-500/10 border-amber-500/25",
 } as const;
 
-export const RISK_SIGNAL_STYLES: Record<string, string> = {
-  "Risk-On":  "text-green-400 bg-green-500/10 border-green-500/25",
-  "Risk-Off": "text-red-400 bg-red-500/10 border-red-500/25",
-  Neutral:    "text-amber-400 bg-amber-500/10 border-amber-500/25",
-};
+function regimeStyle(regime?: string): string {
+  if (!regime) return "text-amber-400 bg-amber-500/10 border-amber-500/25";
+  const l = regime.toLowerCase();
+  if (l.includes("risk-on") || l.includes("bull")) return "text-green-400 bg-green-500/10 border-green-500/25";
+  if (l.includes("risk-off") || l.includes("bear")) return "text-red-400 bg-red-500/10 border-red-500/25";
+  return "text-amber-400 bg-amber-500/10 border-amber-500/25";
+}
 
-export const BACKDROP_STYLES: Record<string, string> = {
-  Supportive: "text-green-400 bg-green-500/10 border-green-500/25",
-  Headwind:   "text-red-400 bg-red-500/10 border-red-500/25",
-  Neutral:    "text-amber-400 bg-amber-500/10 border-amber-500/25",
-};
-
-export const ASSESSMENT_STYLES: Record<string, string> = {
-  "Synchronized Rally":  "text-green-400 bg-green-500/10 border-green-500/25",
-  "Regional Divergence": "text-amber-400 bg-amber-500/10 border-amber-500/25",
-  "Broad Weakness":      "text-red-400 bg-red-500/10 border-red-500/25",
-};
+function riskStyle(appetite?: string): string {
+  if (!appetite) return "text-amber-400 bg-amber-500/10 border-amber-500/25";
+  const l = appetite.toLowerCase();
+  if (l === "high") return "text-green-400 bg-green-500/10 border-green-500/25";
+  if (l === "low")  return "text-red-400 bg-red-500/10 border-red-500/25";
+  return "text-amber-400 bg-amber-500/10 border-amber-500/25";
+}
 
 // ── GlobalIndexCard (overview — links to /markets?index=ticker) ────────────
 
@@ -148,75 +146,104 @@ function GlobalIndexCard({ entry }: { entry: GlobalIndexEntry }) {
 // ── GlobalSynthesisCard ────────────────────────────────────────────────────
 
 export function GlobalSynthesisCard({ synthesis }: { synthesis: GlobalSynthesis }) {
-  const { global_breadth, regional_analysis, us_implications, executive_summary } = synthesis;
-  const total = global_breadth ? global_breadth.bullish_markets + global_breadth.bearish_markets : 0;
-  const bullishPct = total > 0 ? (global_breadth!.bullish_markets / total) * 100 : 0;
+  const {
+    overall_regime,
+    regional_leaders,
+    regional_laggards,
+    risk_appetite,
+    strongest_index,
+    weakest_index,
+    asia_pacific_assessment,
+    europe_assessment,
+    us_implication,
+    executive_summary,
+  } = synthesis;
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3">
-      {/* Breadth */}
-      {global_breadth && (
-        <div className="flex items-center gap-2.5">
-          <div className="flex-1 h-2 rounded-full bg-[var(--border)] overflow-hidden">
-            <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: `${bullishPct}%` }} />
-          </div>
-          <span className="text-[11px] text-[var(--text-muted)] tabular-nums shrink-0">
-            {global_breadth.bullish_markets}/{total} bullish
-          </span>
-          <span className={cn(
-            "text-[10px] font-semibold px-1.5 py-0.5 rounded border shrink-0",
-            ASSESSMENT_STYLES[global_breadth.assessment] ?? ASSESSMENT_STYLES["Regional Divergence"],
-          )}>
-            {global_breadth.assessment}
-          </span>
+      {/* Regime + risk appetite pills */}
+      {(overall_regime || risk_appetite) && (
+        <div className="flex flex-wrap items-center gap-2">
+          {overall_regime && (
+            <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded border", regimeStyle(overall_regime))}>
+              {overall_regime}
+            </span>
+          )}
+          {risk_appetite && (
+            <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded border", riskStyle(risk_appetite))}>
+              {risk_appetite} Risk Appetite
+            </span>
+          )}
         </div>
       )}
 
-      {/* Regional */}
-      {regional_analysis && (
-        <>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+      {/* Strongest / weakest index */}
+      {(strongest_index || weakest_index) && (
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+          {strongest_index && (
             <div className="flex items-center gap-1">
               <span className="text-[var(--text-muted)]">Strongest</span>
-              <span className="font-medium text-green-400">{regional_analysis.strongest_region}</span>
+              <span className="font-mono font-medium text-green-400">{strongest_index}</span>
             </div>
+          )}
+          {weakest_index && (
             <div className="flex items-center gap-1">
               <span className="text-[var(--text-muted)]">Weakest</span>
-              <span className="font-medium text-red-400">{regional_analysis.weakest_region}</span>
+              <span className="font-mono font-medium text-red-400">{weakest_index}</span>
             </div>
-          </div>
-          {regional_analysis.key_divergences && (
-            <p className="text-xs text-[var(--text-muted)] leading-relaxed">{regional_analysis.key_divergences}</p>
           )}
-        </>
-      )}
-
-      {/* US implications */}
-      {us_implications && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className={cn(
-            "text-[10px] font-semibold px-1.5 py-0.5 rounded border",
-            RISK_SIGNAL_STYLES[us_implications.risk_signal] ?? RISK_SIGNAL_STYLES.Neutral,
-          )}>
-            {us_implications.risk_signal}
-          </span>
-          <span className={cn(
-            "text-[10px] font-semibold px-1.5 py-0.5 rounded border",
-            BACKDROP_STYLES[us_implications.global_backdrop] ?? BACKDROP_STYLES.Neutral,
-          )}>
-            {us_implications.global_backdrop}
-          </span>
-          <div className="flex items-center gap-1.5 ml-auto">
-            <div className="w-16 h-1.5 rounded-full bg-[var(--border)] overflow-hidden">
-              <div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${us_implications.confidence}%` }} />
-            </div>
-            <span className="text-[10px] text-[var(--text-muted)] tabular-nums">{us_implications.confidence}%</span>
-          </div>
         </div>
       )}
 
+      {/* Regional leaders / laggards */}
+      {((regional_leaders?.length ?? 0) > 0 || (regional_laggards?.length ?? 0) > 0) && (
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+          {regional_leaders && regional_leaders.length > 0 && (
+            <div className="flex items-center gap-1">
+              <span className="text-[var(--text-muted)]">Leaders</span>
+              <span className="font-medium text-green-400">{regional_leaders.join(", ")}</span>
+            </div>
+          )}
+          {regional_laggards && regional_laggards.length > 0 && (
+            <div className="flex items-center gap-1">
+              <span className="text-[var(--text-muted)]">Laggards</span>
+              <span className="font-medium text-red-400">{regional_laggards.join(", ")}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Regional assessments */}
+      {asia_pacific_assessment && (
+        <div>
+          <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-semibold block mb-0.5">
+            Asia Pacific
+          </span>
+          <p className="text-xs text-[var(--text-muted)] leading-relaxed">{asia_pacific_assessment}</p>
+        </div>
+      )}
+      {europe_assessment && (
+        <div>
+          <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-semibold block mb-0.5">
+            Europe
+          </span>
+          <p className="text-xs text-[var(--text-muted)] leading-relaxed">{europe_assessment}</p>
+        </div>
+      )}
+
+      {/* US implication */}
+      {us_implication && (
+        <div className="pt-2 border-t border-[var(--border)]">
+          <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-semibold block mb-0.5">
+            US Implication
+          </span>
+          <p className="text-xs text-[var(--text-muted)] leading-relaxed">{us_implication}</p>
+        </div>
+      )}
+
+      {/* Executive summary */}
       {executive_summary && (
-        <p className="text-xs text-[var(--text-muted)] leading-relaxed pt-1 border-t border-[var(--border)]">
+        <p className="text-xs text-[var(--text-muted)] leading-relaxed pt-1 border-t border-[var(--border)] italic">
           {executive_summary}
         </p>
       )}
@@ -320,7 +347,7 @@ export function GlobalMarketsPanel() {
           <div className="py-5 text-center">
             <p className="text-xs text-[var(--text-muted)]">
               Global market data unavailable —{" "}
-              <code className="font-mono text-[10px] bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">indexes-ai</code>{" "}
+              <code className="font-mono text-[10px] bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">global-indexes-ai</code>{" "}
               job required
             </p>
           </div>

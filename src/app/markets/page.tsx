@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Globe, TrendingUp, Zap, BarChart3, FileText, Sparkles } from "lucide-react";
+import { TickerNewsPanel } from "@/components/news/ticker-news-panel";
 import { useGlobalReport } from "@/hooks/use-global-report";
 import { useSessions } from "@/hooks/use-sessions";
 import { useChart } from "@/hooks/use-chart";
@@ -294,6 +295,9 @@ function IndexDetail({ entry }: { entry: GlobalIndexEntry }) {
           )}
         </div>
       )}
+
+      {/* News */}
+      <TickerNewsPanel ticker={ticker} />
     </div>
   );
 }
@@ -392,7 +396,7 @@ function GlobalMarketsContent() {
           <Globe className="h-8 w-8 text-[var(--text-muted)]/40 mx-auto mb-3" />
           <p className="text-sm text-[var(--text-muted)]">
             Global market data unavailable —{" "}
-            <code className="font-mono text-[10px] bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">indexes-ai</code>{" "}
+            <code className="font-mono text-[10px] bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">global-indexes-ai</code>{" "}
             job required
           </p>
         </div>

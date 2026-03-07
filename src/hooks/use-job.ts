@@ -11,15 +11,22 @@ function buildCompletionMessage(
   if (!result) return "Job completed";
   switch (jobType) {
     case "indexes-ai": {
-      const domestic = (result.instruments_analyzed as number) ?? 0;
-      const global = (result.global_instruments_analyzed as number) ?? 0;
+      const count = (result.instruments_analyzed as number) ?? 0;
       const aiLabel = result.ai_success ? "AI report ready" : "AI step failed";
-      return `${domestic} domestic + ${global} global · ${aiLabel}`;
+      return `${count} instruments · ${aiLabel}`;
     }
     case "indexes": {
-      const domestic = (result.instruments_analyzed as number) ?? 0;
-      const global = (result.global_instruments_analyzed as number) ?? 0;
-      return `${domestic} domestic + ${global} global instruments analyzed`;
+      const count = (result.instruments_analyzed as number) ?? 0;
+      return `${count} instruments analyzed`;
+    }
+    case "global-indexes-ai": {
+      const count = (result.instruments_analyzed as number) ?? 0;
+      const aiLabel = result.ai_success ? "AI report ready" : "AI step failed";
+      return `${count} global indices · ${aiLabel}`;
+    }
+    case "global-indexes": {
+      const count = (result.instruments_analyzed as number) ?? 0;
+      return `${count} global indices analyzed`;
     }
     case "screen": {
       const count = (result.tickers_screened as number) ?? 0;
@@ -77,7 +84,7 @@ export function useJobWithPolling(jobType: string) {
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       queryClient.invalidateQueries({ queryKey: ["session-report"] });
 
-      if (jobType === "indexes" || jobType === "indexes-ai") {
+      if (jobType === "indexes" || jobType === "indexes-ai" || jobType === "global-indexes" || jobType === "global-indexes-ai") {
         // Refresh global market data shown in overview and /markets
         queryClient.invalidateQueries({ queryKey: ["globalReport"] });
       } else {

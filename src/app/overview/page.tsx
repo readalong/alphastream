@@ -7,6 +7,7 @@ import { api } from "@/lib/api-client";
 import { NativeReportRenderer } from "@/components/overview/native-report-renderer";
 import { GlobalMarketsPanel } from "@/components/overview/global-markets-panel";
 import { useUptrendReport } from "@/hooks/use-uptrend-report";
+import { NewsFeedPanel } from "@/components/news/news-feed-panel";
 import {
   formatSessionDate,
   formatTime,
@@ -148,6 +149,9 @@ export default function OverviewPage() {
 
       {/* ATH highlights */}
       <AthStocksCard />
+
+      {/* News feed */}
+      <NewsFeedPanel />
     </div>
   );
 }

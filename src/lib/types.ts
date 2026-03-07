@@ -207,21 +207,15 @@ export interface GlobalIndexEntry {
 }
 
 export interface GlobalSynthesis {
-  global_breadth?: {
-    bullish_markets: number;
-    bearish_markets: number;
-    assessment: string;
-  };
-  regional_analysis?: {
-    strongest_region: string;
-    weakest_region: string;
-    key_divergences: string;
-  };
-  us_implications?: {
-    global_backdrop: string;
-    risk_signal: string;
-    confidence: number;
-  };
+  overall_regime?: string;
+  regional_leaders?: string[];
+  regional_laggards?: string[];
+  risk_appetite?: string;
+  strongest_index?: string;
+  weakest_index?: string;
+  asia_pacific_assessment?: string;
+  europe_assessment?: string;
+  us_implication?: string;
   executive_summary?: string;
 }
 
@@ -231,6 +225,44 @@ export interface GlobalMarketReport {
   session?: string;
   indexes?: Record<string, GlobalIndexEntry>;
   global_synthesis?: GlobalSynthesis;
+}
+
+// --- News Types ---
+
+// Tiingo-backed US/Global feed (overview page)
+export interface NewsArticle {
+  id: number | null;
+  title: string;
+  description: string;
+  url: string;
+  source: string;
+  published_at: string;
+  tags: string[];
+  tickers: string[];
+}
+
+export interface NewsFeedResponse {
+  count: number;
+  cached: boolean;
+  articles: NewsArticle[];
+}
+
+// yfinance + trafilatura ticker news (ticker & markets pages)
+export interface TickerNewsArticle {
+  id: string;
+  title: string;
+  url: string;
+  source: string;
+  published_at: string; // ISO 8601 or empty string
+  tickers: string[];
+  full_text: string;    // extracted body; empty if paywalled/blocked
+}
+
+export interface TickerNewsResponse {
+  ticker: string;
+  count: number;
+  cached: boolean;
+  articles: TickerNewsArticle[];
 }
 
 // --- Market Report (session report, JSON format) ---

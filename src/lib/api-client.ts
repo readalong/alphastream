@@ -14,6 +14,8 @@ import type {
   ResistanceResponse,
   GlobalMarketReport,
   MarketReport,
+  NewsFeedResponse,
+  TickerNewsResponse,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -147,6 +149,15 @@ export const api = {
 
   globalReportBySession: (sessionId: string) =>
     apiFetch<GlobalMarketReport>(`/api/sessions/${sessionId}/global-report`, { withLlmKey: true }),
+
+  newsFeed: (feed: "us" | "global", limit = 15, offset = 0) =>
+    apiFetch<NewsFeedResponse>(`/api/news/${feed}?limit=${limit}&offset=${offset}&days=7`),
+
+  tickerNews: (ticker: string, limit = 20) =>
+    apiFetch<TickerNewsResponse>(
+      `/api/news/${encodeURIComponent(ticker)}?limit=${limit}`,
+      { timeout: 20_000 }
+    ),
 
   resistanceChart: async (ticker: string): Promise<string> => {
     const res = await fetch(proxyPath(`/api/resistance/${ticker}?format=png`));

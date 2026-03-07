@@ -9,6 +9,7 @@ import {
   ScanSearch,
   BarChart3,
   Brain,
+  Globe,
   Loader2,
   CheckCircle,
   XCircle,
@@ -42,6 +43,18 @@ const JOB_CONFIGS = [
     description: "Index analysis with AI-powered market synthesis",
     icon: Brain,
   },
+  {
+    type: "global-indexes",
+    title: "Global Indexes",
+    description: "Screen 7 international indices (Asia Pacific + Europe)",
+    icon: Globe,
+  },
+  {
+    type: "global-indexes-ai",
+    title: "Global Indexes + AI",
+    description: "Global index screening with AI synthesis",
+    icon: Globe,
+  },
 ];
 
 function JobResultSummary({
@@ -55,10 +68,13 @@ function JobResultSummary({
 
   if (type === "indexes-ai" || type === "indexes") {
     if (result.instruments_analyzed != null)
-      parts.push(`${result.instruments_analyzed} domestic`);
-    if (result.global_instruments_analyzed != null)
-      parts.push(`${result.global_instruments_analyzed} global`);
+      parts.push(`${result.instruments_analyzed} instruments`);
     if (type === "indexes-ai")
+      parts.push(result.ai_success ? "AI ✓" : "AI ✗");
+  } else if (type === "global-indexes-ai" || type === "global-indexes") {
+    if (result.instruments_analyzed != null)
+      parts.push(`${result.instruments_analyzed} global indices`);
+    if (type === "global-indexes-ai")
       parts.push(result.ai_success ? "AI ✓" : "AI ✗");
   } else if (type === "screen") {
     if (result.tickers_screened != null)

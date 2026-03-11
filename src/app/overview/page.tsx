@@ -15,6 +15,7 @@ import {
 } from "@/lib/utils";
 import Link from "next/link";
 import { Activity } from "lucide-react";
+import { VixFearGauge } from "@/components/overview/vix-fear-gauge";
 
 /* ── Session indicator ── */
 function LatestSessionIndicator() {
@@ -143,6 +144,9 @@ export default function OverviewPage() {
 
       {/* AI Report — hero position */}
       <AiReportSection />
+
+      {/* VIX Fear Gauge */}
+      <VixFearGauge />
 
       {/* Global Markets */}
       <GlobalMarketsPanel />

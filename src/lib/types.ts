@@ -265,6 +265,76 @@ export interface TickerNewsResponse {
   articles: TickerNewsArticle[];
 }
 
+// --- Economic Data Types ---
+
+export interface EconomicCalendarRelease {
+  release_id: number;
+  release_name: string;
+  category: string;
+}
+
+export interface EconomicCalendarResponse {
+  week: string;
+  week_start: string;
+  week_end: string;
+  cached: boolean;
+  by_date: Record<string, EconomicCalendarRelease[]>;
+}
+
+export interface EconomicObservation {
+  series_id: string;
+  series_name: string;
+  unit: string;
+  latest_value: number;
+  latest_date: string;
+  previous_value: number | null;
+  previous_date: string | null;
+  change: number | null;
+  change_pct: number | null;
+  direction: "up" | "down" | "flat" | null;
+  signal: "bullish" | "bearish" | "neutral" | null;
+  commentary: string | null;
+}
+
+export interface EconomicRelease {
+  release_id: number;
+  release_name: string;
+  category: string;
+  current_week_dates: string[];
+  previous_week_dates: string[];
+  observation: EconomicObservation | null;
+}
+
+export interface EconomicDataResponse {
+  generated_at: string;
+  cached: boolean;
+  current_week: {
+    week: string;
+    week_start: string;
+    week_end: string;
+  };
+  previous_week: {
+    week: string;
+    week_start: string;
+    week_end: string;
+  };
+  releases: EconomicRelease[];
+}
+
+export interface VixAnalysis {
+  current_level: number;
+  daily_change_pct: number;
+  trend_direction: "Falling" | "Rising" | "Stable";
+  fear_level: "Low" | "Elevated" | "High" | "Extreme";
+  regime_signal: "Risk-On" | "Neutral" | "Risk-Off" | "Crisis";
+  commentary: string;
+  implications: {
+    position_sizing: "Full" | "Reduced" | "Minimal";
+    hedging_urgency: "None" | "Consider" | "Urgent";
+    opportunity_type: string;
+  };
+}
+
 // --- Market Report (session report, JSON format) ---
 
 export interface InstrumentAI {
@@ -336,6 +406,7 @@ export interface MarketReport {
     sector_preference: string[];
     sector_avoid: string[];
   };
+  vix_analysis?: VixAnalysis | null;
   instruments: InstrumentEntry[];
   charts_available: Record<string, ChartEntry[]>;
 }

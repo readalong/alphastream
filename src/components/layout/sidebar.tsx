@@ -13,6 +13,7 @@ import {
   TrendingUp,
   BarChart3,
   Globe,
+  Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarFavorites } from "./sidebar-favorites";
@@ -27,6 +28,7 @@ const NAV_SECTIONS = [
       { name: "Global Markets", href: "/markets", icon: Globe },
       { name: "Screener", href: "/screener", icon: ScanSearch },
       { name: "Sectors", href: "/sectors", icon: BarChart3 },
+      { name: "Economic Data", href: "/economic", icon: Calendar },
       ...(!IS_PRODUCTION ? [{ name: "Uptrend Analysis", href: "/uptrend", icon: TrendingUp }] : []),
     ],
   },

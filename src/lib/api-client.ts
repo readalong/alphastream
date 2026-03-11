@@ -16,6 +16,8 @@ import type {
   MarketReport,
   NewsFeedResponse,
   TickerNewsResponse,
+  EconomicCalendarResponse,
+  EconomicDataResponse,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -157,6 +159,17 @@ export const api = {
     apiFetch<TickerNewsResponse>(
       `/api/news/${encodeURIComponent(ticker)}?limit=${limit}`,
       { timeout: 20_000 }
+    ),
+
+  // Economic data endpoints
+  economicCalendar: (week?: string) =>
+    apiFetch<EconomicCalendarResponse>(
+      `/api/economic/calendar${week ? `?week=${week}` : ""}`
+    ),
+
+  economicData: (week?: string) =>
+    apiFetch<EconomicDataResponse>(
+      `/api/economic/data${week ? `?week=${week}` : ""}`
     ),
 
   resistanceChart: async (ticker: string): Promise<string> => {

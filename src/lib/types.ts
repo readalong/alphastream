@@ -335,6 +335,81 @@ export interface VixAnalysis {
   };
 }
 
+// --- Earnings Types ---
+
+export type EarningsSignal =
+  | "EPS_BEAT"
+  | "EPS_MISS"
+  | "EPS_IN_LINE"
+  | "STRONG_EPS_GROWTH"
+  | "EPS_DECLINE"
+  | "STRONG_REVENUE_GROWTH"
+  | "REVENUE_DECLINE"
+  | "ACCELERATING_GROWTH"
+  | "DECELERATING_GROWTH"
+  | "MARGIN_EXPANSION"
+  | "MARGIN_CONTRACTION";
+
+export interface EarningsEPS {
+  estimate: number | null;
+  actual: number | null;
+  surprise_pct: number | null;
+}
+
+export interface EarningsRevenue {
+  actual: number | null;
+  yoy_growth_pct: number | null;
+  qoq_growth_pct: number | null;
+}
+
+export interface EarningsQuarter {
+  fiscal_quarter: string;
+  period_end: string | null;
+  report_date: string | null;
+  eps: EarningsEPS;
+  revenue: EarningsRevenue;
+  net_income: number | null;
+  gross_margin_pct: number | null;
+  operating_margin_pct: number | null;
+  eps_yoy_growth_pct: number | null;
+  signals: EarningsSignal[];
+  commentary: string;
+}
+
+export interface NextEarnings {
+  date_range: string[];
+  eps_estimate: number | null;
+  revenue_estimate: number | null;
+}
+
+export interface EarningsResponse {
+  ticker: string;
+  retrieved_at: string;
+  quarters_returned: number;
+  next_earnings: NextEarnings | null;
+  quarters: EarningsQuarter[];
+}
+
+// --- OHLCV Types ---
+
+export interface OHLCVBar {
+  time: string; // "YYYY-MM-DD"
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+export interface OHLCVResponse {
+  ticker: string;
+  period: "1y" | "2y" | "5y" | "max";
+  bars: number;
+  data: OHLCVBar[];
+}
+
+export type OHLCVPeriod = "1y" | "2y" | "5y" | "max";
+
 // --- Market Report (session report, JSON format) ---
 
 export interface InstrumentAI {

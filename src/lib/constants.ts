@@ -12,25 +12,69 @@ export const STAGE_COLORS: Record<string, { color: string; label: string }> = {
 };
 
 export const SIGNAL_DESCRIPTIONS: Record<string, { name: string; description: string }> = {
-  "Hidden Accumulation": {
-    name: "Hidden Accumulation",
-    description: "Flat price action with rising OBV — smart money is buying",
+  "Minervini Template Passed": {
+    name: "Minervini Template",
+    description: "All trend template criteria met — price, SMA, and RS aligned for breakout",
   },
-  "Power Turn": {
-    name: "Power Turn",
-    description: "Price crosses above 50SMA with volume thrust",
+  "RS Line at 52wk High": {
+    name: "RS at 52-Week High",
+    description: "Relative strength line at a new 52-week high — outperforming the market",
+  },
+  "Pocket Pivot": {
+    name: "Pocket Pivot",
+    description: "Volume exceeds max down-day volume — institutional buying footprint",
+  },
+  "SMA200 Bounce": {
+    name: "SMA200 Bounce",
+    description: "Price bouncing off 200-day moving average — key support holding",
   },
   "VCP Pinch": {
     name: "VCP (Volatility Contraction)",
-    description: "Bollinger bandwidth at 10th percentile — coiled for breakout",
+    description: "Bollinger bandwidth contracted — coiled for potential breakout",
   },
   "Whale Footprints": {
     name: "Whale Footprints",
-    description: "Volume > 2x average on up days — institutional buying",
+    description: "Volume > 2x average on up days — institutional accumulation",
   },
   "Wyckoff Spring": {
     name: "Wyckoff Spring",
     description: "Price undercuts then reclaims support — shakeout complete",
+  },
+  "Breakaway Gap": {
+    name: "Breakaway Gap",
+    description: "Gap up on high volume — strong momentum and institutional interest",
+  },
+  "Institutional Score": {
+    name: "High Institutional Score",
+    description: "High buy/sell ratio from institutional traders — smart money accumulating",
+  },
+  "Absorption Bars (20d)": {
+    name: "Absorption Bars",
+    description: "Multiple demand absorption bars in 20 sessions — supply being absorbed",
+  },
+  "Inside Day Cluster": {
+    name: "Inside Day Cluster",
+    description: "Multiple inside days in recent sessions — volatility contraction before move",
+  },
+  "Upthrust": {
+    name: "Upthrust",
+    description: "Failed new high, closed in lower 40% — bearish reversal signal",
+  },
+  "Sign of Weakness": {
+    name: "Sign of Weakness",
+    description: "Price breaks 20-day low on volume — distribution or breakdown underway",
+  },
+  "Supply Bars (20d)": {
+    name: "Supply Bars",
+    description: "Multiple supply bars in 20 sessions — selling pressure present",
+  },
+  "Churning": {
+    name: "Churning",
+    description: "High-volume no-progress near highs — potential distribution",
+  },
+  "RSI Overbought": {
+    name: "RSI Overbought",
+    description: "RSI above 70 — potential short-term pullback risk",
   },
 };
 

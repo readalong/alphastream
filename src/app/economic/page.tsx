@@ -59,15 +59,11 @@ function getISOWeek(date: Date): string {
 }
 
 function addWeeks(isoWeek: string, delta: number): string {
-  const [yearStr, weekStr] = isoWeek.split("-W");
-  const year = parseInt(yearStr);
-  const week = parseInt(weekStr) + delta;
-  // Simple — just compute from Jan 4 (always in week 1)
-  const jan4 = new Date(Date.UTC(year, 0, 4));
-  const dayOfWeek = jan4.getUTCDay() || 7;
-  const monday = new Date(jan4);
-  monday.setUTCDate(jan4.getUTCDate() - dayOfWeek + 1 + (week - 1) * 7);
-  return getISOWeek(monday);
+  // Get Monday date string (UTC) then parse as local parts to avoid timezone mismatch
+  const mondayStr = getWeekStartDate(isoWeek); // "YYYY-MM-DD"
+  const [y, m, d] = mondayStr.split("-").map(Number);
+  // Add delta weeks using local Date arithmetic so getISOWeek's local methods work
+  return getISOWeek(new Date(y, m - 1, d + delta * 7));
 }
 
 function getWeekDates(weekStart: string): string[] {
@@ -77,6 +73,18 @@ function getWeekDates(weekStart: string): string[] {
     day.setUTCDate(d.getUTCDate() + i);
     return day.toISOString().slice(0, 10);
   });
+}
+
+// Derive Monday date string directly from an ISO week string (no API needed)
+function getWeekStartDate(isoWeek: string): string {
+  const [yearStr, weekStr] = isoWeek.split("-W");
+  const year = parseInt(yearStr);
+  const week = parseInt(weekStr);
+  const jan4 = new Date(Date.UTC(year, 0, 4));
+  const dayOfWeek = jan4.getUTCDay() || 7; // ISO: Mon=1 … Sun=7
+  const monday = new Date(jan4);
+  monday.setUTCDate(jan4.getUTCDate() - dayOfWeek + 1 + (week - 1) * 7);
+  return monday.toISOString().slice(0, 10);
 }
 
 function formatDay(dateStr: string): string {
@@ -139,9 +147,10 @@ function WeekNav({ week, onPrev, onNext, isCurrentWeek }: {
 
 /* ── Calendar Widget ── */
 
-function CalendarWidget({ weekStart, byDate }: {
+function CalendarWidget({ weekStart, byDate, isLoading }: {
   weekStart: string;
-  byDate: Record<string, EconomicCalendarRelease[]>;
+  byDate?: Record<string, EconomicCalendarRelease[]>;
+  isLoading?: boolean;
 }) {
   const dates = getWeekDates(weekStart);
 
@@ -152,11 +161,16 @@ function CalendarWidget({ weekStart, byDate }: {
         <h2 className="text-sm font-semibold text-[var(--text-primary)]">
           Weekly Economic Calendar
         </h2>
+        {isLoading && (
+          <span className="ml-auto flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
+            Loading releases…
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-5 divide-x divide-[var(--border)]">
         {dates.map((date, i) => {
-          const releases = byDate[date] ?? [];
           const today = isToday(date);
           const past = isPast(date);
 
@@ -188,9 +202,13 @@ function CalendarWidget({ weekStart, byDate }: {
               </div>
 
               {/* Releases */}
-              {releases.length > 0 ? (
+              {isLoading ? (
                 <div className="space-y-1.5">
-                  {releases.map((r) => {
+                  <div className="h-8 rounded bg-[var(--bg-primary)] animate-pulse" />
+                </div>
+              ) : (byDate?.[date] ?? []).length > 0 ? (
+                <div className="space-y-1.5">
+                  {(byDate![date]).map((r) => {
                     const catColor = CATEGORY_COLORS[r.category];
                     return (
                       <div
@@ -214,9 +232,9 @@ function CalendarWidget({ weekStart, byDate }: {
                     );
                   })}
                 </div>
-              ) : (
+              ) : byDate ? (
                 <p className="text-[11px] text-[var(--text-muted)] italic">No releases</p>
-              )}
+              ) : null}
             </div>
           );
         })}
@@ -474,7 +492,14 @@ export default function EconomicPage() {
   const isCurrentWeek = week === currentWeek;
 
   const { data: calendar, isLoading: calLoading } = useEconomicCalendar(week);
-  const { data: econData, isLoading: dataLoading } = useEconomicData(week);
+
+  // Compute weekStart locally so navigation is instant — no API dependency
+  const weekStart = useMemo(() => getWeekStartDate(week), [week]);
+  const today = new Date().toISOString().slice(0, 10);
+  // A week is "future" when its Monday hasn't arrived yet — no data released yet
+  const isFutureWeek = weekStart > today;
+
+  const { data: econData, isLoading: dataLoading } = useEconomicData(week, !isFutureWeek);
 
   // Group releases by category
   const grouped = useMemo(() => {
@@ -520,27 +545,35 @@ export default function EconomicPage() {
         />
       </div>
 
-      {/* Calendar */}
-      {calLoading ? (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-5">
-          <div className="grid grid-cols-5 gap-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="space-y-2">
-                <div className="h-4 w-12 rounded bg-[var(--bg-primary)] animate-pulse" />
-                <div className="h-16 rounded bg-[var(--bg-primary)] animate-pulse" />
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : calendar ? (
-        <CalendarWidget weekStart={calendar.week_start} byDate={calendar.by_date} />
-      ) : null}
+      {/* Calendar — always renders from local weekStart, API data overlays when ready */}
+      <CalendarWidget
+        weekStart={weekStart}
+        byDate={calendar?.by_date}
+        isLoading={calLoading}
+      />
 
-      {/* Summary bar */}
-      {econData && <SummaryBar releases={econData.releases} />}
+      {/* Future week — data not yet available */}
+      {isFutureWeek && (
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-5 py-4 flex items-center gap-3">
+          <Calendar className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
+          <p className="text-sm text-[var(--text-muted)]">
+            Economic data for{" "}
+            <span className="font-medium text-[var(--text-primary)]">{week}</span>
+            {" "}will be available once the week begins on{" "}
+            <span className="font-medium text-[var(--text-primary)]">
+              {new Date(weekStart + "T00:00:00Z").toLocaleDateString("en-US", {
+                weekday: "long", month: "long", day: "numeric", timeZone: "UTC",
+              })}
+            </span>.
+          </p>
+        </div>
+      )}
+
+      {/* Summary bar — current/past weeks only */}
+      {!isFutureWeek && econData && <SummaryBar releases={econData.releases} />}
 
       {/* Category legend */}
-      {!dataLoading && grouped.length > 0 && (
+      {!isFutureWeek && !dataLoading && grouped.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {Object.entries(CATEGORY_COLORS).map(([cat, style]) => (
             <div key={cat} className="flex items-center gap-1.5 text-[11px]">
@@ -551,8 +584,8 @@ export default function EconomicPage() {
         </div>
       )}
 
-      {/* Released Data by Category */}
-      {dataLoading ? (
+      {/* Released Data by Category — current/past weeks only */}
+      {!isFutureWeek && (dataLoading ? (
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="space-y-2">
@@ -578,7 +611,7 @@ export default function EconomicPage() {
             This may mean the FRED API key is not configured on the backend.
           </p>
         </div>
-      ) : null}
+      ) : null)}
     </div>
   );
 }

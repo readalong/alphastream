@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useChart } from "@/hooks/use-chart";
 import { useAnalyze } from "@/hooks/use-analyze";
 import { useResistance } from "@/hooks/use-resistance";
+import { useEarnings } from "@/hooks/use-earnings";
+import { EarningsHighlight, EarningsTab } from "@/components/earnings/earnings-components";
 import { StaticChart } from "@/components/charts/static-chart";
 import { StageBadge } from "@/components/charts/stage-badge";
 import { ResistanceChart } from "@/components/resistance/resistance-chart";
@@ -14,12 +16,12 @@ import { SIGNAL_DESCRIPTIONS } from "@/lib/constants";
 import { cn, formatPrice, parseCategory, parseSignals } from "@/lib/utils";
 import { AlphaLensPanel } from "@/components/alpha-lens/alpha-lens-panel";
 import type { AlphaLensContext } from "@/lib/alpha-lens-context";
-import { RefreshCw, Brain, ChevronDown, ChevronUp, AlertCircle, Info, Heart } from "lucide-react";
+import { RefreshCw, Brain, ChevronDown, ChevronUp, AlertCircle, Info, Heart, BarChart2 } from "lucide-react";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { TickerNewsPanel, NewsTickerCard } from "@/components/news/ticker-news-panel";
 import type { ScreenerResult, AiAnalysis, ChartResponse } from "@/lib/types";
 
-type Tab = "technical" | "resistance" | "news";
+type Tab = "technical" | "resistance" | "news" | "earnings";
 
 function BusinessSummaryCard({ summary }: { summary: string }) {
   const [expanded, setExpanded] = useState(false);
@@ -376,7 +378,11 @@ export default function TickerDetailPage() {
   const searchParams = useSearchParams();
   const symbol = (params.symbol as string).toUpperCase();
 
-  const initialTab = searchParams.get("tab") === "resistance" ? "resistance" : "technical";
+  const rawTab = searchParams.get("tab");
+  const initialTab: Tab =
+    rawTab === "resistance" ? "resistance"
+    : rawTab === "earnings"  ? "earnings"
+    : "technical";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [aiEnabled, setAiEnabled] = useState(false);
 
@@ -396,6 +402,14 @@ export default function TickerDetailPage() {
     data: resistanceData,
     isLoading: resistanceLoading,
   } = useResistance(symbol, activeTab === "resistance");
+
+  const {
+    data: earningsData,
+    isLoading: earningsLoading,
+    error: earningsError,
+  } = useEarnings(symbol);
+  const earningsUnsupported =
+    earningsError instanceof Error && earningsError.message.includes("422");
 
   const elapsed = useElapsedSeconds(analyzeFetching);
 
@@ -418,6 +432,7 @@ export default function TickerDetailPage() {
   const tabs: { key: Tab; label: string; disabled?: boolean }[] = [
     { key: "technical", label: "Technical Analysis" },
     { key: "resistance", label: "Resistance" },
+    { key: "earnings", label: "Earnings", disabled: earningsUnsupported },
     { key: "news", label: "News" },
   ];
 
@@ -431,6 +446,14 @@ export default function TickerDetailPage() {
           <FavoriteButton ticker={symbol} screener={screener} />
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href={`/charts/${symbol}`}
+            title="Open in Chart Studio"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)]/40 transition-colors"
+          >
+            <BarChart2 className="h-4 w-4" />
+            Chart
+          </Link>
           {activeTab === "technical" && (
             <button
               onClick={() => {
@@ -497,6 +520,12 @@ export default function TickerDetailPage() {
               <div className="lg:col-span-2 space-y-4">
                 {businessSummary && <BusinessSummaryCard summary={businessSummary} />}
                 {screener && <ScreenerCard screener={screener} />}
+                {earningsData && !earningsUnsupported && (
+                  <EarningsHighlight
+                    data={earningsData}
+                    onViewEarnings={() => setActiveTab("earnings")}
+                  />
+                )}
                 <NewsTickerCard ticker={symbol} onMoreNews={() => setActiveTab("news")} />
                 {analyzeFetching && <AiLoadingCard elapsed={elapsed} />}
                 {analyzeError && !analyzeFetching && (
@@ -523,6 +552,27 @@ export default function TickerDetailPage() {
       {/* News tab */}
       {activeTab === "news" && (
         <TickerNewsPanel ticker={symbol} />
+      )}
+
+      {/* Earnings tab */}
+      {activeTab === "earnings" && (
+        <>
+          {earningsLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-14 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+              ))}
+            </div>
+          ) : earningsData ? (
+            <EarningsTab data={earningsData} />
+          ) : (
+            <div className="text-center py-20">
+              <p className="text-[var(--text-muted)]">
+                No earnings data available for {symbol}.
+              </p>
+            </div>
+          )}
+        </>
       )}
 
       {/* Alpha Lens floating chat */}

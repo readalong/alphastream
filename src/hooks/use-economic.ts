@@ -11,10 +11,11 @@ export function useEconomicCalendar(week?: string) {
   });
 }
 
-export function useEconomicData(week?: string) {
+export function useEconomicData(week?: string, enabled = true) {
   return useQuery({
     queryKey: ["economic-data", week ?? "current"],
     queryFn: () => api.economicData(week),
+    enabled,
     staleTime: 6 * 60 * 60 * 1000, // 6 hours — matches backend cache TTL
   });
 }

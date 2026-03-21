@@ -18,6 +18,9 @@ import type {
   TickerNewsResponse,
   EconomicCalendarResponse,
   EconomicDataResponse,
+  OHLCVResponse,
+  OHLCVPeriod,
+  EarningsResponse,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -170,6 +173,16 @@ export const api = {
   economicData: (week?: string) =>
     apiFetch<EconomicDataResponse>(
       `/api/economic/data${week ? `?week=${week}` : ""}`
+    ),
+
+  ohlcv: (ticker: string, period: OHLCVPeriod = "1y", refresh = false) =>
+    apiFetch<OHLCVResponse>(
+      `/api/ohlcv/${ticker.toUpperCase()}?period=${period}&refresh=${refresh}`
+    ),
+
+  earnings: (ticker: string, quarters = 8, refresh = false) =>
+    apiFetch<EarningsResponse>(
+      `/api/earnings/${ticker.toUpperCase()}?quarters=${quarters}${refresh ? "&refresh=true" : ""}`
     ),
 
   resistanceChart: async (ticker: string): Promise<string> => {

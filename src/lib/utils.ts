@@ -22,8 +22,25 @@ export function formatDate(dateString: string): string {
   });
 }
 
+// Maps verbose API category strings to canonical short codes used by STAGE_COLORS.
+// The backend returns values like "★ SURE SHOT", "Established Trend", etc.
 export function parseCategory(category: string): string {
-  return category.trim();
+  const t = category.trim();
+  // Already a short code — return as-is
+  if (["S", "A", "B", "X", "0", "1", "1D", "2", "3", "4"].includes(t)) return t;
+
+  const up = t.toUpperCase();
+  if (up.includes("SURE SHOT")) return "S";
+  if (up.includes("SMA200") || up.includes("BOUNCE")) return "B";
+  if (up.includes("ACTION")) return "A";
+  if (up.includes("ANOMALY")) return "X";
+  if (up.includes("ESTABLISHED") || up.includes("STAGE 2")) return "2";
+  if (up.includes("DOWNTREND") || up.includes("AVOID")) return "4";
+  if (up.includes("DISTRIBUTION") || up.includes("TOP HEAVY")) return "3";
+  if (up.includes("DORMANT")) return "1D";
+  if (up.includes("STAGE 1") || up.includes("ACTIVE BASE") || up.includes("WATCH")) return "1";
+  if (up.includes("TRANSITION") || up.includes("STAGE 0")) return "0";
+  return t;
 }
 
 export function parseStageNumber(stage: string): string {

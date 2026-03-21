@@ -14,6 +14,8 @@ import {
   BarChart3,
   Globe,
   Calendar,
+  Activity,
+  BarChart2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarFavorites } from "./sidebar-favorites";
@@ -28,6 +30,7 @@ const NAV_SECTIONS = [
       { name: "Global Markets", href: "/markets", icon: Globe },
       { name: "Screener", href: "/screener", icon: ScanSearch },
       { name: "Sectors", href: "/sectors", icon: BarChart3 },
+      { name: "Market Internals", href: "/internals", icon: Activity },
       { name: "Economic Data", href: "/economic", icon: Calendar },
       ...(!IS_PRODUCTION ? [{ name: "Uptrend Analysis", href: "/uptrend", icon: TrendingUp }] : []),
     ],
@@ -35,6 +38,7 @@ const NAV_SECTIONS = [
   {
     label: "ANALYZE",
     items: [
+      { name: "Charts", href: "/charts", icon: BarChart2 },
       { name: "Ticker Lookup", href: "/ticker", icon: Search },
       ...(!IS_PRODUCTION ? [{ name: "Sessions", href: "/sessions", icon: FolderOpen }] : []),
     ],

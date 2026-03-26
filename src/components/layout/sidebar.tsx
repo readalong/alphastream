@@ -16,6 +16,7 @@ import {
   Calendar,
   Activity,
   BarChart2,
+  Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarFavorites } from "./sidebar-favorites";
@@ -32,6 +33,7 @@ const NAV_SECTIONS = [
       { name: "Sectors", href: "/sectors", icon: BarChart3 },
       { name: "Market Internals", href: "/internals", icon: Activity },
       { name: "Economic Data", href: "/economic", icon: Calendar },
+      { name: "Recommendations", href: "/recommendations", icon: Target },
       ...(!IS_PRODUCTION ? [{ name: "Uptrend Analysis", href: "/uptrend", icon: TrendingUp }] : []),
     ],
   },

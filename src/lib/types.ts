@@ -335,6 +335,299 @@ export interface VixAnalysis {
   };
 }
 
+// --- Recommendations Types ---
+
+export type RegimeColor = "GREEN" | "YELLOW" | "RED";
+export type ConvictionTier = "STRONG_BUY" | "BUY" | "SPECULATIVE";
+export type ExitAction = "SELL" | "REDUCE" | "TIGHTEN" | "WARNING";
+export type ExitUrgency = "IMMEDIATE" | "WATCH";
+export type SectorTier = "LEADING" | "NEUTRAL" | "LAGGING";
+
+export interface RegimeBreadth {
+  pct_above_200sma: number;
+  pct_above_50sma: number;
+  advance_decline_ratio: number;
+  new_20d_highs: number;
+  new_20d_lows: number;
+  highs_lows_ratio: number;
+}
+
+export interface RegimeIndexStatus {
+  close: number;
+  above_20d: boolean;
+  above_50d: boolean;
+  above_200d: boolean;
+}
+
+export interface RegimeResponse {
+  regime: RegimeColor;
+  previous_regime: string;
+  regime_changed: boolean;
+  transition_action: string | null;
+  breadth: RegimeBreadth | null;
+  index_status: Record<string, RegimeIndexStatus>;
+  details: string;
+}
+
+export interface SectorRanking {
+  rank: number;
+  etf: string;
+  name: string;
+  composite_score: number;
+  tier: SectorTier;
+  pct_20d: number;
+  rsi: number;
+  pct_above_50sma: number;
+  cmf: number;
+  rotation_accel: number;
+  // Extended fields (may not be present on older responses)
+  etf_above_200d?: boolean;
+  etf_200d_extension_pct?: number;
+  etf_vs_spy_20d_pct?: number;
+  etf_vs_spy_rs?: number;
+  summary?: string;
+}
+
+export interface SectorRankingsResponse {
+  rankings: SectorRanking[];
+  tier_breakdown: { LEADING: string[]; NEUTRAL: string[]; LAGGING: string[] };
+  generated_at: string;
+}
+
+export interface PortfolioCapacity {
+  regime: string;
+  max_positions: number;
+  max_per_sector: number;
+  max_heat_pct: number;
+  positions_remaining: number;
+  heat_remaining_pct: number;
+}
+
+export interface PortfolioHealthResponse {
+  total_positions: number;
+  total_heat_pct: number;
+  sector_breakdown: Record<string, number>;
+  highest_concentration: string;
+  days_since_regime_change: number;
+  capacity: PortfolioCapacity;
+}
+
+export interface OpenPosition {
+  ticker: string;
+  sector: string;
+  industry: string;
+  sector_etf: string;
+  entry_price: number;
+  stop_loss: number;
+  trailing_stop: number;
+  atr_14: number;
+  risk_pct: number;
+  position_pct: number;
+  shares: number;
+  conviction_tier: string;
+  trigger_type: string;
+  wave_position: string;
+  added_at: string;
+  targets: Array<{ price: number; pct_gain: number; source: string }>;
+}
+
+export interface PositionsResponse {
+  positions: OpenPosition[];
+  count: number;
+}
+
+export interface FactorScore {
+  trend: number;
+  momentum: number;
+  volume: number;
+  volatility: number;
+  wave: number;
+  total: number;
+  sector_adjustment: number;
+  adjusted_total: number;
+  details: Record<string, number | string>;
+}
+
+export interface ConvictionDetail {
+  tier: ConvictionTier | null;
+  position_multiplier: number;
+  rationale: string;
+}
+
+export interface RiskTarget {
+  price: number;
+  pct_gain: number;
+  source: string;
+}
+
+export interface RiskParameters {
+  stop_loss: number;
+  trailing_stop: number;
+  atr_14: number;
+  risk_per_share: number;
+  position_pct: number;
+  position_value: number;
+  shares: number;
+  risk_reward_ratio: number;
+  targets: RiskTarget[];
+}
+
+export interface EntryCheck {
+  trigger_type: string;
+  trigger_price: number;
+  volume_confirmed: boolean;
+  guard_warnings: string[];
+  confirmation_days: number;
+  breakout_level: number;
+  level_significance: string;
+  status?: string;
+  confirmation_quality?: { volume_ratio: number; close_location: number };
+}
+
+export interface SectorContext {
+  etf: string;
+  etf_name: string;
+  etf_rank: number;
+  etf_tier: string;
+  etf_above_200d: boolean;
+  etf_200d_extension_pct: number;
+  etf_vs_spy_20d_pct: number;
+  etf_vs_spy_rs: number;
+  summary: string;
+}
+
+export interface BuyRecommendation {
+  ticker: string;
+  action: "BUY";
+  rank: number;
+  conviction: ConvictionDetail;
+  factor_score: FactorScore;
+  entry: EntryCheck;
+  risk: RiskParameters;
+  screener_category: string;
+  screener_stage: string;
+  screener_signals: string;
+  wave_position: string;
+  wave_confidence: number;
+  weekly_aligned: boolean;
+  sector: string;
+  industry: string;
+  sector_rank: number;
+  sector_tier: string;
+  close_price: number;
+  sector_context?: SectorContext;
+}
+
+export interface ExitSignal {
+  ticker: string;
+  action: ExitAction;
+  reason: string;
+  urgency: ExitUrgency;
+  details: string;
+  updated_stop: number | null;
+}
+
+export interface PendingBreakout {
+  ticker: string;
+  direction: "UP" | "DOWN";
+  trigger_type: string;
+  breakout_level: number;
+  trigger_date: string;
+  level_significance: "STANDARD" | "SIGNIFICANT" | "BYPASS";
+  days_required: number;
+  observation_window: number;
+  closes_in_direction: number;
+  closes_against: number;
+  trading_days_elapsed: number;
+  quality_score: number;
+  daily_observations: Array<{
+    date: string;
+    close: number;
+    in_direction: boolean;
+    volume_ratio: number;
+  }>;
+}
+
+export interface RecommendationSummary {
+  candidates_screened: number;
+  passed_liquidity: number;
+  passed_weekly_gate: number;
+  scored: number;
+  buy_count: number;
+  sell_count: number;
+  pending_count: number;
+  regime: string;
+  sector_filter: string | null;
+}
+
+export interface DailyRecommendations {
+  date: string;
+  market_regime: RegimeResponse;
+  sector_rankings: SectorRanking[];
+  buy_recommendations: BuyRecommendation[];
+  sell_signals: ExitSignal[];
+  hold_positions: Array<{ ticker: string; status: string; note: string }>;
+  pending_breakouts: PendingBreakout[];
+  portfolio_health: Omit<PortfolioHealthResponse, "capacity">;
+  summary: RecommendationSummary;
+  generated_at: string;
+}
+
+export interface RecommendationHistoryEntry {
+  date: string;       // "YYYYMMDD"
+  date_iso: string;   // "YYYY-MM-DD"
+  generated_at: string;
+  regime: RegimeColor;
+  buy_count: number;
+  sell_count: number;
+  pending_count: number;
+  candidates_screened: number;
+  summary?: RecommendationSummary;
+}
+
+export interface RecommendationHistoryResponse {
+  days: RecommendationHistoryEntry[];
+  has_more: boolean;
+  next_cursor: string | null;
+  total_available: number;
+}
+
+export interface AddPositionRequest {
+  ticker: string;
+  entry_price: number;
+  stop_loss: number;
+  trailing_stop: number;
+  atr_14: number;
+  risk_pct: number;
+  position_pct: number;
+  shares: number;
+  conviction_tier: string;
+  trigger_type: string;
+  wave_position: string;
+  sector: string;
+  industry: string;
+  sector_etf: string;
+  targets: Array<{ price: number; pct_gain: number; source: string }>;
+}
+
+export interface PositionMutationResponse {
+  status: "added" | "closed";
+  ticker: string;
+  total_positions: number;
+  total_heat_pct: number;
+}
+
+export interface RunRecommendResponse {
+  status: string;
+  date: string;
+  buy_count: number;
+  sell_count: number;
+  pending_count: number;
+  candidates_screened: number;
+  regime: string;
+  generated_at: string;
+}
+
 // --- Earnings Types ---
 
 export type EarningsSignal =

@@ -21,6 +21,16 @@ import type {
   OHLCVResponse,
   OHLCVPeriod,
   EarningsResponse,
+  RegimeResponse,
+  SectorRankingsResponse,
+  PortfolioHealthResponse,
+  PositionsResponse,
+  DailyRecommendations,
+  RecommendationHistoryResponse,
+  RunRecommendResponse,
+  PendingBreakout,
+  AddPositionRequest,
+  PositionMutationResponse,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -184,6 +194,54 @@ export const api = {
     apiFetch<EarningsResponse>(
       `/api/earnings/${ticker.toUpperCase()}?quarters=${quarters}${refresh ? "&refresh=true" : ""}`
     ),
+
+  // Recommendations endpoints
+  recommendations: (date?: string) =>
+    apiFetch<DailyRecommendations>(
+      date ? `/api/recommendations/${date}` : `/api/recommendations`
+    ),
+
+  recommendationHistory: (days = 5, cursor?: string) =>
+    apiFetch<RecommendationHistoryResponse>(
+      `/api/recommendations/history?days=${days}${cursor ? `&cursor=${cursor}` : ""}`
+    ),
+
+  addPosition: (data: AddPositionRequest) =>
+    apiFetch<PositionMutationResponse>(`/api/recommendations/positions/add`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  closePosition: (ticker: string, exitPrice?: number, exitReason?: string) =>
+    apiFetch<PositionMutationResponse>(`/api/recommendations/positions/close`, {
+      method: "POST",
+      body: JSON.stringify({ ticker, exit_price: exitPrice, exit_reason: exitReason }),
+    }),
+
+  regime: () => apiFetch<RegimeResponse>(`/api/recommendations/regime`),
+
+  sectorRankings: () =>
+    apiFetch<SectorRankingsResponse>(`/api/recommendations/sectors`),
+
+  portfolioHealth: () =>
+    apiFetch<PortfolioHealthResponse>(`/api/recommendations/portfolio/health`),
+
+  positions: () => apiFetch<PositionsResponse>(`/api/recommendations/positions`),
+
+  pendingBreakouts: () =>
+    apiFetch<{ pending: PendingBreakout[]; count: number }>(
+      `/api/recommendations/pending`
+    ),
+
+  runRecommend: (portfolioValue = 100000, sector?: string, regimeMode?: string) => {
+    const params = new URLSearchParams({ portfolio_value: String(portfolioValue) });
+    if (sector) params.set("sector", sector);
+    if (regimeMode) params.set("regime_mode", regimeMode);
+    return apiFetch<RunRecommendResponse>(
+      `/api/jobs/recommend?${params}`,
+      { method: "POST", timeout: 180_000 }
+    );
+  },
 
   resistanceChart: async (ticker: string): Promise<string> => {
     const res = await fetch(proxyPath(`/api/resistance/${ticker}?format=png`));

@@ -778,3 +778,331 @@ export interface MarketReport {
   instruments: InstrumentEntry[];
   charts_available: Record<string, ChartEntry[]>;
 }
+
+// --- Strategy Types ---
+
+export type StrategyMode = "BULL" | "BULL_VOLATILE" | "CORRECTION" | "BEAR" | "RECOVERY";
+export type BRSignalType = "BR_SHORT" | "BR_LONG";
+
+export interface ShortTarget {
+  price: number;
+  pct_drop: number;
+  source: string;
+}
+
+export interface ShortConviction {
+  tier: string;
+  position_multiplier: number;
+  rationale: string;
+}
+
+export interface ShortFactorScore {
+  trend: number;
+  momentum: number;
+  volume: number;
+  volatility: number;
+  wave: number;
+  total: number;
+  sector_adjustment: number;
+  adjusted_total: number;
+  details?: Record<string, number>;
+}
+
+export interface ShortCandidate {
+  ticker: string;
+  action: string;
+  rank: number;
+  conviction: ShortConviction;
+  factor_score: ShortFactorScore;
+  entry_price: number;
+  stop_loss: number;
+  targets: ShortTarget[];
+  risk_reward_ratio: number;
+  screener_category: string;
+  screener_stage: string;
+  screener_signals: string;
+  sector: string;
+  industry?: string;
+  sector_rank?: number;
+  sector_tier?: string;
+  close_price: number;
+}
+
+export interface ShortStrategyResponse {
+  short_recommendations: ShortCandidate[];
+  regime: string;
+  source: string;
+}
+
+export interface HedgeItem {
+  instrument: string;
+  direction: "LONG" | "SHORT";
+  instrument_type: "futures" | "inverse_etf" | "safe_haven";
+  allocation_pct: number;   // decimal, e.g. 0.10 = 10%
+  notional_value?: number;
+  contracts?: number;
+  rationale?: string;
+}
+
+export interface HedgeResponse {
+  hedges: HedgeItem[];
+  strategy_mode?: StrategyMode;
+  generated_at?: string;
+}
+
+export interface AllocationSplit {
+  long_pct: number;
+  short_pct: number;
+  hedge_pct: number;
+  cash_pct: number;
+}
+
+export interface AllocationResponse {
+  mode: StrategyMode;
+  current: AllocationSplit;
+  target: AllocationSplit;
+  generated_at?: string;
+}
+
+export interface BRSignal {
+  ticker: string;
+  signal_type: BRSignalType;
+  close_price: number;
+  rsi: number;
+  volume_ratio?: number;
+  bb_upper?: number;
+  bb_lower?: number;
+  urgency?: string;
+  description?: string;
+}
+
+export interface BRSignalsResponse {
+  br_signals: BRSignal[];
+  generated_at?: string;
+}
+
+export interface IntermarketAsset {
+  ticker?: string;
+  vs_spy_20d_pct: number;
+  vs_spy_50d_pct: number;
+  signal: "OUTPERFORMING" | "UNDERPERFORMING" | "NEUTRAL";
+}
+
+export interface IntermarketSignalsResponse {
+  risk_signal: "RISK_ON" | "RISK_OFF" | "NEUTRAL";
+  gld: IntermarketAsset;
+  tlt: IntermarketAsset;
+  uup: IntermarketAsset;
+  commentary?: string;
+  generated_at?: string;
+}
+
+export interface DailyStrategyResponse {
+  strategy_mode: StrategyMode;
+  allocation_targets?: AllocationSplit;
+  buy_actions?: BuyRecommendation[];
+  short_actions?: ShortCandidate[];
+  hedge_actions?: HedgeItem[];
+  exit_actions?: ExitSignal[];
+  generated_at?: string;
+}
+
+// ─── Market Direction (composite header feed) ─────────────────────────────────
+
+export type SignalColor = "green" | "amber" | "yellow" | "orange" | "red" | "gray";
+
+export interface VixSignal {
+  level: number;
+  regime: "LOW" | "NORMAL" | "HIGH" | "CRISIS";
+  slope: "RISING" | "FALLING" | "FLAT";
+  slope_value: number;
+  trend_interpretation?: string;
+  color: SignalColor;
+}
+
+export interface StrategyModeSignal {
+  base: StrategyMode;
+  effective: string;
+  color: SignalColor;
+  reason?: string;
+}
+
+export interface GexSignal {
+  regime: "POSITIVE_GAMMA" | "NEGATIVE_GAMMA" | "NEUTRAL";
+  magnitude: "LOW" | "MEDIUM" | "HIGH";
+  total_gex: number;
+  color: SignalColor;
+  interpretation?: string;
+}
+
+export interface GammaFlipSignal {
+  strike: number;
+  distance_pct: number;
+  above_flip: boolean;
+  near_flip: boolean;
+  es_equivalent_stop?: number;
+  color: SignalColor;
+}
+
+export interface GammaWallLevel {
+  strike: number;
+  oi: number;
+  designation: "support" | "resistance";
+  strength: "LOW" | "MEDIUM" | "HIGH";
+}
+
+export interface CollarLevelDetail {
+  strike: number;
+  spy: number;
+  distance_pct: number;
+}
+
+export interface CollarSignal {
+  active_fund: string;
+  reset_date: string;
+  days_until_reset: number;
+  reset_warning: boolean;
+  levels: {
+    long_put: CollarLevelDetail;
+    short_put?: CollarLevelDetail;
+    short_call: CollarLevelDetail;
+  };
+  position_in_collar: "near_floor" | "mid_range" | "near_cap";
+  pinning_risk: boolean;
+  floor_breach_risk: boolean;
+  color: SignalColor;
+}
+
+export interface CTAInstrumentSignal {
+  score: number;
+  label: "LONG" | "SHORT" | "NEUTRAL" | "MAX_LONG" | "MAX_SHORT";
+  max_position: boolean;
+  next_sell_trigger?: { level: number; distance_pct: number };
+  next_buy_trigger?: { level: number; distance_pct: number };
+  color: SignalColor;
+}
+
+export interface CTAAlert {
+  instrument: string;
+  message: string;
+  distance_pct: number;
+}
+
+export interface CTASignal {
+  aggregate_equity_bias: number;
+  risk_on_off: "RISK_ON" | "RISK_OFF" | "NEUTRAL";
+  es?: CTAInstrumentSignal;
+  nq?: CTAInstrumentSignal;
+  gc?: CTAInstrumentSignal;
+  alerts?: CTAAlert[];
+}
+
+export interface MarketWarning {
+  type: string;
+  source: string;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+}
+
+export interface MarketDirectionResponse {
+  as_of: string;
+  next_update_at?: string;
+  spy_spot: number;
+  spy_change_pct?: number;
+  vix: VixSignal;
+  strategy_mode: StrategyModeSignal;
+  allocation: { long: number; short: number; hedge: number; cash: number };
+  gex: GexSignal;
+  gamma_flip: GammaFlipSignal;
+  gamma_walls: GammaWallLevel[];
+  jpm_collar?: CollarSignal;
+  cta?: CTASignal;
+  warnings?: MarketWarning[];
+}
+
+// ─── Collar ───────────────────────────────────────────────────────────────────
+
+export interface SisterFund {
+  fund: string;
+  reset_date: string;
+  days: number;
+  active: boolean;
+  status?: string;
+}
+
+export interface CollarActiveResponse {
+  active_fund: string;
+  reset_date: string;
+  days_until_reset: number;
+  collar_levels: {
+    // backend may use either naming convention
+    long_put_strike?: number;
+    long_put?: number;
+    short_put_strike?: number;
+    short_put?: number;
+    short_call_strike?: number;
+    short_call?: number;
+    spy_equivalent?: {
+      long_put: number;
+      short_put?: number;
+      short_call: number;
+    };
+  };
+  sister_funds?: SisterFund[];
+  current_spy?: number;
+  position_in_collar?: "near_floor" | "mid_range" | "near_cap";
+  distance_to_floor_pct?: number;
+  distance_to_cap_pct?: number;
+  reset_warning?: boolean | string | null;
+  floor_breach_risk?: boolean;
+  pinning_risk?: boolean;
+  data_source?: string;
+  last_updated?: string;
+}
+
+// ─── CTA ──────────────────────────────────────────────────────────────────────
+
+export interface CTATrigger {
+  level: number;
+  distance_pct: number;
+  rule?: string;
+}
+
+export interface CTACOTVerification {
+  managed_money_net: number;
+  our_proxy: number;
+  divergence_pct: number;
+}
+
+export interface CTAInstrumentFull {
+  symbol: string;
+  positioning_score: number;
+  positioning_label: "LONG" | "SHORT" | "NEUTRAL" | "MAX_LONG" | "MAX_SHORT";
+  max_position_flag?: boolean;
+  next_sell_trigger?: CTATrigger;
+  next_buy_trigger?: CTATrigger;
+  "20ma"?: number;
+  "50ma"?: number;
+  "100ma"?: number;
+  "200ma"?: number;
+  slope_20ma?: string;
+  slope_50ma?: string;
+  cot_verification?: CTACOTVerification;
+  last_flip_date?: string;
+  days_since_flip?: number;
+}
+
+export interface CTAAggregate {
+  equity_bias: number;
+  commodities_bias: number;
+  bonds_bias: number;
+  risk_on_off: "RISK_ON" | "RISK_OFF" | "NEUTRAL";
+}
+
+export interface CTAFullResponse {
+  as_of_date: string;
+  instruments: CTAInstrumentFull[];
+  aggregate: CTAAggregate;
+  alerts: CTAAlert[];
+  data_source?: string;
+  last_updated?: string;
+}

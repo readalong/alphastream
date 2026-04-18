@@ -31,6 +31,15 @@ import type {
   PendingBreakout,
   AddPositionRequest,
   PositionMutationResponse,
+  DailyStrategyResponse,
+  ShortStrategyResponse,
+  HedgeResponse,
+  AllocationResponse,
+  BRSignalsResponse,
+  IntermarketSignalsResponse,
+  MarketDirectionResponse,
+  CollarActiveResponse,
+  CTAFullResponse,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -154,7 +163,7 @@ export const api = {
 
   // Uptrend / Resistance endpoints
   uptrendReport: (sessionId: string) =>
-    apiFetch<UptrendReport>(`/api/sessions/${sessionId}/uptrend-report`, { withLlmKey: true }),
+    apiFetch<UptrendReport>(`/api/sessions/${sessionId}/upside-report`, { withLlmKey: true }),
 
   resistance: (ticker: string) =>
     apiFetch<ResistanceResponse>(`/api/resistance/${ticker}`),
@@ -249,4 +258,26 @@ export const api = {
     const blob = await res.blob();
     return URL.createObjectURL(blob);
   },
+
+  // Strategy endpoints
+  strategy: () => apiFetch<DailyStrategyResponse>("/api/strategy"),
+
+  strategyShorts: () => apiFetch<ShortStrategyResponse>("/api/strategy/shorts"),
+
+  strategyHedges: () => apiFetch<HedgeResponse>("/api/strategy/hedges"),
+
+  strategyAllocation: () => apiFetch<AllocationResponse>("/api/strategy/allocation"),
+
+  strategyBR: () => apiFetch<BRSignalsResponse>("/api/strategy/br"),
+
+  strategyIntermarket: () =>
+    apiFetch<IntermarketSignalsResponse>("/api/strategy/intermarket"),
+
+  runStrategy: () =>
+    apiFetch<JobResponse>("/api/jobs/strategy", { method: "POST", timeout: 120_000 }),
+
+  marketDirection: () => apiFetch<MarketDirectionResponse>("/api/market/direction"),
+
+  collarActive: () => apiFetch<CollarActiveResponse>("/api/collar/active"),
+  ctaAll: () => apiFetch<CTAFullResponse>("/api/cta"),
 };

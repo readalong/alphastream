@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Fragment } from "react";
 import Link from "next/link";
 import { useSessions } from "@/hooks/use-sessions";
 import { useUptrendReport } from "@/hooks/use-uptrend-report";
@@ -206,7 +206,7 @@ export default function UptrendPage() {
                   </thead>
                   <tbody>
                     {paged.map((stock: UptrendStock, idx: number) => (
-                      <>
+                      <Fragment key={stock.ticker}>
                         {/* ATH divider */}
                         {athDividerIdx === idx && athDividerIdx > 0 && (
                           <tr key={`divider-${idx}`}>
@@ -216,7 +216,6 @@ export default function UptrendPage() {
                           </tr>
                         )}
                         <tr
-                          key={stock.ticker}
                           className="border-t border-[var(--border)] hover:bg-[var(--bg-card)] transition-colors"
                         >
                           <td className="px-4 py-2.5">
@@ -271,7 +270,7 @@ export default function UptrendPage() {
                             </div>
                           </td>
                         </tr>
-                      </>
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>

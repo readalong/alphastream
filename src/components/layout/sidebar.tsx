@@ -17,6 +17,10 @@ import {
   Activity,
   BarChart2,
   Target,
+  Swords,
+  Gauge,
+  Shield,
+  TrendingDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarFavorites } from "./sidebar-favorites";
@@ -34,6 +38,10 @@ const NAV_SECTIONS = [
       { name: "Market Internals", href: "/internals", icon: Activity },
       { name: "Economic Data", href: "/economic", icon: Calendar },
       { name: "Recommendations", href: "/recommendations", icon: Target },
+      { name: "Strategy",        href: "/strategy",        icon: Swords },
+      { name: "Futures",         href: "/futures",         icon: Gauge },
+      { name: "JPM Collar",      href: "/collar",          icon: Shield },
+      { name: "CTA Positioning", href: "/cta",             icon: TrendingDown },
       ...(!IS_PRODUCTION ? [{ name: "Uptrend Analysis", href: "/uptrend", icon: TrendingUp }] : []),
     ],
   },

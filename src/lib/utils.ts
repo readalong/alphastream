@@ -105,6 +105,15 @@ export function formatTime(dateString: string): string {
   });
 }
 
+export function formatFlow(dollars: number): string {
+  const abs = Math.abs(dollars);
+  const sign = dollars >= 0 ? "+" : "-";
+  if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(1)}B`;
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(0)}M`;
+  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(0)}K`;
+  return `${sign}$${abs.toFixed(0)}`;
+}
+
 export function timeAgo(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();

@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 
 interface TopbarProps {
   onMenuClick: () => void;
+  onOpenPalette?: () => void;
 }
 
-export function Topbar({ onMenuClick }: TopbarProps) {
+export function Topbar({ onMenuClick, onOpenPalette }: TopbarProps) {
   const [ticker, setTicker] = useState("");
   const router = useRouter();
   const { data: health, isError } = useHealth();
@@ -38,15 +39,27 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
       <div className="flex-1" />
 
-      {/* Quick Search */}
-      <form onSubmit={handleSubmit} className="relative mr-3">
+      {/* Command palette trigger */}
+      {onOpenPalette && (
+        <button
+          onClick={onOpenPalette}
+          className="hidden md:flex items-center gap-2 h-8 px-3 mr-2 rounded-md text-sm bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/40 transition-colors"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span>Search…</span>
+          <kbd className="ml-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-[var(--bg-primary)] border border-[var(--border)]">⌘K</kbd>
+        </button>
+      )}
+
+      {/* Quick ticker lookup (mobile / fallback) */}
+      <form onSubmit={handleSubmit} className="relative mr-3 md:hidden">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" />
         <input
           type="text"
           value={ticker}
           onChange={(e) => setTicker(e.target.value.toUpperCase())}
-          placeholder="Quick lookup..."
-          className="h-8 w-40 md:w-56 pl-8 pr-3 rounded-md text-sm bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+          placeholder="Ticker…"
+          className="h-8 w-32 pl-8 pr-3 rounded-md text-sm bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
         />
       </form>
 

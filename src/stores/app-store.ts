@@ -10,12 +10,14 @@ interface AppStore {
   activeSessionId: string | null;
   resultsPerPage: number;
   defaultRefresh: boolean;
+  density: "comfortable" | "compact";
   setApiBaseUrl: (url: string) => void;
   setApiKey: (key: string | null) => void;
   setLlmKey: (key: string | null) => void;
   setActiveSession: (id: string | null) => void;
   setResultsPerPage: (n: number) => void;
   setDefaultRefresh: (v: boolean) => void;
+  setDensity: (d: "comfortable" | "compact") => void;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -27,12 +29,14 @@ export const useAppStore = create<AppStore>()(
       activeSessionId: null,
       resultsPerPage: 25,
       defaultRefresh: false,
+      density: "comfortable",
       setApiBaseUrl: (url) => set({ apiBaseUrl: url }),
       setApiKey: (key) => set({ apiKey: key }),
       setLlmKey: (key) => set({ llmKey: key }),
       setActiveSession: (id) => set({ activeSessionId: id }),
       setResultsPerPage: (n) => set({ resultsPerPage: n }),
       setDefaultRefresh: (v) => set({ defaultRefresh: v }),
+      setDensity: (d) => set({ density: d }),
     }),
     { name: "alphastream-config" }
   )

@@ -43,6 +43,19 @@
     --accent: #6366f1;
   }
 
+  /* Compact density mode — reduces card padding and row height */
+  .compact main {
+    padding: 1rem;
+  }
+  .compact .density-card {
+    padding: 0.5rem 0.75rem;
+  }
+  .compact .density-row td,
+  .compact .density-row th {
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+  }
+
   body {
     background-color: var(--bg-primary);
     color: var(--text-primary);

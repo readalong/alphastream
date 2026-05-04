@@ -376,10 +376,13 @@ export interface SectorRanking {
   composite_score: number;
   tier: SectorTier;
   pct_20d: number;
+  pct_5d?: number;
   rsi: number;
-  pct_above_50sma: number;
+  pct_above_50sma?: number;
+  sma50_pct?: number;
   cmf: number;
-  rotation_accel: number;
+  rotation_accel?: number;
+  score_adjustment?: number;
   // Extended fields (may not be present on older responses)
   etf_above_200d?: boolean;
   etf_200d_extension_pct?: number;
@@ -389,9 +392,13 @@ export interface SectorRanking {
 }
 
 export interface SectorRankingsResponse {
-  rankings: SectorRanking[];
-  tier_breakdown: { LEADING: string[]; NEUTRAL: string[]; LAGGING: string[] };
-  generated_at: string;
+  // API returns "sectors" array
+  sectors: SectorRanking[];
+  count?: number;
+  // Legacy field name kept for compatibility
+  rankings?: SectorRanking[];
+  tier_breakdown?: { LEADING: string[]; NEUTRAL: string[]; LAGGING: string[] };
+  generated_at?: string;
 }
 
 export interface PortfolioCapacity {
@@ -1057,6 +1064,230 @@ export interface CollarActiveResponse {
   pinning_risk?: boolean;
   data_source?: string;
   last_updated?: string;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Layered Stock Filter Types
+// ──────────────────────────────────────────────────────────────────────────────
+
+export interface FunnelStats {
+  universe_count: number;
+  after_layer1: number;
+  after_layer2: number;
+  after_layer3: number;
+  after_layer4: number;
+  returned: number;
+  inflow_sectors: string[];
+  outflow_sectors: string[];
+}
+
+export interface FilterSectorContext {
+  etf: string;
+  name: string;
+  passed_layer1: boolean;
+  flow_direction: "inflow" | "outflow";
+  weekly_flow_dollars: number | null;
+  composite_score: number;
+  pct_20d: number;
+  tier: SectorTier;
+  stock_count_after_l2: number;
+}
+
+export interface FilterResult {
+  rank: number;
+  ticker: string;
+  close_price: number;
+  sector: string;
+  sector_etf: string;
+  industry: string;
+  sector_flow_direction: "inflow" | "outflow";
+  sector_weekly_flow_dollars: number | null;
+  sector_composite_score: number;
+  sector_pct_20d: number;
+  sector_tier: SectorTier;
+  sma200_rising: boolean;
+  close_vs_sma200_pct: number;
+  trend_score: number;
+  rs_vs_spy: number;
+  rs_vs_etf: number;
+  rs_composite: number;
+  rs_52w_high: boolean;
+  momentum_score: number;
+  rsi_regime: "STRONG" | "BULLISH" | "UNKNOWN";
+  near_20d_high: boolean;
+  at_20d_high: boolean;
+  consolidation_break: boolean;
+  flow_score: number;
+  cf_score: number;
+  mom_score: number;
+  adv_dollars: number;
+  rvol: number;
+  cmf: number;
+  rsi: number;
+  category: string;
+  stage: string;
+  signals: string;
+}
+
+export interface FilterSetupResponse {
+  as_of: string;
+  funnel_stats: FunnelStats;
+  results: FilterResult[];
+  sector_context: FilterSectorContext[];
+}
+
+export interface FilterParams {
+  limit?: number;
+  sector?: string;
+  min_adv?: number;
+  category?: string;
+  require_rs_52w_high?: boolean;
+  min_momentum_score?: number;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Capital Flow Types
+// ──────────────────────────────────────────────────────────────────────────────
+
+export type FlowGaugeColor = "GREEN" | "AMBER" | "RED";
+export type COTStance = "NET_LONG" | "NET_SHORT";
+export type FlowDirection = "inflow" | "outflow";
+export type ConvergenceSignal = "BULLISH" | "BEARISH" | "DIVERGENT" | "LEANING_LONG" | "LEANING_SHORT";
+export type RotationQuadrant = "LEADING" | "WEAKENING" | "LAGGING" | "IMPROVING";
+
+export interface MarketGauge {
+  color: FlowGaugeColor;
+  sectors_above_60: number;
+  sectors_below_40: number;
+  breadth_pct: number;
+}
+
+export interface FlowStock {
+  rank: number;
+  ticker: string;
+  sector: string;
+  sector_etf: string;
+  industry: string;
+  close_price: number;
+  adv_dollars: number;
+  flow_score: number;
+  flow_score_prev: number;
+  flow_score_wow: number;
+  cf_score: number;
+  cf_max: number;
+  trend_score: number;
+  trend_max: number;
+  mom_score: number;
+  mom_max: number;
+  rvol: number;
+  cmf: number;
+  rsi: number;
+  is_new_this_week: boolean;
+  weeks_on_list: number;
+  score_history: number[];
+  category: string;
+  stage: string;
+  signals: string;
+}
+
+export interface FlowLeadersResponse {
+  as_of: string;
+  market_gauge: MarketGauge;
+  theme: string;
+  leaders: FlowStock[];
+}
+
+export interface FlowExitsResponse {
+  as_of: string;
+  exits: FlowStock[];
+}
+
+export interface AssetClassFlow {
+  asset_class: string;
+  key_etfs: string[];
+  weekly_flow_dollars: number;
+  daily_flow_dollars: number;
+  flow_direction: FlowDirection;
+}
+
+export interface COTPosition {
+  market: string;
+  group: "COMMODITIES" | "EQUITIES_VOLATILITY" | "RATES_CURRENCY" | "CRYPTO";
+  net_contracts: number;
+  stance: COTStance;
+  wow_change: number | null;
+}
+
+export interface ConvergenceRow {
+  market: string;
+  etf_weekly_flow: number;
+  etf_flow_direction: FlowDirection;
+  cot_net: number;
+  cot_stance: COTStance;
+  signal: ConvergenceSignal;
+}
+
+export interface SectorFlow {
+  etf: string;
+  name: string;
+  composite_score: number;
+  wow_change: number;
+  weekly_flow_dollars: number | null;
+  monthly_flow_dollars: number | null;
+  flow_aum_pct: number | null;
+  rank: number;
+  prev_rank: number | null;
+  tier: SectorTier;
+  sparkline: number[];
+  flow_confirm: boolean;
+}
+
+export interface SectorRotationPoint {
+  etf: string;
+  name: string;
+  trend_strength: number;
+  momentum: number;
+  composite_score: number;
+  quadrant: RotationQuadrant;
+}
+
+export interface IndustryFlow {
+  etf: string;
+  industry: string;
+  weekly_flow_dollars: number;
+  flow_aum_pct: number;
+}
+
+export interface InternationalFlow {
+  etf: string;
+  region: string;
+  weekly_flow_dollars: number;
+  flow_direction: FlowDirection;
+}
+
+export interface FlowMapResponse {
+  as_of: string;
+  market_summary: MarketGauge;
+  asset_class_flows: AssetClassFlow[] | null;
+  cot_positions: COTPosition[] | null;
+  convergence_signals: ConvergenceRow[] | null;
+  sector_flows: SectorFlow[];
+  sector_rotation: SectorRotationPoint[];
+  industry_flows: IndustryFlow[] | null;
+  international_flows: InternationalFlow[] | null;
+  intermarket: IntermarketSignalsResponse | null;
+}
+
+export interface SectorSnapshot {
+  date: string;
+  composite_score: number;
+  rank: number;
+  tier: SectorTier;
+}
+
+export interface SectorHistoryResponse {
+  weeks: string[];
+  sectors: Record<string, { name: string; snapshots: SectorSnapshot[] }>;
 }
 
 // ─── CTA ──────────────────────────────────────────────────────────────────────

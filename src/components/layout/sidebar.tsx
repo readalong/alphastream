@@ -21,6 +21,11 @@ import {
   Gauge,
   Shield,
   TrendingDown,
+  Waves,
+  Map,
+  Filter,
+  BookOpen,
+  Briefcase,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarFavorites } from "./sidebar-favorites";
@@ -29,24 +34,42 @@ const IS_PRODUCTION = process.env.NEXT_PUBLIC_APP_ENV === "production";
 
 const NAV_SECTIONS = [
   {
-    label: "DISCOVER",
+    label: "MARKET PULSE",
     items: [
       { name: "Overview", href: "/overview", icon: LayoutDashboard },
       { name: "Global Markets", href: "/markets", icon: Globe },
-      { name: "Screener", href: "/screener", icon: ScanSearch },
-      { name: "Sectors", href: "/sectors", icon: BarChart3 },
-      { name: "Market Internals", href: "/internals", icon: Activity },
       { name: "Economic Data", href: "/economic", icon: Calendar },
+      { name: "Market Internals", href: "/internals", icon: Activity },
+    ],
+  },
+  {
+    label: "SECTOR ROTATION",
+    items: [
+      { name: "Sectors", href: "/sectors", icon: BarChart3 },
+      { name: "Flow Map", href: "/flow-map", icon: Map },
+      { name: "Capital Flow", href: "/flow", icon: Waves },
+    ],
+  },
+  {
+    label: "OPPORTUNITY FINDER",
+    items: [
       { name: "Recommendations", href: "/recommendations", icon: Target },
-      { name: "Strategy",        href: "/strategy",        icon: Swords },
-      { name: "Futures",         href: "/futures",         icon: Gauge },
-      { name: "JPM Collar",      href: "/collar",          icon: Shield },
-      { name: "CTA Positioning", href: "/cta",             icon: TrendingDown },
+      { name: "Setup Filter", href: "/filter", icon: Filter },
+      { name: "Screener", href: "/screener", icon: ScanSearch },
       ...(!IS_PRODUCTION ? [{ name: "Uptrend Analysis", href: "/uptrend", icon: TrendingUp }] : []),
     ],
   },
   {
-    label: "ANALYZE",
+    label: "RISK & STRATEGY",
+    items: [
+      { name: "Strategy", href: "/strategy", icon: Swords },
+      { name: "JPM Collar", href: "/collar", icon: Shield },
+      { name: "Futures", href: "/futures", icon: Gauge },
+      { name: "CTA Positioning", href: "/cta", icon: TrendingDown },
+    ],
+  },
+  {
+    label: "RESEARCH",
     items: [
       { name: "Charts", href: "/charts", icon: BarChart2 },
       { name: "Ticker Lookup", href: "/ticker", icon: Search },
@@ -57,7 +80,9 @@ const NAV_SECTIONS = [
     label: "MANAGE",
     items: [
       ...(!IS_PRODUCTION ? [{ name: "Jobs", href: "/jobs", icon: Zap }] : []),
+      { name: "Portfolio", href: "/portfolio", icon: Briefcase },
       { name: "Settings", href: "/settings", icon: Settings },
+      { name: "User Guide", href: "/guide", icon: BookOpen },
     ],
   },
 ];

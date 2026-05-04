@@ -16,10 +16,10 @@ import { SIGNAL_DESCRIPTIONS } from "@/lib/constants";
 import { cn, formatPrice, parseCategory, parseSignals } from "@/lib/utils";
 import { AlphaLensPanel } from "@/components/alpha-lens/alpha-lens-panel";
 import type { AlphaLensContext } from "@/lib/alpha-lens-context";
-import { RefreshCw, Brain, ChevronDown, ChevronUp, AlertCircle, Info, Heart, BarChart2 } from "lucide-react";
+import { RefreshCw, Brain, ChevronDown, ChevronUp, AlertCircle, Info, Heart, BarChart2, AlertTriangle } from "lucide-react";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { TickerNewsPanel, NewsTickerCard } from "@/components/news/ticker-news-panel";
-import type { ScreenerResult, AiAnalysis, ChartResponse } from "@/lib/types";
+import type { ScreenerResult, AiAnalysis, ChartResponse, ResistanceResponse, EarningsResponse } from "@/lib/types";
 
 type Tab = "technical" | "resistance" | "news" | "earnings";
 
@@ -344,6 +344,100 @@ function AiErrorCard({
   );
 }
 
+function DecisionSummaryCard({
+  screener,
+  aiAnalysis,
+  resistanceData,
+  earningsData,
+  onViewResistance,
+  onViewEarnings,
+}: {
+  screener: ScreenerResult;
+  aiAnalysis: AiAnalysis | null;
+  resistanceData: ResistanceResponse | null;
+  earningsData: EarningsResponse | null;
+  onViewResistance: () => void;
+  onViewEarnings: () => void;
+}) {
+  const cat = parseCategory(screener.category);
+  const price = screener.close_price;
+
+  // AI verdict
+  const verdict = aiAnalysis?.decision?.verdict;
+  const confidence = aiAnalysis?.decision?.confidence_score;
+  const verdictColor = verdict === "APPROVE" ? "text-emerald-400" : verdict === "REJECT" ? "text-red-400" : "text-amber-400";
+
+  // Resistance R1
+  const r1 = resistanceData?.levels?.[0];
+  const r1Pct = r1 && price > 0 ? ((r1.price - price) / price) * 100 : null;
+
+  // Earnings
+  const nextEarnings = earningsData?.next_earnings;
+  const earningsDays = nextEarnings?.date_range[0]
+    ? Math.ceil((new Date(nextEarnings.date_range[0]).getTime() - Date.now()) / 86400000)
+    : null;
+
+
+  return (
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 mb-4">
+      <div className="flex flex-wrap gap-x-6 gap-y-3">
+        {/* Price + category */}
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="text-2xl font-bold tabular-nums text-[var(--text-primary)]">
+            ${formatPrice(price)}
+          </span>
+          <StageBadge category={cat} />
+          {screener.sector && (
+            <Link href={`/sectors/${screener.sector_etf}`} className="text-xs text-[var(--accent)] hover:underline truncate">
+              {screener.sector_etf}
+            </Link>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-x-5 gap-y-2 ml-auto text-sm">
+          {/* AI verdict */}
+          {verdict && confidence != null && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-[var(--text-muted)]">AI</span>
+              <span className={cn("font-semibold text-xs", verdictColor)}>{verdict}</span>
+              <span className="text-xs text-[var(--text-muted)]">{confidence}%</span>
+            </div>
+          )}
+
+          {/* R1 */}
+          {r1 && r1Pct != null && (
+            <div className="flex items-center gap-1.5">
+              <button onClick={onViewResistance} className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)]">R1</button>
+              <span className="text-xs font-medium tabular-nums text-[var(--text-primary)]">${r1.price.toFixed(2)}</span>
+              <span className={cn("text-xs tabular-nums", r1Pct > 0 ? "text-emerald-400" : "text-red-400")}>
+                ({r1Pct > 0 ? "+" : ""}{r1Pct.toFixed(1)}%)
+              </span>
+            </div>
+          )}
+
+          {/* Earnings */}
+          {earningsDays != null && earningsDays >= 0 && earningsDays <= 60 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={onViewEarnings}
+                className={cn(
+                  "text-xs hover:underline",
+                  earningsDays <= 14 ? "text-amber-400 font-semibold" : "text-[var(--text-muted)]"
+                )}
+              >
+                Earnings
+              </button>
+              <span className={cn("text-xs tabular-nums", earningsDays <= 14 ? "text-amber-400" : "text-[var(--text-muted)]")}>
+                {earningsDays}d
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FavoriteButton({ ticker, screener }: { ticker: string; screener?: ScreenerResult }) {
   const { favorites, toggleFavorite } = useFavoritesStore();
   const isFav = favorites.some((f) => f.ticker === ticker);
@@ -418,6 +512,14 @@ export default function TickerDetailPage() {
   const aiAnalysis = analyzeData?.ai_analysis ?? null;
   const showSkeleton = chartLoading && !chartData;
 
+  const earningsContext = (() => {
+    const dateStr = earningsData?.next_earnings?.date_range[0];
+    if (!dateStr) return undefined;
+    const daysUntil = Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000);
+    if (daysUntil < 0 || daysUntil > 60) return undefined;
+    return { daysUntil, dateStr, epsEstimate: earningsData?.next_earnings?.eps_estimate };
+  })();
+
   const alphaLensContext: AlphaLensContext = {
     ticker: symbol,
     screener: screener || undefined,
@@ -426,33 +528,34 @@ export default function TickerDetailPage() {
     resistance: resistanceData
       ? { currentPrice: resistanceData.current_price, levels: resistanceData.levels }
       : undefined,
+    earnings: earningsContext,
     hasChart: !!chartBase64,
   };
 
-  const tabs: { key: Tab; label: string; disabled?: boolean }[] = [
-    { key: "technical", label: "Technical Analysis" },
-    { key: "resistance", label: "Resistance" },
-    { key: "earnings", label: "Earnings", disabled: earningsUnsupported },
-    { key: "news", label: "News" },
+  const tabs: { key: Tab; label: string; shortLabel: string; disabled?: boolean }[] = [
+    { key: "technical",  label: "Technical Analysis", shortLabel: "Technical" },
+    { key: "resistance", label: "Resistance",          shortLabel: "Resistance" },
+    { key: "earnings",   label: "Earnings",            shortLabel: "Earnings",  disabled: earningsUnsupported },
+    { key: "news",       label: "News",                shortLabel: "News" },
   ];
 
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">{symbol}</h1>
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <h1 className="text-xl sm:text-2xl font-semibold text-[var(--text-primary)]">{symbol}</h1>
           {screener && <StageBadge category={parseCategory(screener.category)} />}
           <FavoriteButton ticker={symbol} screener={screener} />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
           <Link
             href={`/charts/${symbol}`}
             title="Open in Chart Studio"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)]/40 transition-colors"
+            className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-md text-sm border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)]/40 transition-colors"
           >
             <BarChart2 className="h-4 w-4" />
-            Chart
+            <span className="hidden sm:inline">Chart</span>
           </Link>
           {activeTab === "technical" && (
             <button
@@ -461,14 +564,12 @@ export default function TickerDetailPage() {
                 else setAiEnabled(true);
               }}
               disabled={analyzeFetching}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-colors disabled:opacity-50"
+              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-md text-sm bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-colors disabled:opacity-50"
             >
               <Brain className={`h-4 w-4 ${analyzeFetching ? "animate-pulse" : ""}`} />
-              {analyzeFetching
-                ? "Analyzing..."
-                : aiAnalysis
-                  ? "Re-run AI Analysis"
-                  : "Run AI Analysis"}
+              <span className="hidden sm:inline">
+                {analyzeFetching ? "Analyzing..." : aiAnalysis ? "Re-run AI" : "Run AI"}
+              </span>
             </button>
           )}
           <button
@@ -481,14 +582,26 @@ export default function TickerDetailPage() {
         </div>
       </div>
 
+      {/* Decision Summary */}
+      {screener && (
+        <DecisionSummaryCard
+          screener={screener}
+          aiAnalysis={aiAnalysis}
+          resistanceData={resistanceData ?? null}
+          earningsData={earningsData ?? null}
+          onViewResistance={() => setActiveTab("resistance")}
+          onViewEarnings={() => setActiveTab("earnings")}
+        />
+      )}
+
       {/* Tab bar */}
-      <div className="flex gap-1 mb-4 border-b border-[var(--border)]">
+      <div className="flex gap-0.5 mb-4 border-b border-[var(--border)]">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setActiveTab(t.key)}
             disabled={t.disabled}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
+            className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${
               activeTab === t.key
                 ? "border-[var(--accent)] text-[var(--accent)]"
                 : t.disabled
@@ -496,10 +609,39 @@ export default function TickerDetailPage() {
                   : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
-            {t.label}
+            <span className="sm:hidden">{t.shortLabel}</span>
+            <span className="hidden sm:inline">{t.label}</span>
           </button>
         ))}
       </div>
+
+      {/* Earnings proximity warning */}
+      {earningsData?.next_earnings && (() => {
+        const dateStr = earningsData.next_earnings.date_range[0];
+        if (!dateStr) return null;
+        const daysUntil = Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000);
+        if (daysUntil < 0 || daysUntil > 14) return null;
+        return (
+          <div className="flex items-center gap-2.5 mb-4 px-4 py-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
+            <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+            <p className="text-sm text-amber-300">
+              <span className="font-semibold">Earnings in {daysUntil} day{daysUntil !== 1 ? "s" : ""}</span>
+              {" "}({dateStr}) — avoid new entries, elevated IV risk.
+              {earningsData.next_earnings.eps_estimate != null && (
+                <span className="text-amber-400/80 ml-1">
+                  EPS est: ${earningsData.next_earnings.eps_estimate.toFixed(2)}
+                </span>
+              )}
+            </p>
+            <button
+              onClick={() => setActiveTab("earnings")}
+              className="ml-auto shrink-0 text-xs text-amber-400 hover:underline whitespace-nowrap"
+            >
+              View Earnings →
+            </button>
+          </div>
+        );
+      })()}
 
       {/* Technical Analysis tab */}
       {activeTab === "technical" && (

@@ -9,6 +9,7 @@ import { UNIVERSE, CATEGORY_FILTERS } from "@/lib/constants";
 import { StageBadge } from "@/components/charts/stage-badge";
 import { SectorFilterDropdown } from "@/components/sectors/sector-filter-dropdown";
 import { IndustryFilterDropdown } from "@/components/sectors/industry-filter-dropdown";
+import { TickerDrawer } from "@/components/screener/ticker-drawer";
 import { formatPrice, parseCategory, parseSignals, formatSessionDate, isTodaySession } from "@/lib/utils";
 import { ArrowUpDown, Eye } from "lucide-react";
 import type { ScreenerResult } from "@/lib/types";
@@ -31,6 +32,8 @@ export default function ScreenerPage() {
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(25);
+  const [drawerTicker, setDrawerTicker] = useState<string | null>(null);
+  const [drawerScreener, setDrawerScreener] = useState<ScreenerResult | null>(null);
 
   const { data: sessions } = useSessions();
   const [selectedSession, setSelectedSession] = useState<string>("");
@@ -75,7 +78,7 @@ export default function ScreenerPage() {
   };
 
   return (
-    <div>
+    <>
       <h1 className="text-2xl font-semibold text-[var(--text-primary)] mb-6">
         Screener
       </h1>
@@ -146,6 +149,12 @@ export default function ScreenerPage() {
         )}
       </div>
 
+      {/* Mobile hint */}
+      <div className="sm:hidden flex items-center gap-2 px-3 py-2.5 mb-2 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] text-xs text-[var(--text-muted)]">
+        <Eye className="h-3.5 w-3.5 shrink-0 text-[var(--accent)]" />
+        Tap the eye icon on any row to preview a ticker. Full columns visible on wider screens.
+      </div>
+
       {/* Results Table */}
       {isLoading ? (
         <div className="space-y-2">
@@ -175,7 +184,7 @@ export default function ScreenerPage() {
                       Price <ArrowUpDown className="h-3 w-3" />
                     </span>
                   </th>
-                  <th className="text-left px-4 py-2.5 font-medium text-[var(--text-muted)]">Stage</th>
+                  <th className="hidden sm:table-cell text-left px-4 py-2.5 font-medium text-[var(--text-muted)]">Stage</th>
                   <th
                     onClick={() => toggleSort("category")}
                     className="text-left px-4 py-2.5 font-medium text-[var(--text-muted)] cursor-pointer hover:text-[var(--text-primary)]"
@@ -184,8 +193,8 @@ export default function ScreenerPage() {
                       Category <ArrowUpDown className="h-3 w-3" />
                     </span>
                   </th>
-                  <th className="text-left px-4 py-2.5 font-medium text-[var(--text-muted)]">Signals</th>
-                  <th className="text-left px-4 py-2.5 font-medium text-[var(--text-muted)]">Sector</th>
+                  <th className="hidden md:table-cell text-left px-4 py-2.5 font-medium text-[var(--text-muted)]">Signals</th>
+                  <th className="hidden lg:table-cell text-left px-4 py-2.5 font-medium text-[var(--text-muted)]">Sector</th>
                   <th className="px-4 py-2.5"></th>
                 </tr>
               </thead>
@@ -206,11 +215,11 @@ export default function ScreenerPage() {
                     <td className="px-4 py-2.5 text-right font-mono tabular-nums text-[var(--text-primary)]">
                       ${formatPrice(r.close_price)}
                     </td>
-                    <td className="px-4 py-2.5 text-xs text-[var(--text-muted)]">{r.stage}</td>
+                    <td className="hidden sm:table-cell px-4 py-2.5 text-xs text-[var(--text-muted)]">{r.stage}</td>
                     <td className="px-4 py-2.5">
                       <StageBadge category={parseCategory(r.category)} />
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td className="hidden md:table-cell px-4 py-2.5">
                       <div className="flex flex-wrap gap-1">
                         {parseSignals(r.signals).map((s) => (
                           <span
@@ -222,22 +231,36 @@ export default function ScreenerPage() {
                         ))}
                       </div>
                     </td>
-                    <td className="px-4 py-2.5 text-xs text-[var(--text-muted)]">
+                    <td className="hidden lg:table-cell px-4 py-2.5 text-xs text-[var(--text-muted)]">
                       {r.sector || "-"}
                     </td>
                     <td className="px-4 py-2.5">
-                      <Link
-                        href={`/ticker/${r.ticker}`}
-                        className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--accent)]"
+                      <button
+                        onClick={() => { setDrawerTicker(r.ticker); setDrawerScreener(r); }}
+                        className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
+                        title="Quick view"
                       >
                         <Eye className="h-4 w-4" />
-                      </Link>
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+
+          {/* Empty state */}
+          {filtered.length === 0 && !isLoading && (
+            <div className="text-center py-10">
+              <p className="text-sm font-medium text-[var(--text-primary)] mb-1">No results match the current filters.</p>
+              <p className="text-xs text-[var(--text-muted)]">
+                Try broadening the filters above, or{" "}
+                <Link href="/jobs" className="text-[var(--accent)] hover:underline">
+                  trigger a new scan in Jobs →
+                </Link>
+              </p>
+            </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -264,6 +287,11 @@ export default function ScreenerPage() {
           )}
         </>
       )}
-    </div>
+    <TickerDrawer
+      ticker={drawerTicker}
+      screener={drawerScreener}
+      onClose={() => { setDrawerTicker(null); setDrawerScreener(null); }}
+    />
+    </>
   );
 }

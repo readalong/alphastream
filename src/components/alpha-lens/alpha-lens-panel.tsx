@@ -169,7 +169,7 @@ export function AlphaLensPanel({ context }: AlphaLensPanelProps) {
           {/* Quick actions (show when no messages) */}
           {messages.length === 0 && (
             <div className="px-4 pt-2 pb-1">
-              <QuickActions onSelect={handleQuickAction} disabled={isActive} />
+              <QuickActions context={context} onSelect={handleQuickAction} disabled={isActive} />
             </div>
           )}
 

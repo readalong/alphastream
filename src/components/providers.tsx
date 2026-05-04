@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useThemeStore } from "@/stores/theme-store";
+import { useAppStore } from "@/stores/app-store";
 
 function ThemeApplier({ children }: { children: React.ReactNode }) {
   const theme = useThemeStore((s) => s.theme);
@@ -18,6 +19,18 @@ function ThemeApplier({ children }: { children: React.ReactNode }) {
       root.classList.add(theme);
     }
   }, [theme]);
+
+  return <>{children}</>;
+}
+
+function DensityApplier({ children }: { children: React.ReactNode }) {
+  const density = useAppStore((s) => s.density);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (density === "compact") root.classList.add("compact");
+    else root.classList.remove("compact");
+  }, [density]);
 
   return <>{children}</>;
 }
@@ -39,7 +52,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeApplier>{children}</ThemeApplier>
+      <ThemeApplier>
+        <DensityApplier>{children}</DensityApplier>
+      </ThemeApplier>
     </QueryClientProvider>
   );
 }

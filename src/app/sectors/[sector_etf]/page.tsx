@@ -7,6 +7,8 @@ import { useSectorTickers } from "@/hooks/use-sector-tickers";
 import { useIndustries } from "@/hooks/use-industries";
 import { useChart } from "@/hooks/use-chart";
 import { useSessions } from "@/hooks/use-sessions";
+import { useFlowLeaders, useFlowExits } from "@/hooks/use-flow";
+import { FlowCard } from "@/components/flow/flow-card";
 import { SectorBreadcrumb } from "@/components/sectors/sector-breadcrumb";
 import { IndustryCard } from "@/components/sectors/industry-card";
 import { StageBadge } from "@/components/charts/stage-badge";
@@ -16,7 +18,7 @@ import { formatPrice, parseCategory, parseSignals, formatSessionDate, isTodaySes
 import { ArrowUpDown, Eye } from "lucide-react";
 import type { ScreenerResult } from "@/lib/types";
 
-type Tab = "screener" | "industries" | "chart" | "sessions";
+type Tab = "screener" | "industries" | "chart" | "sessions" | "flow";
 type SortKey = "ticker" | "close_price" | "category";
 type SortDir = "asc" | "desc";
 
@@ -37,6 +39,8 @@ export default function SectorDetailPage() {
   const { data: industries } = useIndustries(sectorEtf);
   const { data: chartData, isLoading: chartLoading } = useChart(sectorEtf, tab === "chart");
   const { data: sessions } = useSessions();
+  const { data: flowLeaders, isLoading: flowLeadersLoading } = useFlowLeaders(10, sectorEtf, tab === "flow");
+  const { data: flowExits, isLoading: flowExitsLoading } = useFlowExits(5, sectorEtf, tab === "flow");
 
   // Get unique industries from results
   const resultIndustries = useMemo(() => {
@@ -77,6 +81,7 @@ export default function SectorDetailPage() {
     { key: "industries", label: "Industries" },
     { key: "chart", label: "Sector Chart" },
     { key: "sessions", label: "Sessions" },
+    { key: "flow", label: "Capital Flow" },
   ];
 
   return (
@@ -260,6 +265,59 @@ export default function SectorDetailPage() {
               <p className="text-[var(--text-muted)]">Chart not available for {sectorEtf}.</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Flow tab */}
+      {tab === "flow" && (
+        <div className="space-y-6">
+          {/* Top leaders */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+              Top Flow Leaders
+            </h3>
+            {flowLeadersLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="h-24 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+                ))}
+              </div>
+            ) : flowLeaders?.leaders?.length ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {flowLeaders.leaders.map((stock) => (
+                  <FlowCard key={stock.ticker} stock={stock} variant="leaders" compact />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-[var(--text-muted)] py-4 text-center">
+                No flow data for this sector yet.
+              </p>
+            )}
+          </div>
+
+          {/* Exits */}
+          <div>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+              Exits &amp; Weakness
+            </h3>
+            {flowExitsLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="h-24 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+                ))}
+              </div>
+            ) : flowExits?.exits?.length ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {flowExits.exits.map((stock) => (
+                  <FlowCard key={stock.ticker} stock={stock} variant="exits" compact />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-[var(--text-muted)] py-4 text-center">
+                No exit signals for this sector.
+              </p>
+            )}
+          </div>
         </div>
       )}
 

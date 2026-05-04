@@ -40,6 +40,12 @@ import type {
   MarketDirectionResponse,
   CollarActiveResponse,
   CTAFullResponse,
+  FlowLeadersResponse,
+  FlowExitsResponse,
+  FlowMapResponse,
+  SectorHistoryResponse,
+  FilterSetupResponse,
+  FilterParams,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -280,4 +286,59 @@ export const api = {
 
   collarActive: () => apiFetch<CollarActiveResponse>("/api/collar/active"),
   ctaAll: () => apiFetch<CTAFullResponse>("/api/cta"),
+
+  // Capital Flow endpoints
+  flowLeaders: (limit?: number, sector?: string) => {
+    const params = new URLSearchParams();
+    if (limit) params.set("limit", String(limit));
+    if (sector) params.set("sector", sector);
+    const qs = params.toString();
+    return apiFetch<FlowLeadersResponse>(`/api/flow/leaders${qs ? `?${qs}` : ""}`);
+  },
+
+  flowExits: (limit?: number, sector?: string) => {
+    const params = new URLSearchParams();
+    if (limit) params.set("limit", String(limit));
+    if (sector) params.set("sector", sector);
+    const qs = params.toString();
+    return apiFetch<FlowExitsResponse>(`/api/flow/exits${qs ? `?${qs}` : ""}`);
+  },
+
+  flowMap: () => apiFetch<FlowMapResponse>("/api/flow/map"),
+
+  sectorHistory: () => apiFetch<SectorHistoryResponse>("/api/flow/sector-history"),
+
+  triggerFlowJob: (options?: { include_cot?: boolean; include_etf_flows?: boolean }) =>
+    apiFetch<JobResponse>("/api/jobs/flow", {
+      method: "POST",
+      body: JSON.stringify(options ?? {}),
+    }),
+
+  // Layered stock filter
+  filterSetup: (params?: FilterParams) => {
+    const p = new URLSearchParams();
+    if (params?.limit != null) p.set("limit", String(params.limit));
+    if (params?.sector) p.set("sector", params.sector);
+    if (params?.min_adv != null) p.set("min_adv", String(params.min_adv));
+    if (params?.category) p.set("category", params.category);
+    if (params?.require_rs_52w_high) p.set("require_rs_52w_high", "true");
+    if (params?.min_momentum_score != null) p.set("min_momentum_score", String(params.min_momentum_score));
+    const qs = p.toString();
+    return apiFetch<FilterSetupResponse>(`/api/filter/setup${qs ? `?${qs}` : ""}`, {
+      timeout: 120_000,
+    });
+  },
+
+  triggerFilterJob: (params?: FilterParams) =>
+    apiFetch<JobResponse>("/api/jobs/filter", {
+      method: "POST",
+      body: JSON.stringify({
+        limit: params?.limit ?? 50,
+        sector: params?.sector ?? null,
+        min_adv: params?.min_adv ?? 5_000_000,
+        category: params?.category ?? null,
+        require_rs_52w_high: params?.require_rs_52w_high ?? false,
+        min_momentum_score: params?.min_momentum_score ?? 15,
+      }),
+    }),
 };

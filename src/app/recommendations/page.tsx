@@ -61,10 +61,10 @@ const REGIME_STYLE: Record<RegimeColor, { bg: string; border: string; dot: strin
   RED:    { bg: "bg-red-500/10",     border: "border-red-500/25",     dot: "bg-red-400",     text: "text-red-400",     label: "RISK OFF", rowBg: "bg-red-500/10"     },
 };
 
-const CONVICTION_STYLE: Record<ConvictionTier, { bg: string; text: string; border: string }> = {
-  STRONG_BUY:  { bg: "bg-amber-500/15",  text: "text-amber-300",  border: "border-amber-500/30"  },
-  BUY:         { bg: "bg-green-500/15",  text: "text-green-400",  border: "border-green-500/30"  },
-  SPECULATIVE: { bg: "bg-blue-500/15",   text: "text-blue-400",   border: "border-blue-500/30"   },
+const CONVICTION_STYLE: Record<ConvictionTier, { bg: string; text: string; border: string; leftBorder: string }> = {
+  STRONG_BUY:  { bg: "bg-amber-500/15",  text: "text-amber-300",  border: "border-amber-500/30",  leftBorder: "border-l-4 border-l-amber-400"  },
+  BUY:         { bg: "bg-green-500/15",  text: "text-green-400",  border: "border-green-500/30",  leftBorder: "border-l-2 border-l-emerald-500" },
+  SPECULATIVE: { bg: "bg-blue-500/15",   text: "text-blue-400",   border: "border-blue-500/30",   leftBorder: "border-l-2 border-l-blue-500"   },
 };
 
 const EXIT_STYLE: Record<ExitAction, { bg: string; text: string; border: string; icon: React.ComponentType<{ className?: string }> }> = {
@@ -376,7 +376,7 @@ function BuyCard({
   const alreadyOpen = openTickers.has(rec.ticker);
 
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
+    <div className={cn("rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden", cs.leftBorder)}>
       <button
         className="w-full p-4 text-left hover:bg-[var(--bg-page)] transition-colors"
         onClick={() => setExpanded(v => !v)}
@@ -640,7 +640,7 @@ function PendingCard({ b }: { b: PendingBreakout }) {
 function SectorRow({ s, max }: { s: SectorRanking; max: number }) {
   const w = (s.composite_score / max) * 100;
   const barColor = s.tier === "LEADING" ? "bg-emerald-500" : s.tier === "NEUTRAL" ? "bg-slate-500" : "bg-red-500";
-  const dir = s.rotation_accel > 0.2 ? <TrendingUp className="h-3 w-3 text-emerald-400" /> : s.rotation_accel < -0.2 ? <TrendingDown className="h-3 w-3 text-red-400" /> : null;
+  const dir = (s.rotation_accel ?? 0) > 0.2 ? <TrendingUp className="h-3 w-3 text-emerald-400" /> : (s.rotation_accel ?? 0) < -0.2 ? <TrendingDown className="h-3 w-3 text-red-400" /> : null;
   return (
     <div className="flex items-center gap-2 py-1.5">
       <span className="text-[10px] text-[var(--text-muted)] w-4 text-right shrink-0">{s.rank}</span>
@@ -717,7 +717,7 @@ function DayDetail({
   const data: DailyRecommendations | undefined = recs.data;
   const is404 = !recs.isLoading && !data && recs.error instanceof Error && recs.error.message.includes("404");
 
-  const allRankings = data?.sector_rankings?.length ? data.sector_rankings : sectors.data?.rankings ?? [];
+  const allRankings = data?.sector_rankings?.length ? data.sector_rankings : (sectors.data?.sectors ?? sectors.data?.rankings ?? []);
   const maxScore = allRankings.length ? Math.max(...allRankings.map(r => r.composite_score), 1) : 100;
   const allPending = data?.pending_breakouts?.length ? data.pending_breakouts : pending.data?.pending ?? [];
 
@@ -844,6 +844,7 @@ function DayDetail({
 export default function RecommendationsPage() {
   const todayStr = useMemo(() => todayYYYYMMDD(), []);
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
+  const [mobilePanel, setMobilePanel] = useState<"signals" | "history">("signals");
   const [historyDays, setHistoryDays] = useState(5);
   const [historyCursor, setHistoryCursor] = useState<string | undefined>(undefined);
   const [historyEntries, setHistoryEntries] = useState<RecommendationHistoryEntry[]>([]);
@@ -969,10 +970,28 @@ export default function RecommendationsPage() {
         />
       )}
 
+      {/* Mobile panel toggle */}
+      <div className="flex lg:hidden gap-1 p-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border)]">
+        {(["signals", "history"] as const).map(panel => (
+          <button
+            key={panel}
+            onClick={() => setMobilePanel(panel)}
+            className={cn(
+              "flex-1 py-1.5 text-sm font-medium rounded-md transition-colors capitalize",
+              mobilePanel === panel
+                ? "bg-[var(--accent)] text-white"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            )}
+          >
+            {panel === "signals" ? "Today's Signals" : "History"}
+          </button>
+        ))}
+      </div>
+
       {/* Main two-panel layout */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-start">
         {/* Left: history feed */}
-        <div className="lg:col-span-2 space-y-2">
+        <div className={cn("lg:col-span-2 space-y-2", mobilePanel !== "history" && "hidden lg:block")}>
           <div className="flex items-center gap-2 mb-1">
             <History className="h-4 w-4 text-[var(--text-muted)]" />
             <span className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider">History</span>
@@ -989,7 +1008,7 @@ export default function RecommendationsPage() {
               entry={entry}
               selected={entry.date === effectiveSelected}
               isToday={entry.date === todayStr}
-              onClick={() => setSelectedDate(entry.date)}
+              onClick={() => { setSelectedDate(entry.date); setMobilePanel("signals"); }}
             />
           ))}
 
@@ -1008,7 +1027,7 @@ export default function RecommendationsPage() {
         </div>
 
         {/* Right: day detail */}
-        <div className="lg:col-span-3">
+        <div className={cn("lg:col-span-3", mobilePanel !== "signals" && "hidden lg:block")}>
           <DayDetail
             date={effectiveSelected}
             isToday={isSelectedToday}

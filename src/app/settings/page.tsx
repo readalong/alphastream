@@ -12,9 +12,11 @@ export default function SettingsPage() {
     llmKey,
     resultsPerPage,
     defaultRefresh,
+    density,
     setLlmKey,
     setResultsPerPage,
     setDefaultRefresh,
+    setDensity,
   } = useAppStore();
 
   const [testStatus, setTestStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
@@ -60,6 +62,27 @@ export default function SettingsPage() {
               </button>
             ))}
           </div>
+        </div>
+        <div>
+          <label className="text-sm text-[var(--text-primary)] mb-2 block">Density</label>
+          <div className="flex gap-2">
+            {(["comfortable", "compact"] as const).map((d) => (
+              <button
+                key={d}
+                onClick={() => setDensity(d)}
+                className={`px-4 py-2 rounded-md text-sm capitalize transition-colors ${
+                  density === d
+                    ? "bg-[var(--accent)] text-white"
+                    : "bg-[var(--bg-primary)] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--text-primary)]"
+                }`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-[var(--text-muted)] mt-1.5">
+            Compact mode reduces padding for more data on screen.
+          </p>
         </div>
       </section>
 

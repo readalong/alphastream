@@ -6,6 +6,7 @@ export interface AlphaLensContext {
   businessSummary?: string;
   aiAnalysis?: AiAnalysis;
   resistance?: { currentPrice: number; levels: ResistanceLevel[] };
+  earnings?: { daysUntil: number; dateStr: string; epsEstimate?: number | null };
   hasChart: boolean;
 }
 

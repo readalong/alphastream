@@ -3,8 +3,7 @@
 import { useState, useCallback } from "react";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
-import { MarketDirectionStrip } from "./market-direction-strip";
-import { ContextStrip } from "./context-strip";
+import { ContextLine } from "./context-line";
 import { CommandPalette } from "./command-palette";
 import { KeyboardShortcutsModal } from "./keyboard-shortcuts-modal";
 import { OnboardingModal } from "./onboarding-modal";
@@ -26,8 +25,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Topbar onMenuClick={() => setSidebarOpen(true)} onOpenPalette={openPalette} />
-        <MarketDirectionStrip />
-        <ContextStrip />
+        <ContextLine />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 pb-20 lg:pb-6">
           <div className="mx-auto max-w-[1440px]">{children}</div>
         </main>

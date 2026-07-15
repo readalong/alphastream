@@ -1337,3 +1337,83 @@ export interface CTAFullResponse {
   data_source?: string;
   last_updated?: string;
 }
+
+/* ── Phase 1: Daily Digest + Scorecard (docs/ALPHASTREAM_UX_REDESIGN.md §5.1) ── */
+
+export interface DigestSetup {
+  direction: string;
+  entry_zone: string;
+  stop: string;
+  target_1: string;
+  reward_vs_risk: string;
+  hold_days?: number | null;
+  micro_contracts?: number | null;
+}
+
+export interface DigestFuturesEntry {
+  ticker: string;
+  available: boolean;
+  bias?: "LONG" | "SHORT" | "NEUTRAL" | string;
+  tier?: string;
+  action_code?: "STAND_ASIDE" | "ENTER_NOW" | "ENTER_ON_PULLBACK" | string;
+  action_plain?: string;
+  bottom_line: string;
+  whats_happening?: string[];
+  setup?: DigestSetup | null;
+  risks?: string[];
+  ai_narrative?: string;
+  ai_action_narrative?: string;
+}
+
+export interface DigestGexEntry {
+  ticker: string | null;
+  available: boolean;
+  regime?: "STABLE" | "PINNED" | "VOLATILE" | "SQUEEZE_PRONE" | "UNKNOWN" | string;
+  bottom_line: string;
+  whats_happening?: string[];
+  proximity_plain?: string[];
+  risks?: string[];
+  ai_narrative?: string;
+}
+
+export interface DailyDigest {
+  date: string;
+  generated_at?: string;
+  is_today: boolean;
+  session_date?: string;
+  ai_narrative_used?: boolean;
+  futures: Record<string, DigestFuturesEntry>;
+  gex: Record<string, DigestGexEntry>;
+  risks: string[];
+}
+
+export interface ScorecardBucket {
+  n: number;
+  win_rate: number | null;
+  avg_r: number | null;
+  expired?: number;
+}
+
+export interface ScorecardOpenPosition {
+  id: string;
+  kind: string;
+  direction: "long" | "short" | string;
+  logged_date: string;
+  entry_zone?: [number, number] | number[] | null;
+  stop?: number | null;
+  target_1?: number | null;
+  tier?: string | null;
+  confidence?: number | null;
+  fill_date?: string | null;
+}
+
+export interface ScorecardResponse {
+  headline: string;
+  as_of?: string;
+  overall: ScorecardBucket;
+  not_filled?: number;
+  open?: number;
+  by_instrument: Record<string, ScorecardBucket>;
+  by_direction: Record<string, ScorecardBucket>;
+  open_positions: ScorecardOpenPosition[];
+}

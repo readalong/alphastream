@@ -3,27 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
-  ScanSearch,
   Search,
   FolderOpen,
   Zap,
   Settings,
   X,
   TrendingUp,
-  BarChart3,
   Globe,
-  Calendar,
-  Activity,
-  BarChart2,
   Target,
   Swords,
   Gauge,
-  Shield,
-  TrendingDown,
   Waves,
-  Map,
-  Filter,
   BookOpen,
   Briefcase,
   Sun,
@@ -34,61 +24,38 @@ import { SidebarFavorites } from "./sidebar-favorites";
 
 const IS_PRODUCTION = process.env.NEXT_PUBLIC_APP_ENV === "production";
 
+/* Consolidated IA (Phase 3, docs/ALPHASTREAM_UX_REDESIGN.md §3.1/Appendix):
+   22 routes -> ~9 core destinations. TODAY is the landing queue; MARKETS
+   is context & evidence; IDEAS is discovery & research; MANAGE is the
+   utility cluster, collapsed by default in spirit (dev-only items hidden
+   in production). */
 const NAV_SECTIONS = [
   {
     label: "TODAY",
-    items: [
-      { name: "Today", href: "/today", icon: Sun },
-    ],
+    items: [{ name: "Today", href: "/today", icon: Sun }],
   },
   {
-    label: "MARKET PULSE",
+    label: "MARKETS",
     items: [
-      { name: "Overview", href: "/overview", icon: LayoutDashboard },
-      { name: "Global Markets", href: "/markets", icon: Globe },
-      { name: "Economic Data", href: "/economic", icon: Calendar },
-      { name: "Market Internals", href: "/internals", icon: Activity },
-    ],
-  },
-  {
-    label: "SECTOR ROTATION",
-    items: [
-      { name: "Sectors", href: "/sectors", icon: BarChart3 },
-      { name: "Flow Map", href: "/flow-map", icon: Map },
-      { name: "Capital Flow", href: "/flow", icon: Waves },
-    ],
-  },
-  {
-    label: "OPPORTUNITY FINDER",
-    items: [
-      { name: "Recommendations", href: "/recommendations", icon: Target },
-      { name: "Setup Filter", href: "/filter", icon: Filter },
-      { name: "Screener", href: "/screener", icon: ScanSearch },
-      ...(!IS_PRODUCTION ? [{ name: "Uptrend Analysis", href: "/uptrend", icon: TrendingUp }] : []),
-    ],
-  },
-  {
-    label: "RISK & STRATEGY",
-    items: [
-      { name: "Strategy", href: "/strategy", icon: Swords },
-      { name: "JPM Collar", href: "/collar", icon: Shield },
-      { name: "Futures", href: "/futures", icon: Gauge },
+      { name: "Markets", href: "/markets", icon: Globe },
       { name: "Options (GEX)", href: "/options", icon: Zap },
-      { name: "CTA Positioning", href: "/cta", icon: TrendingDown },
+      { name: "Futures", href: "/futures", icon: Gauge },
+      { name: "Flows", href: "/flows", icon: Waves },
+      { name: "Strategy", href: "/strategy", icon: Swords },
     ],
   },
   {
-    label: "RESEARCH",
+    label: "IDEAS",
     items: [
-      { name: "Charts", href: "/charts", icon: BarChart2 },
+      { name: "Ideas", href: "/ideas", icon: Target },
       { name: "Ticker Lookup", href: "/ticker", icon: Search },
       { name: "Track Record", href: "/track-record", icon: Check },
-      ...(!IS_PRODUCTION ? [{ name: "Sessions", href: "/sessions", icon: FolderOpen }] : []),
     ],
   },
   {
     label: "MANAGE",
     items: [
+      ...(!IS_PRODUCTION ? [{ name: "Sessions", href: "/sessions", icon: FolderOpen }] : []),
       ...(!IS_PRODUCTION ? [{ name: "Jobs", href: "/jobs", icon: Zap }] : []),
       { name: "Portfolio", href: "/portfolio", icon: Briefcase },
       { name: "Settings", href: "/settings", icon: Settings },

@@ -50,7 +50,7 @@ const SECTIONS: GuideSection[] = [
     label: "Overview",
     group: "discover",
     icon: LayoutDashboard,
-    href: "/overview",
+    href: "/markets",
     tagline: "Your daily market briefing — AI report, regime, and watchlist in one place.",
     what: (
       <ul className="space-y-1.5">
@@ -77,7 +77,7 @@ const SECTIONS: GuideSection[] = [
     label: "Global Markets",
     group: "discover",
     icon: Globe,
-    href: "/markets",
+    href: "/markets?tab=global",
     tagline: "International index dashboard — where global capital is and isn't flowing.",
     what: (
       <ul className="space-y-1.5">
@@ -103,7 +103,7 @@ const SECTIONS: GuideSection[] = [
     label: "Screener",
     group: "discover",
     icon: ScanSearch,
-    href: "/screener",
+    href: "/ideas?tab=screener",
     tagline: "Minervini/Wyckoff stage-classified universe — every stock in the database, filtered and sortable.",
     what: (
       <ul className="space-y-1.5">
@@ -130,7 +130,7 @@ const SECTIONS: GuideSection[] = [
     label: "Sectors",
     group: "discover",
     icon: BarChart3,
-    href: "/sectors",
+    href: "/flows?tab=sectors",
     tagline: "11 SPDR sector ETFs ranked by composite flow score — the macro rotation picture.",
     what: (
       <ul className="space-y-1.5">
@@ -156,7 +156,7 @@ const SECTIONS: GuideSection[] = [
     label: "Capital Flow",
     group: "discover",
     icon: Waves,
-    href: "/flow",
+    href: "/flows?tab=capital-flow",
     tagline: "Stock-level institutional flow — ranked leaders accumulating capital and smart money exits.",
     what: (
       <ul className="space-y-1.5">
@@ -184,7 +184,7 @@ const SECTIONS: GuideSection[] = [
     label: "Flow Map",
     group: "discover",
     icon: Map,
-    href: "/flow-map",
+    href: "/flows?tab=flow-map",
     tagline: "The full institutional capital map — asset classes, COT, sector rotation, and international flows.",
     what: (
       <ul className="space-y-1.5">
@@ -215,7 +215,7 @@ const SECTIONS: GuideSection[] = [
     label: "Setup Filter",
     group: "discover",
     icon: Filter,
-    href: "/filter",
+    href: "/ideas?tab=filter",
     tagline: "The 4-layer pre-trade gate — every result is in the right sector, in an uptrend, leading peers, and moving now.",
     what: (
       <ul className="space-y-1.5">
@@ -247,7 +247,7 @@ const SECTIONS: GuideSection[] = [
     label: "Market Internals",
     group: "discover",
     icon: Activity,
-    href: "/internals",
+    href: "/markets?tab=internals",
     tagline: "Breadth data — how many stocks are actually participating in the move.",
     what: (
       <ul className="space-y-1.5">
@@ -273,7 +273,7 @@ const SECTIONS: GuideSection[] = [
     label: "Economic Data",
     group: "discover",
     icon: Calendar,
-    href: "/economic",
+    href: "/markets?tab=economic",
     tagline: "Macro calendar and data releases — the scheduled events that move markets.",
     what: (
       <ul className="space-y-1.5">
@@ -297,7 +297,7 @@ const SECTIONS: GuideSection[] = [
     label: "Recommendations",
     group: "discover",
     icon: Target,
-    href: "/recommendations",
+    href: "/ideas?tab=recommendations",
     tagline: "Daily factor-scored buy signals with position tracking and conviction ratings.",
     what: (
       <ul className="space-y-1.5">
@@ -355,22 +355,25 @@ const SECTIONS: GuideSection[] = [
     group: "discover",
     icon: Gauge,
     href: "/futures",
-    tagline: "CTA positioning in ES, NQ, Gold, and Silver — what the trend-followers are doing.",
+    tagline: "The daily futures plan for ES, NQ, Gold, and Silver — bias, tier, today's action, and the trade setup.",
     what: (
       <ul className="space-y-1.5">
-        <li><Bullet />Four futures instruments: ES (S&P), NQ (Nasdaq), GC (Gold), SI (Silver).</li>
-        <li><Bullet />Each card shows CTA net position (long/short/neutral), trend direction, and position change WoW.</li>
-        <li><Bullet />CTA bias badge per instrument: the algorithmic trend-following community's current stance.</li>
+        <li><Bullet />Four instruments: ES (S&amp;P), NQ (Nasdaq), GC (Gold), SI (Silver) — each with a bias (LONG/SHORT/NEUTRAL), a 0–100 confidence score, and a tier.</li>
+        <li><Bullet />Today's action banner: STAND_ASIDE / ENTER_NOW / ENTER_ON_PULLBACK, blocked outright when an event-suppression rule is active (e.g. FOMC).</li>
+        <li><Bullet />The active setup when one exists: entry zone, stop, target, reward:risk, holding window, and position size at 1% account risk.</li>
+        <li><Bullet />A color-coded vote ledger showing every signal that fed the bias (CTA, dealer flow/GEX, charm pin, vanna, DXY) — the "why," not just the "what."</li>
+        <li><Bullet />JPM Collar section below the instruments: the active SPX collar's floor/cap levels as ES-relevant support/resistance context.</li>
       </ul>
     ),
     how: (
       <ul className="space-y-1.5">
-        <li><Bullet />CTAs are momentum-driven and systematic — their positioning amplifies existing trends. If CTAs are max-long ES, they'll provide a tailwind to the uptrend. If they flip to short, they'll accelerate the downside.</li>
-        <li><Bullet />Watch for CTA flip events: when CTAs cross from net long to net short (or vice versa), it often marks a near-term volatility spike as they unwind and rebuild positions.</li>
+        <li><Bullet />Read the action banner first — it's the one line that matters. Don't act against STAND_ASIDE just because the bias looks directional.</li>
+        <li><Bullet />Check the vote ledger before trusting a high-confidence bias: if CTA, GEX, and vanna are all voting the same way, that's real alignment, not one loud signal.</li>
+        <li><Bullet />Use the Collar section as a support/resistance sanity check on ES setups near JPM's floor or cap strikes.</li>
       </ul>
     ),
     insight: (
-      <p>CTAs don't lead markets — they follow and amplify. A CTA long position that's already weeks old in ES is less informative than a <em>new</em> CTA long (WoW change turned positive). The direction of change matters more than the level.</p>
+      <p>Confidence isn't a guarantee — it's how many independent signals agree. A 60/100 STAND_ASIDE with disagreeing votes is the system telling you it doesn't have an edge today; that's as informative as a strong ENTER_NOW.</p>
     ),
   },
   {
@@ -378,8 +381,8 @@ const SECTIONS: GuideSection[] = [
     label: "JPM Collar",
     group: "discover",
     icon: Shield,
-    href: "/collar",
-    tagline: "JPMorgan's quarterly SPY collar trade — tracks the active collar and its price boundaries.",
+    href: "/futures",
+    tagline: "JPMorgan's quarterly SPY collar trade — now a section on the Futures page, not its own destination.",
     what: (
       <ul className="space-y-1.5">
         <li><Bullet />Active fund ticker (e.g. JHEQX), current collar strike levels, and days until quarterly reset.</li>
@@ -404,8 +407,8 @@ const SECTIONS: GuideSection[] = [
     label: "CTA Positioning",
     group: "discover",
     icon: TrendingDown,
-    href: "/cta",
-    tagline: "Systematic trend-follower positioning across asset classes — the CTA footprint in detail.",
+    href: "/markets?tab=cta",
+    tagline: "Systematic trend-follower positioning across asset classes — now a tab on Markets, not its own page.",
     what: (
       <ul className="space-y-1.5">
         <li><Bullet />Aggregate bias panel: net CTA position across equities, bonds, commodities, and FX.</li>
@@ -428,7 +431,7 @@ const SECTIONS: GuideSection[] = [
     label: "Uptrend Analysis",
     group: "discover",
     icon: TrendingUp,
-    href: "/uptrend",
+    href: "/ideas?tab=uptrend",
     tagline: "Resistance levels and upside targets — where do stocks have room to run?",
     what: (
       <ul className="space-y-1.5">
@@ -455,8 +458,8 @@ const SECTIONS: GuideSection[] = [
     label: "Charts",
     group: "analyze",
     icon: BarChart2,
-    href: "/charts",
-    tagline: "Chart Studio — technical charts with AI analysis and earnings overlays.",
+    href: "/ticker",
+    tagline: "Chart Studio — now the \"Chart Studio\" tab on a ticker's page, alongside Technical, Resistance, Earnings, and News.",
     what: (
       <ul className="space-y-1.5">
         <li><Bullet />Search any ticker to load its technical chart: price, volume, SMA200/50, signals overlay.</li>

@@ -16,7 +16,7 @@ import { formatPrice, parseCategory, formatSessionDate } from "@/lib/utils";
 import { ArrowUpDown, RefreshCw, BarChart3, Eye } from "lucide-react";
 import type { UptrendStock } from "@/lib/types";
 
-export default function UptrendPage() {
+export function UptrendPanel() {
   const { data: sessions } = useSessions();
   const latestSession = sessions?.[0];
 

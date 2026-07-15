@@ -1,10 +1,8 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
 import { useReducer, useCallback, useState } from "react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
-import { ArrowLeft, AlertCircle, Loader2, AlertTriangle } from "lucide-react";
+import { AlertCircle, Loader2, AlertTriangle } from "lucide-react";
 import { useOHLCV } from "@/hooks/use-ohlcv";
 import { ChartToolbar } from "@/components/chart-studio/ChartToolbar";
 import { DrawingLayer } from "@/components/chart-studio/DrawingLayer";
@@ -36,11 +34,7 @@ const DEFAULT_INDICATORS: IndicatorSettings = {
   ichimoku: false, rsi: false, macd: false,
 };
 
-export default function ChartStudioPage() {
-  const params = useParams();
-  const router = useRouter();
-  const symbol = (params.symbol as string).toUpperCase();
-
+export function ChartStudioPanel({ symbol }: { symbol: string }) {
   const [period, setPeriod] = useState<OHLCVPeriod>("1y");
   const [activeTool, setActiveTool] = useState<DrawingTool>("cursor");
   const [elliottDisclaimer, setElliottDisclaimer] = useState(false);
@@ -122,23 +116,15 @@ export default function ChartStudioPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)]">
-      {/* Page header */}
-      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-[var(--border)] bg-[var(--bg-page)]">
-        <button
-          onClick={() => router.back()}
-          className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </button>
-        <h1 className="text-base font-semibold text-[var(--text-primary)]">{symbol}</h1>
-        <span className="text-xs text-[var(--text-muted)]">Chart Studio</span>
-        {data && (
-          <span className="text-xs text-[var(--text-muted)] ml-auto">
+    <div className="flex flex-col h-[75vh] rounded-lg border border-[var(--border)] overflow-hidden">
+      {/* Bar count (the ticker/tab header above already shows the symbol) */}
+      {data && (
+        <div className="flex items-center justify-end px-4 py-1.5 border-b border-[var(--border)] bg-[var(--bg-page)]">
+          <span className="text-xs text-[var(--text-muted)]">
             {data.bars} bars · {data.period}
           </span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Toolbar */}
       <ChartToolbar
@@ -192,9 +178,6 @@ export default function ChartStudioPage() {
               <p className="text-xs text-[var(--text-muted)]">
                 {error instanceof Error ? error.message : "Could not fetch OHLCV data. The ticker may not be available."}
               </p>
-              <Link href="/charts" className="text-xs text-[var(--accent)] hover:underline">
-                ← Back to Chart Studio
-              </Link>
             </div>
           </div>
         )}

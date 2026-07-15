@@ -24,7 +24,7 @@ const ALL_TICKERS = [
 type SortKey = "ticker" | "close_price" | "category";
 type SortDir = "asc" | "desc";
 
-export default function ScreenerPage() {
+export function ScreenerPanel() {
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [sectorFilter, setSectorFilter] = useState<string | null>(null);
   const [industryFilter, setIndustryFilter] = useState<string | null>(null);

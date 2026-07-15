@@ -14,7 +14,7 @@ export function SectorBreadcrumb({ sectorEtf, industry }: SectorBreadcrumbProps)
 
   return (
     <nav className="flex items-center gap-1.5 text-sm text-[var(--text-muted)] mb-4">
-      <Link href="/sectors" className="hover:text-[var(--accent)] transition-colors">
+      <Link href="/flows?tab=sectors" className="hover:text-[var(--accent)] transition-colors">
         Sectors
       </Link>
       {sectorEtf && (

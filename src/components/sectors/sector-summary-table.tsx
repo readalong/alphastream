@@ -68,7 +68,7 @@ export function SectorSummaryTable() {
         <h2 className="text-sm font-semibold text-[var(--text-primary)]">
           Top Signals by Sector
         </h2>
-        <Link href="/sectors" className="text-xs text-[var(--accent)] hover:underline">
+        <Link href="/flows?tab=sectors" className="text-xs text-[var(--accent)] hover:underline">
           View All Sectors &rarr;
         </Link>
       </div>

@@ -159,7 +159,7 @@ function EnhancedSectorCard({ sector, ranking, totalTickers }: EnhancedSectorCar
   );
 }
 
-export default function SectorsPage() {
+export function SectorsPanel() {
   const { data: sectors, isLoading, isError } = useSectors();
   const { data: rankingsData } = useSectorRankings();
   const [search, setSearch] = useState("");

@@ -841,7 +841,7 @@ function DayDetail({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-export default function RecommendationsPage() {
+export function RecommendationsPanel() {
   const todayStr = useMemo(() => todayYYYYMMDD(), []);
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
   const [mobilePanel, setMobilePanel] = useState<"signals" | "history">("signals");

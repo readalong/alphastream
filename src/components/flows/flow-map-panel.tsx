@@ -230,7 +230,7 @@ function FlowSummaryPanel({ data }: { data: FlowMapResponse }) {
   );
 }
 
-export default function FlowMapPage() {
+export function FlowMapPanel() {
   const { data, isLoading } = useFlowMap();
   const [viewMode, setViewMode] = useState<"summary" | "full">("summary");
 

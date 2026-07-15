@@ -6,10 +6,10 @@ import { X, Keyboard } from "lucide-react";
 const SHORTCUTS = [
   { keys: ["Ctrl/⌘", "K"], action: "Open command palette" },
   { keys: ["/"], action: "Focus ticker search" },
-  { keys: ["O"], action: "Go to Overview" },
-  { keys: ["S"], action: "Go to Screener" },
-  { keys: ["R"], action: "Go to Recommendations" },
-  { keys: ["F"], action: "Go to Setup Filter" },
+  { keys: ["O"], action: "Go to Today" },
+  { keys: ["S"], action: "Go to Screener (Ideas)" },
+  { keys: ["R"], action: "Go to Recommendations (Ideas)" },
+  { keys: ["F"], action: "Go to Setup Filter (Ideas)" },
   { keys: ["?"], action: "Show this shortcut guide" },
   { keys: ["Esc"], action: "Close panel / modal" },
 ];

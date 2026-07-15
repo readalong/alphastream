@@ -13,6 +13,7 @@ import { AlertTriangle, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useFuturesPlan } from "@/hooks/use-futures-plan";
 import { GlossaryLink } from "@/components/glossary-link";
+import { CollarPanel } from "@/components/futures/collar-panel";
 import { cn } from "@/lib/utils";
 import type { FuturesInstrumentPlan, FuturesLevel } from "@/lib/types";
 
@@ -318,6 +319,10 @@ export default function FuturesPage() {
       >
         See the options market read (GEX) <ChevronRight className="h-3.5 w-3.5" />
       </Link>
+
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+        <CollarPanel />
+      </div>
     </div>
   );
 }

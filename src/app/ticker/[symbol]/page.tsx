@@ -16,12 +16,13 @@ import { SIGNAL_DESCRIPTIONS } from "@/lib/constants";
 import { cn, formatPrice, parseCategory, parseSignals } from "@/lib/utils";
 import { AlphaLensPanel } from "@/components/alpha-lens/alpha-lens-panel";
 import type { AlphaLensContext } from "@/lib/alpha-lens-context";
-import { RefreshCw, Brain, ChevronDown, ChevronUp, AlertCircle, Info, Heart, BarChart2, AlertTriangle } from "lucide-react";
+import { RefreshCw, Brain, ChevronDown, ChevronUp, AlertCircle, Info, Heart, AlertTriangle } from "lucide-react";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { TickerNewsPanel, NewsTickerCard } from "@/components/news/ticker-news-panel";
+import { ChartStudioPanel } from "@/components/ticker/chart-studio-panel";
 import type { ScreenerResult, AiAnalysis, ChartResponse, ResistanceResponse, EarningsResponse } from "@/lib/types";
 
-type Tab = "technical" | "resistance" | "news" | "earnings";
+type Tab = "technical" | "resistance" | "news" | "earnings" | "chart";
 
 function BusinessSummaryCard({ summary }: { summary: string }) {
   const [expanded, setExpanded] = useState(false);
@@ -476,6 +477,8 @@ export default function TickerDetailPage() {
   const initialTab: Tab =
     rawTab === "resistance" ? "resistance"
     : rawTab === "earnings"  ? "earnings"
+    : rawTab === "chart"     ? "chart"
+    : rawTab === "news"      ? "news"
     : "technical";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [aiEnabled, setAiEnabled] = useState(false);
@@ -534,6 +537,7 @@ export default function TickerDetailPage() {
 
   const tabs: { key: Tab; label: string; shortLabel: string; disabled?: boolean }[] = [
     { key: "technical",  label: "Technical Analysis", shortLabel: "Technical" },
+    { key: "chart",      label: "Chart Studio",        shortLabel: "Chart" },
     { key: "resistance", label: "Resistance",          shortLabel: "Resistance" },
     { key: "earnings",   label: "Earnings",            shortLabel: "Earnings",  disabled: earningsUnsupported },
     { key: "news",       label: "News",                shortLabel: "News" },
@@ -549,14 +553,6 @@ export default function TickerDetailPage() {
           <FavoriteButton ticker={symbol} screener={screener} />
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          <Link
-            href={`/charts/${symbol}`}
-            title="Open in Chart Studio"
-            className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-md text-sm border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)]/40 transition-colors"
-          >
-            <BarChart2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Chart</span>
-          </Link>
           {activeTab === "technical" && (
             <button
               onClick={() => {
@@ -694,6 +690,11 @@ export default function TickerDetailPage() {
       {/* News tab */}
       {activeTab === "news" && (
         <TickerNewsPanel ticker={symbol} />
+      )}
+
+      {/* Chart Studio tab */}
+      {activeTab === "chart" && (
+        <ChartStudioPanel symbol={symbol} />
       )}
 
       {/* Earnings tab */}

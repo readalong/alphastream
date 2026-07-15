@@ -180,6 +180,7 @@ interface CollarDisplayProps {
 
 function CollarDisplay({ collar }: CollarDisplayProps) {
   const cl = collar.collar_levels;
+  if (!cl) return <CollarFallbackDisplay />;
   const spy = cl.spy_equivalent;
   // Resolve strikes — backend may use long_put_strike OR long_put (both patterns seen)
   const longPutStrike   = cl.long_put_strike   ?? cl.long_put;
@@ -345,6 +346,25 @@ function CollarFallbackDisplay() {
     return <EmptyState message="Backend module not deployed — run /api/market/direction first" />;
   }
 
+  const cl = collar.collar_levels;
+  if (!cl) {
+    return (
+      <EmptyState message={`${collar.active_fund} collar not yet configured for this reset — no strikes entered. Run POST /api/collar/update after the next quarterly reset.`} />
+    );
+  }
+
+  const spy = cl.spy_equivalent;
+  // Resolve strikes — backend may use long_put_strike OR long_put (both patterns seen)
+  const longPutStrike   = cl.long_put_strike   ?? cl.long_put;
+  const shortCallStrike = cl.short_call_strike ?? cl.short_call;
+  // SPY ≈ SPX / 10 as fallback when backend hasn't computed spy_equivalent yet
+  const longPutSpy   = spy?.long_put   ?? (longPutStrike   != null ? longPutStrike   / 10 : undefined);
+  const shortCallSpy = spy?.short_call ?? (shortCallStrike != null ? shortCallStrike / 10 : undefined);
+  const distancePct = (strike: number | undefined, spyLevel: number | undefined) =>
+    strike != null && spyLevel != null && collar.current_spy != null
+      ? ((spyLevel - collar.current_spy) / collar.current_spy) * 100
+      : undefined;
+
   const isWarning = collar.reset_warning || collar.days_until_reset <= 5;
 
   return (
@@ -389,17 +409,17 @@ function CollarFallbackDisplay() {
         <StrikeLevelCard
           label="Long Put — Floor"
           description="Downside protection."
-          strike={collar.levels.long_put.strike}
-          spy={collar.levels.long_put.spy}
-          distancePct={collar.levels.long_put.distance_pct}
+          strike={longPutStrike}
+          spy={longPutSpy}
+          distancePct={distancePct(longPutStrike, longPutSpy)}
           accentClass="text-red-400"
         />
         <StrikeLevelCard
           label="Short Call — Cap"
           description="Upside cap."
-          strike={collar.levels.short_call.strike}
-          spy={collar.levels.short_call.spy}
-          distancePct={collar.levels.short_call.distance_pct}
+          strike={shortCallStrike}
+          spy={shortCallSpy}
+          distancePct={distancePct(shortCallStrike, shortCallSpy)}
           accentClass="text-amber-400"
         />
       </div>
@@ -409,16 +429,15 @@ function CollarFallbackDisplay() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function CollarPage() {
+export function CollarPanel() {
   const { data: collarData, isPending, isError } = useCollarActive();
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
-      {/* Page header */}
+    <section className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">JPM Collar</h1>
-        <p className="text-sm text-[var(--text-muted)] mt-1">
-          JHEQX quarterly options collar levels — floor &amp; cap support/resistance
+        <h2 className="text-sm font-semibold text-[var(--text-primary)]">JPM Collar</h2>
+        <p className="text-xs text-[var(--text-muted)] mt-0.5">
+          JHEQX quarterly options collar levels — floor &amp; cap support/resistance for ES
         </p>
       </div>
 
@@ -428,11 +447,11 @@ export default function CollarPage() {
             <div key={i} className="animate-pulse rounded bg-[var(--border)] h-24 w-full" />
           ))}
         </div>
-      ) : isError || !collarData ? (
+      ) : isError || !collarData || !collarData.collar_levels ? (
         <CollarFallbackDisplay />
       ) : (
         <CollarDisplay collar={collarData} />
       )}
-    </div>
+    </section>
   );
 }

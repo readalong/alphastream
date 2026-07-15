@@ -486,7 +486,7 @@ function SummaryBar({ releases }: { releases: EconomicRelease[] }) {
 
 /* ── Page ── */
 
-export default function EconomicPage() {
+export function EconomicPanel() {
   const currentWeek = getISOWeek(new Date());
   const [week, setWeek] = useState(currentWeek);
   const isCurrentWeek = week === currentWeek;

@@ -39,10 +39,10 @@ const STEPS = [
     content: (
       <div className="space-y-2.5">
         {[
-          { step: 1, label: "Market Pulse", desc: "Check Overview → regime, VIX, action items", href: "/overview" },
-          { step: 2, label: "Sector Rotation", desc: "Sectors & Flow Map → where is money moving?", href: "/sectors" },
-          { step: 3, label: "Find Opportunities", desc: "Setup Filter & Recommendations → ranked setups", href: "/filter" },
-          { step: 4, label: "Assess Risk", desc: "Strategy → regime allocation, collar, CTA positioning", href: "/strategy" },
+          { step: 1, label: "Today", desc: "Check Today → what to act on, watch, and avoid", href: "/today" },
+          { step: 2, label: "Markets & Flows", desc: "Markets & Flows → regime, VIX, where is money moving?", href: "/markets" },
+          { step: 3, label: "Find Opportunities", desc: "Ideas → normalized ranked setups across every engine", href: "/ideas" },
+          { step: 4, label: "Assess Risk", desc: "Strategy & Futures → regime allocation, collar, CTA positioning", href: "/strategy" },
           { step: 5, label: "Research & Act", desc: "Ticker Detail → Alpha Lens AI for final validation", href: "/ticker" },
         ].map(({ step, label, desc, href }) => (
           <Link

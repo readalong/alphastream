@@ -48,7 +48,7 @@ const LIMIT_OPTIONS = [25, 50, 100, 200];
 type SortKey = "rank" | "rs_composite" | "flow_score" | "momentum_score";
 type SortDir = "asc" | "desc";
 
-export default function FilterPage() {
+export function FilterPanel() {
   const [sector, setSector] = useState("");
   const [category, setCategory] = useState("");
   const [minAdv, setMinAdv] = useState(5_000_000);

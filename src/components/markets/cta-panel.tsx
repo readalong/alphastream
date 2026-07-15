@@ -412,19 +412,11 @@ function CtaFallbackDisplay() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function CtaPage() {
+export function CtaPanel() {
   const { data: ctaData, isPending, isError } = useCTAAll();
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">CTA Positioning</h1>
-        <p className="text-sm text-[var(--text-muted)] mt-1">
-          Commodity Trading Advisor momentum positioning — flip triggers &amp; aggregate biases
-        </p>
-      </div>
-
+    <div className="space-y-4">
       {isPending ? (
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

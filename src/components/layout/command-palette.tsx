@@ -2,25 +2,23 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Search, X, LayoutDashboard, ScanSearch, Target, Filter, BarChart3, Map, Waves, Swords, TrendingUp, Zap, Check } from "lucide-react";
+import { Search, X, LayoutDashboard, ScanSearch, Target, Filter, BarChart3, Globe, Waves, Swords, TrendingUp, Zap, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { SECTOR_ETF_NAMES } from "@/lib/constants";
 
 const PAGES = [
   { name: "Today", href: "/today", icon: LayoutDashboard, description: "What to do, watch, and avoid today" },
-  { name: "Overview", href: "/overview", icon: LayoutDashboard, description: "Market dashboard & reports" },
-  { name: "Screener", href: "/screener", icon: ScanSearch, description: "Full universe scan" },
-  { name: "Recommendations", href: "/recommendations", icon: Target, description: "Buy signals & positions" },
-  { name: "Setup Filter", href: "/filter", icon: Filter, description: "Ranked shortlist" },
-  { name: "Sectors", href: "/sectors", icon: BarChart3, description: "Sector rankings" },
-  { name: "Flow Map", href: "/flow-map", icon: Map, description: "Capital allocation" },
-  { name: "Capital Flow", href: "/flow", icon: Waves, description: "Flow leaders & exits" },
-  { name: "Strategy", href: "/strategy", icon: Swords, description: "Regime & allocation" },
+  { name: "Markets", href: "/markets", icon: Globe, description: "Overview, global markets, internals, economic, CTA" },
   { name: "Futures", href: "/futures", icon: TrendingUp, description: "Bias, tier, today's action, setups" },
   { name: "Options (GEX)", href: "/options", icon: Zap, description: "Gamma exposure, regime, level ladder" },
+  { name: "Flows", href: "/flows", icon: Waves, description: "Sectors, flow map, capital flow" },
+  { name: "Strategy", href: "/strategy", icon: Swords, description: "Regime & allocation" },
+  { name: "Ideas", href: "/ideas", icon: Target, description: "Recommendations, setup filter, screener, uptrend" },
+  { name: "Setup Filter", href: "/ideas?tab=filter", icon: Filter, description: "Ranked shortlist" },
+  { name: "Screener", href: "/ideas?tab=screener", icon: ScanSearch, description: "Full universe scan" },
   { name: "Track Record", href: "/track-record", icon: Check, description: "Live scorecard & backtest findings" },
-  { name: "Charts", href: "/charts", icon: TrendingUp, description: "Technical analysis" },
+  { name: "Ticker Lookup", href: "/ticker", icon: Search, description: "Technical analysis & Chart Studio" },
 ];
 
 const SECTOR_ENTRIES = Object.entries(SECTOR_ETF_NAMES).map(([etf, name]) => ({

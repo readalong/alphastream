@@ -22,7 +22,7 @@ function ThemeCallout({ theme }: { theme: string }) {
   );
 }
 
-export default function FlowPage() {
+export function CapitalFlowPanel() {
   const [tab, setTab] = useState<Tab>("leaders");
   const [sectorFilter, setSectorFilter] = useState("");
   const [minScore, setMinScore] = useState("");

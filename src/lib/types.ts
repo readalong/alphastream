@@ -969,12 +969,14 @@ export interface CollarSignal {
   reset_date: string;
   days_until_reset: number;
   reset_warning: boolean;
-  levels: {
-    long_put: CollarLevelDetail;
-    short_put?: CollarLevelDetail;
-    short_call: CollarLevelDetail;
-  };
-  position_in_collar: "near_floor" | "mid_range" | "near_cap";
+  // The live /api/market/direction response mirrors /api/collar/active's
+  // shape exactly (collar_levels, nullable in the "not yet configured"
+  // state - see CollarActiveResponse) rather than a separate "levels"
+  // field - kept as CollarActiveResponse["collar_levels"] so both callers
+  // share one null-safe resolution path.
+  collar_levels: CollarActiveResponse["collar_levels"];
+  current_spy?: number | null;
+  position_in_collar: "near_floor" | "mid_range" | "near_cap" | null;
   pinning_risk: boolean;
   floor_breach_risk: boolean;
   color: SignalColor;
@@ -1041,7 +1043,8 @@ export interface CollarActiveResponse {
   reset_date: string;
   days_until_reset: number;
   collar_levels: {
-    // backend may use either naming convention
+    // backend may use either naming convention - can also be null
+    // ("not_yet_configured" state) when no strikes have been entered yet
     long_put_strike?: number;
     long_put?: number;
     short_put_strike?: number;
@@ -1053,7 +1056,7 @@ export interface CollarActiveResponse {
       short_put?: number;
       short_call: number;
     };
-  };
+  } | null;
   sister_funds?: SisterFund[];
   current_spy?: number;
   position_in_collar?: "near_floor" | "mid_range" | "near_cap";

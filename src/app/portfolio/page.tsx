@@ -254,7 +254,7 @@ export default function PortfolioPage() {
           <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Portfolio</h1>
         </div>
         <Link
-          href="/recommendations"
+          href="/ideas?tab=recommendations"
           className="text-sm text-[var(--accent)] hover:underline flex items-center gap-1"
         >
           Recommendations →
@@ -291,7 +291,7 @@ export default function PortfolioPage() {
                 <p className="text-sm font-medium text-[var(--text-primary)] mb-1">No open positions</p>
                 <p className="text-xs text-[var(--text-muted)]">
                   Add positions from{" "}
-                  <Link href="/recommendations" className="text-[var(--accent)] hover:underline">
+                  <Link href="/ideas?tab=recommendations" className="text-[var(--accent)] hover:underline">
                     Recommendations →
                   </Link>
                 </p>

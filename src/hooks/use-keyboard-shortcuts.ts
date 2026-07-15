@@ -47,15 +47,15 @@ export function useKeyboardShortcuts({ onOpenPalette, onOpenShortcuts }: UseKeyb
           break;
         case "s":
         case "S":
-          if (!e.metaKey && !e.ctrlKey) router.push("/screener");
+          if (!e.metaKey && !e.ctrlKey) router.push("/ideas?tab=screener");
           break;
         case "r":
         case "R":
-          if (!e.metaKey && !e.ctrlKey) router.push("/recommendations");
+          if (!e.metaKey && !e.ctrlKey) router.push("/ideas?tab=recommendations");
           break;
         case "f":
         case "F":
-          if (!e.metaKey && !e.ctrlKey) router.push("/filter");
+          if (!e.metaKey && !e.ctrlKey) router.push("/ideas?tab=filter");
           break;
       }
     }

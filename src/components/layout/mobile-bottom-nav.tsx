@@ -5,18 +5,18 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Target,
-  BarChart3,
-  ScanSearch,
+  Waves,
+  Gauge,
   Briefcase,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/today",            icon: LayoutDashboard, label: "Today"   },
-  { href: "/recommendations",  icon: Target,          label: "Signals" },
-  { href: "/sectors",          icon: BarChart3,        label: "Sectors" },
-  { href: "/screener",         icon: ScanSearch,       label: "Screener"},
-  { href: "/portfolio",        icon: Briefcase,        label: "Portfolio"},
+  { href: "/today",     icon: LayoutDashboard, label: "Today"    },
+  { href: "/ideas",     icon: Target,          label: "Ideas"    },
+  { href: "/flows",     icon: Waves,           label: "Flows"    },
+  { href: "/futures",   icon: Gauge,           label: "Futures"  },
+  { href: "/portfolio", icon: Briefcase,       label: "Portfolio"},
 ];
 
 export function MobileBottomNav() {

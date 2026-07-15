@@ -284,7 +284,7 @@ function Pulse({ className }: { className?: string }) {
 
 /* ─── Page ───────────────────────────────────────────────────── */
 
-export default function InternalsPage() {
+export function InternalsPanel() {
   // Fetch all 11 sector ticker lists in parallel
   const sectorQueries = useQueries({
     queries: SECTOR_ETFS.map((etf) => ({

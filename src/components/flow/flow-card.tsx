@@ -27,7 +27,7 @@ export function FlowCard({ stock, variant, compact = false }: FlowCardProps) {
       className={cn(
         "block rounded-lg border bg-[var(--bg-card)] p-4 space-y-3 transition-colors cursor-pointer",
         variant === "exits"
-          ? "border-[var(--border)] border-l-2 border-l-red-500/40 hover:border-red-500/30"
+          ? "border-[var(--border)] border-l-2 border-l-[var(--short)]/40 hover:border-[var(--short)]/30"
           : "border-[var(--border)] hover:border-[var(--accent)]/30"
       )}
     >
@@ -54,7 +54,7 @@ export function FlowCard({ stock, variant, compact = false }: FlowCardProps) {
           <div
             className={cn(
               "text-xs font-medium tabular-nums",
-              isPositiveWow ? "text-emerald-500" : "text-red-500"
+              isPositiveWow ? "text-[var(--long)]" : "text-[var(--short)]"
             )}
           >
             was {stock.flow_score_prev} ({isPositiveWow ? "+" : ""}
@@ -67,7 +67,7 @@ export function FlowCard({ stock, variant, compact = false }: FlowCardProps) {
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--text-muted)]">
         <span className="tabular-nums">${formatPrice(stock.close_price)}</span>
         <span>ADV: ${(stock.adv_dollars / 1_000_000).toFixed(0)}M</span>
-        <span className={cn(isHighRvol && "text-amber-500 font-medium")}>
+        <span className={cn(isHighRvol && "text-[var(--caution)] font-medium")}>
           RVol: {stock.rvol.toFixed(1)}x
         </span>
       </div>
@@ -75,33 +75,33 @@ export function FlowCard({ stock, variant, compact = false }: FlowCardProps) {
       {/* Row 3: Badges */}
       <div className="flex flex-wrap gap-1.5">
         {stock.is_new_this_week && (
-          <span className="px-2 py-0.5 text-xs font-medium rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-            NEW THIS WEEK
+          <span className="px-2 py-0.5 text-xs font-medium rounded bg-[var(--info)]/10 text-[var(--info)] border border-[var(--info)]/20">
+            New this week
           </span>
         )}
         {isSustained && (
-          <span className="px-2 py-0.5 text-xs font-medium rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            SUSTAINED {stock.weeks_on_list}w
+          <span className="px-2 py-0.5 text-xs font-medium rounded bg-[var(--long)]/10 text-[var(--long)] border border-[var(--long)]/20">
+            Sustained {stock.weeks_on_list}w
           </span>
         )}
         {isCollapse && (
-          <span className="px-2 py-0.5 text-xs font-medium rounded bg-red-500/10 text-red-400 border border-red-500/20">
-            COLLAPSE
+          <span className="px-2 py-0.5 text-xs font-medium rounded bg-[var(--short)]/10 text-[var(--short)] border border-[var(--short)]/20">
+            Collapse
           </span>
         )}
         {isHighRvol && (
-          <span className="px-2 py-0.5 text-xs font-medium rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-            HIGH VOL
+          <span className="px-2 py-0.5 text-xs font-medium rounded bg-[var(--caution)]/10 text-[var(--caution)] border border-[var(--caution)]/20">
+            High vol
           </span>
         )}
         {isAccumulation && (
-          <span className="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" title="Flow rising while price is weak — smart money accumulating">
-            ACCUMULATION
+          <span className="px-2 py-0.5 text-xs font-semibold rounded bg-[var(--long)]/15 text-[var(--long)] border border-[var(--long)]/30" title="Flow rising while price is weak — smart money accumulating">
+            Accumulation
           </span>
         )}
         {isDistribution && (
-          <span className="px-2 py-0.5 text-xs font-semibold rounded bg-orange-500/15 text-orange-300 border border-orange-500/30" title="Flow declining while price is elevated — possible distribution">
-            DISTRIBUTION
+          <span className="px-2 py-0.5 text-xs font-semibold rounded bg-[var(--severe)]/15 text-[var(--severe)] border border-[var(--severe)]/30" title="Flow declining while price is elevated — possible distribution">
+            Distribution
           </span>
         )}
       </div>

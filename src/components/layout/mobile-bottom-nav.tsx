@@ -31,7 +31,7 @@ export function MobileBottomNav() {
             key={href}
             href={href}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[10px] font-medium transition-colors",
+              "flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-xs font-medium transition-colors",
               active
                 ? "text-[var(--accent)]"
                 : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"

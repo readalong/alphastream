@@ -33,16 +33,16 @@ function fmtScore(v: number) {
 type CtaLabel = "MAX_LONG" | "MAX_SHORT" | "LONG" | "SHORT" | "NEUTRAL";
 
 const CTA_LABEL_STYLE: Record<CtaLabel, { text: string; bg: string; border: string }> = {
-  MAX_LONG:  { text: "text-amber-300",   bg: "bg-amber-500/15",   border: "border-amber-500/30"   },
-  MAX_SHORT: { text: "text-amber-300",   bg: "bg-amber-500/15",   border: "border-amber-500/30"   },
-  LONG:      { text: "text-emerald-300", bg: "bg-emerald-500/15", border: "border-emerald-500/30" },
-  SHORT:     { text: "text-red-300",     bg: "bg-red-500/15",     border: "border-red-500/30"     },
-  NEUTRAL:   { text: "text-slate-300",   bg: "bg-slate-500/15",   border: "border-slate-500/30"   },
+  MAX_LONG:  { text: "text-[var(--caution)]", bg: "bg-[var(--caution)]/15", border: "border-[var(--caution)]/30" },
+  MAX_SHORT: { text: "text-[var(--caution)]", bg: "bg-[var(--caution)]/15", border: "border-[var(--caution)]/30" },
+  LONG:      { text: "text-[var(--long)]",    bg: "bg-[var(--long)]/15",    border: "border-[var(--long)]/30"    },
+  SHORT:     { text: "text-[var(--short)]",   bg: "bg-[var(--short)]/15",   border: "border-[var(--short)]/30"   },
+  NEUTRAL:   { text: "text-[var(--text-muted)]", bg: "bg-[var(--bg-primary)]", border: "border-[var(--border)]" },
 };
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-2">
+    <p className="text-xs text-[var(--text-muted)] mb-2">
       {children}
     </p>
   );
@@ -61,7 +61,7 @@ function CtaBadge({ label }: { label: string | undefined }) {
   const key = label ?? "NEUTRAL";
   const s = CTA_LABEL_STYLE[key as CtaLabel] ?? CTA_LABEL_STYLE["NEUTRAL"];
   return (
-    <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded border", s.text, s.bg, s.border)}>
+    <span className={cn("text-xs font-semibold px-2 py-0.5 rounded border", s.text, s.bg, s.border)}>
       {key.replace("_", " ")}
     </span>
   );
@@ -82,19 +82,19 @@ function ScoreBar({ score, compact = false }: ScoreBarProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className={cn("font-mono text-xs w-12 text-right shrink-0", isPositive ? "text-emerald-400" : "text-red-400")}>
+      <span className={cn("font-mono text-xs w-12 text-right shrink-0", isPositive ? "text-[var(--long)]" : "text-[var(--short)]")}>
         {fmtScore(clamped)}
       </span>
       <div className={cn("relative flex-1 rounded-full bg-[var(--border)] overflow-hidden", h)}>
         <div className="absolute inset-y-0 left-1/2 w-px bg-[var(--text-muted)] z-10" />
         {isPositive ? (
           <div
-            className="absolute inset-y-0 bg-emerald-500 rounded-r-full"
+            className="absolute inset-y-0 bg-[var(--long)] rounded-r-full"
             style={{ left: "50%", width: `${widthPct}%` }}
           />
         ) : (
           <div
-            className="absolute inset-y-0 bg-red-500 rounded-l-full"
+            className="absolute inset-y-0 bg-[var(--short)] rounded-l-full"
             style={{ right: "50%", width: `${widthPct}%` }}
           />
         )}
@@ -116,7 +116,7 @@ function BiasCard({ label, score, note }: BiasCardProps) {
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
       <SectionLabel>{label}</SectionLabel>
       <ScoreBar score={score} />
-      {note && <p className="text-[10px] text-[var(--text-muted)] mt-2">{note}</p>}
+      {note && <p className="text-xs text-[var(--text-muted)] mt-2">{note}</p>}
     </div>
   );
 }
@@ -158,8 +158,8 @@ function InstrumentTable({ instruments }: InstrumentTableProps) {
                 <td className="px-4 py-2.5 text-right font-mono">
                   {inst.next_sell_trigger ? (
                     <span className="flex flex-col items-end">
-                      <span className="text-red-400">{fmtLevel(inst.next_sell_trigger.level)}</span>
-                      <span className="text-[var(--text-muted)] text-[10px]">{fmtPct(inst.next_sell_trigger.distance_pct)}</span>
+                      <span className="text-[var(--short)]">{fmtLevel(inst.next_sell_trigger.level)}</span>
+                      <span className="text-[var(--text-muted)] text-xs">{fmtPct(inst.next_sell_trigger.distance_pct)}</span>
                     </span>
                   ) : (
                     <span className="text-[var(--text-muted)]">—</span>
@@ -168,8 +168,8 @@ function InstrumentTable({ instruments }: InstrumentTableProps) {
                 <td className="px-4 py-2.5 text-right font-mono">
                   {inst.next_buy_trigger ? (
                     <span className="flex flex-col items-end">
-                      <span className="text-emerald-400">{fmtLevel(inst.next_buy_trigger.level)}</span>
-                      <span className="text-[var(--text-muted)] text-[10px]">{fmtPct(inst.next_buy_trigger.distance_pct)}</span>
+                      <span className="text-[var(--long)]">{fmtLevel(inst.next_buy_trigger.level)}</span>
+                      <span className="text-[var(--text-muted)] text-xs">{fmtPct(inst.next_buy_trigger.distance_pct)}</span>
                     </span>
                   ) : (
                     <span className="text-[var(--text-muted)]">—</span>
@@ -196,12 +196,12 @@ function AlertsFeed({ alerts }: { alerts: CTAAlert[] }) {
       <SectionLabel>Alerts</SectionLabel>
       {alerts.map((alert, i) => (
         <div key={i} className="flex items-start gap-3 text-sm py-1.5 border-b border-[var(--border)] last:border-0">
-          <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+          <AlertTriangle className="w-4 h-4 text-[var(--caution)] mt-0.5 shrink-0" />
           <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-[var(--border)] text-[var(--text-primary)] shrink-0">
             {alert.instrument}
           </span>
           <span className="text-[var(--text-primary)] flex-1 text-xs">{alert.message}</span>
-          <span className="font-mono text-xs text-amber-400 shrink-0">{fmtPct(alert.distance_pct)}</span>
+          <span className="font-mono text-xs text-[var(--caution)] shrink-0">{fmtPct(alert.distance_pct)}</span>
         </div>
       ))}
     </div>
@@ -229,10 +229,10 @@ function CtaFullDisplay({ aggregate, instruments, alerts, asOfDate, dataSource, 
           <div className={cn(
             "flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-semibold",
             aggregate.risk_on_off === "RISK_ON"
-              ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/25"
+              ? "text-[var(--long)] bg-[var(--long)]/10 border-[var(--long)]/25"
               : aggregate.risk_on_off === "RISK_OFF"
-              ? "text-red-300 bg-red-500/10 border-red-500/25"
-              : "text-slate-300 bg-slate-500/10 border-slate-500/25"
+              ? "text-[var(--short)] bg-[var(--short)]/10 border-[var(--short)]/25"
+              : "text-[var(--text-muted)] bg-[var(--bg-primary)] border-[var(--border)]"
           )}>
             {aggregate.risk_on_off === "RISK_ON" ? (
               <TrendingUp className="w-3.5 h-3.5" />
@@ -269,7 +269,7 @@ function CtaFullDisplay({ aggregate, instruments, alerts, asOfDate, dataSource, 
 
       {/* Metadata */}
       {(asOfDate || dataSource || lastUpdated) && (
-        <p className="text-[10px] text-[var(--text-muted)]">
+        <p className="text-xs text-[var(--text-muted)]">
           As of: {asOfDate}
           {dataSource && <> · Source: {dataSource}</>}
           {lastUpdated && <> · Updated: {lastUpdated}</>}
@@ -293,7 +293,7 @@ function CtaFallbackDisplay() {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="animate-pulse rounded bg-[var(--border)] h-20 w-full" />
+          <div key={i} className="rounded bg-[var(--border)] h-20 w-full" />
         ))}
       </div>
     );
@@ -316,7 +316,7 @@ function CtaFallbackDisplay() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 p-3 text-xs text-amber-300">
+      <div className="rounded-lg border border-[var(--caution)]/25 bg-[var(--caution)]/5 p-3 text-xs text-[var(--caution)]">
         Showing fallback data from /api/market/direction. Deploy the CTA module for full data.
       </div>
 
@@ -325,14 +325,14 @@ function CtaFallbackDisplay() {
 
       {/* Risk badge */}
       <div className="flex items-center gap-2">
-        <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Risk Signal:</span>
+        <span className="text-xs text-[var(--text-muted)]">Risk signal:</span>
         <div className={cn(
           "flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-semibold",
           cta.risk_on_off === "RISK_ON"
-            ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/25"
+            ? "text-[var(--long)] bg-[var(--long)]/10 border-[var(--long)]/25"
             : cta.risk_on_off === "RISK_OFF"
-            ? "text-red-300 bg-red-500/10 border-red-500/25"
-            : "text-slate-300 bg-slate-500/10 border-slate-500/25"
+            ? "text-[var(--short)] bg-[var(--short)]/10 border-[var(--short)]/25"
+            : "text-[var(--text-muted)] bg-[var(--bg-primary)] border-[var(--border)]"
         )}>
           {cta.risk_on_off === "RISK_ON" ? (
             <TrendingUp className="w-3.5 h-3.5" />
@@ -375,10 +375,10 @@ function CtaFallbackDisplay() {
                     <td className="px-4 py-2.5 text-right font-mono">
                       {row.cta.next_sell_trigger ? (
                         <span className="flex flex-col items-end">
-                          <span className="text-red-400 flex items-center gap-0.5">
+                          <span className="text-[var(--short)] flex items-center gap-0.5">
                             <ArrowDown className="w-3 h-3" />{fmtLevel(row.cta.next_sell_trigger.level)}
                           </span>
-                          <span className="text-[var(--text-muted)] text-[10px]">{fmtPct(row.cta.next_sell_trigger.distance_pct)}</span>
+                          <span className="text-[var(--text-muted)] text-xs">{fmtPct(row.cta.next_sell_trigger.distance_pct)}</span>
                         </span>
                       ) : (
                         <span className="text-[var(--text-muted)]">—</span>
@@ -387,10 +387,10 @@ function CtaFallbackDisplay() {
                     <td className="px-4 py-2.5 text-right font-mono">
                       {row.cta.next_buy_trigger ? (
                         <span className="flex flex-col items-end">
-                          <span className="text-emerald-400 flex items-center gap-0.5">
+                          <span className="text-[var(--long)] flex items-center gap-0.5">
                             <ArrowUp className="w-3 h-3" />{fmtLevel(row.cta.next_buy_trigger.level)}
                           </span>
-                          <span className="text-[var(--text-muted)] text-[10px]">{fmtPct(row.cta.next_buy_trigger.distance_pct)}</span>
+                          <span className="text-[var(--text-muted)] text-xs">{fmtPct(row.cta.next_buy_trigger.distance_pct)}</span>
                         </span>
                       ) : (
                         <span className="text-[var(--text-muted)]">—</span>
@@ -421,10 +421,10 @@ export function CtaPanel() {
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse rounded bg-[var(--border)] h-24 w-full" />
+              <div key={i} className="rounded bg-[var(--border)] h-24 w-full" />
             ))}
           </div>
-          <div className="animate-pulse rounded bg-[var(--border)] h-48 w-full" />
+          <div className="rounded bg-[var(--border)] h-48 w-full" />
         </div>
       ) : isError || !ctaData ? (
         <CtaFallbackDisplay />

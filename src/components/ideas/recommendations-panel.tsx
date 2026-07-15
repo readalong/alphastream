@@ -56,28 +56,28 @@ import type {
 // ─── Style maps ──────────────────────────────────────────────────────────────
 
 const REGIME_STYLE: Record<RegimeColor, { bg: string; border: string; dot: string; text: string; label: string; rowBg: string }> = {
-  GREEN:  { bg: "bg-emerald-500/10", border: "border-emerald-500/25", dot: "bg-emerald-400", text: "text-emerald-400", label: "RISK ON",  rowBg: "bg-emerald-500/10" },
-  YELLOW: { bg: "bg-amber-500/10",   border: "border-amber-500/25",   dot: "bg-amber-400",   text: "text-amber-400",   label: "CAUTION",  rowBg: "bg-amber-500/10"   },
-  RED:    { bg: "bg-red-500/10",     border: "border-red-500/25",     dot: "bg-red-400",     text: "text-red-400",     label: "RISK OFF", rowBg: "bg-red-500/10"     },
+  GREEN:  { bg: "bg-[var(--long)]/10", border: "border-[var(--long)]/25", dot: "bg-[var(--long)]", text: "text-[var(--long)]", label: "Risk on",  rowBg: "bg-[var(--long)]/10" },
+  YELLOW: { bg: "bg-[var(--caution)]/10", border: "border-[var(--caution)]/25", dot: "bg-[var(--caution)]", text: "text-[var(--caution)]", label: "Caution",  rowBg: "bg-[var(--caution)]/10" },
+  RED:    { bg: "bg-[var(--short)]/10", border: "border-[var(--short)]/25", dot: "bg-[var(--short)]", text: "text-[var(--short)]", label: "Risk off", rowBg: "bg-[var(--short)]/10" },
 };
 
 const CONVICTION_STYLE: Record<ConvictionTier, { bg: string; text: string; border: string; leftBorder: string }> = {
-  STRONG_BUY:  { bg: "bg-amber-500/15",  text: "text-amber-300",  border: "border-amber-500/30",  leftBorder: "border-l-4 border-l-amber-400"  },
-  BUY:         { bg: "bg-green-500/15",  text: "text-green-400",  border: "border-green-500/30",  leftBorder: "border-l-2 border-l-emerald-500" },
-  SPECULATIVE: { bg: "bg-blue-500/15",   text: "text-blue-400",   border: "border-blue-500/30",   leftBorder: "border-l-2 border-l-blue-500"   },
+  STRONG_BUY:  { bg: "bg-[var(--long)]/15", text: "text-[var(--long)]", border: "border-[var(--long)]/30", leftBorder: "border-l-4 border-l-[var(--long)]" },
+  BUY:         { bg: "bg-[var(--long)]/15", text: "text-[var(--long)]", border: "border-[var(--long)]/30", leftBorder: "border-l-2 border-l-[var(--long)]" },
+  SPECULATIVE: { bg: "bg-[var(--caution)]/15", text: "text-[var(--caution)]", border: "border-[var(--caution)]/30", leftBorder: "border-l-2 border-l-[var(--caution)]" },
 };
 
 const EXIT_STYLE: Record<ExitAction, { bg: string; text: string; border: string; icon: React.ComponentType<{ className?: string }> }> = {
-  SELL:    { bg: "bg-red-500/15",    text: "text-red-400",    border: "border-red-500/30",    icon: AlertTriangle },
-  REDUCE:  { bg: "bg-orange-500/15", text: "text-orange-400", border: "border-orange-500/30", icon: TrendingDown  },
-  TIGHTEN: { bg: "bg-amber-500/15",  text: "text-amber-400",  border: "border-amber-500/30",  icon: ShieldAlert   },
-  WARNING: { bg: "bg-slate-500/15",  text: "text-slate-400",  border: "border-slate-500/30",  icon: Clock         },
+  SELL:    { bg: "bg-[var(--short)]/15", text: "text-[var(--short)]", border: "border-[var(--short)]/30", icon: AlertTriangle },
+  REDUCE:  { bg: "bg-[var(--severe)]/15", text: "text-[var(--severe)]", border: "border-[var(--severe)]/30", icon: TrendingDown  },
+  TIGHTEN: { bg: "bg-[var(--caution)]/15", text: "text-[var(--caution)]", border: "border-[var(--caution)]/30", icon: ShieldAlert   },
+  WARNING: { bg: "bg-[var(--bg-primary)]",  text: "text-[var(--text-muted)]",  border: "border-[var(--border)]",  icon: Clock         },
 };
 
 const TIER_STYLE: Record<SectorTier, string> = {
-  LEADING: "text-emerald-400",
-  NEUTRAL: "text-slate-400",
-  LAGGING: "text-red-400",
+  LEADING: "text-[var(--long)]",
+  NEUTRAL: "text-[var(--text-muted)]",
+  LAGGING: "text-[var(--short)]",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -105,19 +105,19 @@ function RegimeBanner({ regime }: { regime: ReturnType<typeof useRegime>["data"]
     <div className={cn("rounded-lg border p-4", s.bg, s.border)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 flex-wrap">
-          <span className={cn("h-2 w-2 rounded-full animate-pulse", s.dot)} />
+          <span className={cn("h-2 w-2 rounded-full", s.dot)} />
           <span className={cn("text-sm font-bold tracking-widest", s.text)}>
             {regime.regime} — {s.label}
           </span>
           {regime.regime_changed && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/80 font-medium">REGIME CHANGE</span>
+            <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--bg-primary)]/60 text-[var(--text-primary)] font-medium">Regime change</span>
           )}
           {Object.entries(regime.index_status).map(([t, s2]) => (
             <span key={t} className="flex items-center gap-1 text-xs">
               <span className="font-mono text-[var(--text-muted)] uppercase">{t}</span>
-              <span className={cn("h-1.5 w-1.5 rounded-full", s2.above_20d ? "bg-emerald-400" : "bg-red-400")} />
-              <span className={cn("h-1.5 w-1.5 rounded-full", s2.above_50d ? "bg-emerald-400" : "bg-red-400")} />
-              <span className={cn("h-1.5 w-1.5 rounded-full", s2.above_200d ? "bg-emerald-400" : "bg-red-400")} />
+              <span className={cn("h-1.5 w-1.5 rounded-full", s2.above_20d ? "bg-[var(--long)]" : "bg-[var(--short)]")} />
+              <span className={cn("h-1.5 w-1.5 rounded-full", s2.above_50d ? "bg-[var(--long)]" : "bg-[var(--short)]")} />
+              <span className={cn("h-1.5 w-1.5 rounded-full", s2.above_200d ? "bg-[var(--long)]" : "bg-[var(--short)]")} />
             </span>
           ))}
         </div>
@@ -127,13 +127,13 @@ function RegimeBanner({ regime }: { regime: ReturnType<typeof useRegime>["data"]
       </div>
       <p className="text-sm text-[var(--text-muted)] mt-1">{regime.details}</p>
       {regime.transition_action && (
-        <div className="mt-2 text-sm text-amber-300 flex items-center gap-1.5">
+        <div className="mt-2 text-sm text-[var(--caution)] flex items-center gap-1.5">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
           {regime.transition_action}
         </div>
       )}
       {open && regime.breadth && (
-        <div className="mt-3 pt-3 border-t border-white/10 grid grid-cols-3 sm:grid-cols-6 gap-3">
+        <div className="mt-3 pt-3 border-t border-[var(--border)] grid grid-cols-3 sm:grid-cols-6 gap-3">
           {[
             { label: "Above 200d", value: `${regime.breadth.pct_above_200sma.toFixed(1)}%` },
             { label: "Above 50d",  value: `${regime.breadth.pct_above_50sma.toFixed(1)}%`  },
@@ -143,7 +143,7 @@ function RegimeBanner({ regime }: { regime: ReturnType<typeof useRegime>["data"]
             { label: "H/L Ratio",  value: regime.breadth.highs_lows_ratio.toFixed(1)        },
           ].map(i => (
             <div key={i.label}>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">{i.label}</span>
+              <span className="text-xs text-[var(--text-muted)] block">{i.label}</span>
               <span className="font-mono text-sm text-[var(--text-primary)]">{i.value}</span>
             </div>
           ))}
@@ -157,12 +157,12 @@ function PortfolioHealthBar({ health }: { health: ReturnType<typeof usePortfolio
   if (!health) return null;
   const max = health.capacity?.max_heat_pct ?? 10;
   const pct = (health.total_heat_pct / max) * 100;
-  const barColor = pct > 80 ? "bg-red-500" : pct > 55 ? "bg-amber-500" : "bg-emerald-500";
+  const barColor = pct > 80 ? "bg-[var(--short)]" : pct > 55 ? "bg-[var(--caution)]" : "bg-[var(--long)]";
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-4 py-3">
       <div className="flex flex-wrap items-center gap-6">
         <div>
-          <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Heat</span>
+          <span className="text-xs text-[var(--text-muted)] block">Heat</span>
           <div className="flex items-center gap-2 mt-0.5">
             <div className="w-24 h-2 rounded-full bg-[var(--border)] overflow-hidden">
               <div className={cn("h-full rounded-full", barColor)} style={{ width: `${Math.min(pct, 100)}%` }} />
@@ -171,7 +171,7 @@ function PortfolioHealthBar({ health }: { health: ReturnType<typeof usePortfolio
           </div>
         </div>
         <div>
-          <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Positions</span>
+          <span className="text-xs text-[var(--text-muted)] block">Positions</span>
           <span className="font-mono text-sm text-[var(--text-primary)]">
             {health.total_positions}
             {health.capacity && <span className="text-[var(--text-muted)]"> / {health.capacity.max_positions}</span>}
@@ -179,14 +179,14 @@ function PortfolioHealthBar({ health }: { health: ReturnType<typeof usePortfolio
         </div>
         {health.capacity && (
           <div>
-            <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Slots</span>
-            <span className="font-mono text-sm text-emerald-400">{health.capacity.positions_remaining} left</span>
+            <span className="text-xs text-[var(--text-muted)] block">Slots</span>
+            <span className="font-mono text-sm text-[var(--long)]">{health.capacity.positions_remaining} left</span>
           </div>
         )}
         {Object.keys(health.sector_breakdown ?? {}).length > 0 && (
           <div className="flex flex-wrap gap-1.5 ml-auto">
             {Object.entries(health.sector_breakdown).map(([sec, cnt]) => (
-              <span key={sec} className="text-[11px] px-2 py-0.5 rounded bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20">
+              <span key={sec} className="text-xs px-2 py-0.5 rounded bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20">
                 {sec} ×{cnt}
               </span>
             ))}
@@ -237,26 +237,26 @@ function HistoryRow({
             )}
           </span>
         </div>
-        <span className={cn("text-[10px] font-bold tracking-wider", s.text)}>{entry.regime}</span>
+        <span className={cn("text-xs font-bold tracking-wider", s.text)}>{entry.regime}</span>
       </div>
       <div className="flex items-center gap-3 mt-1.5">
         {entry.buy_count > 0 && (
-          <span className="flex items-center gap-1 text-[11px] text-emerald-400">
+          <span className="flex items-center gap-1 text-xs text-[var(--long)]">
             <TrendingUp className="h-3 w-3" />{entry.buy_count}
           </span>
         )}
         {entry.sell_count > 0 && (
-          <span className="flex items-center gap-1 text-[11px] text-red-400">
+          <span className="flex items-center gap-1 text-xs text-[var(--short)]">
             <TrendingDown className="h-3 w-3" />{entry.sell_count}
           </span>
         )}
         {entry.pending_count > 0 && (
-          <span className="flex items-center gap-1 text-[11px] text-amber-400">
+          <span className="flex items-center gap-1 text-xs text-[var(--caution)]">
             <Clock className="h-3 w-3" />{entry.pending_count}
           </span>
         )}
         {entry.buy_count === 0 && entry.sell_count === 0 && entry.pending_count === 0 && (
-          <span className="text-[11px] text-[var(--text-muted)]">No signals</span>
+          <span className="text-xs text-[var(--text-muted)]">No signals</span>
         )}
       </div>
     </button>
@@ -278,9 +278,9 @@ function OpenPositionsTable({
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
       <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider flex items-center gap-2">
-          <CircleDot className="h-4 w-4 text-emerald-400" />
-          Open Positions ({positions.length})
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-2">
+          <CircleDot className="h-4 w-4 text-[var(--long)]" />
+          Open positions ({positions.length})
         </h3>
       </div>
       <div className="divide-y divide-[var(--border)]">
@@ -301,20 +301,20 @@ function OpenPositionsTable({
               </div>
               <div className="flex-1 min-w-0 hidden md:block">
                 <span className="text-xs text-[var(--text-muted)]">Stop </span>
-                <span className="font-mono text-xs text-red-400">${pos.stop_loss.toFixed(2)}</span>
+                <span className="font-mono text-xs text-[var(--short)]">${pos.stop_loss.toFixed(2)}</span>
               </div>
               <div className="flex-1 min-w-0 hidden lg:block">
                 <span className="text-xs text-[var(--text-muted)]">Risk </span>
                 <span className="font-mono text-xs text-[var(--text-primary)]">{(pos.risk_pct * 100).toFixed(2)}%</span>
               </div>
-              <span className={cn("hidden md:inline px-1.5 py-0.5 rounded text-[10px] font-semibold border shrink-0", cs.bg, cs.text, cs.border)}>
+              <span className={cn("hidden md:inline px-1.5 py-0.5 rounded text-xs font-semibold border shrink-0", cs.bg, cs.text, cs.border)}>
                 {tier?.replace(/_/g, " ")}
               </span>
-              <span className="hidden lg:block text-xs text-purple-400 truncate max-w-[120px] shrink-0">{pos.wave_position}</span>
+              <span className="hidden lg:block text-xs text-[var(--info)] truncate max-w-[120px] shrink-0">{pos.wave_position}</span>
               <button
                 onClick={() => onClose(pos.ticker)}
                 disabled={isClosing === pos.ticker}
-                className="ml-auto shrink-0 flex items-center gap-1 px-2 py-1 rounded text-xs text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors disabled:opacity-40"
+                className="ml-auto shrink-0 flex items-center gap-1 px-2 py-1 rounded text-xs text-[var(--short)] hover:bg-[var(--short)]/10 border border-transparent hover:border-[var(--short)]/20 transition-colors disabled:opacity-40"
               >
                 {isClosing === pos.ticker ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
                 Close
@@ -346,7 +346,7 @@ function FactorBar({ score }: { score: BuyRecommendation["factor_score"] }) {
       </div>
       <div className="flex gap-3 mt-1">
         {cats.map(c => (
-          <span key={c.key} className="text-[10px] text-[var(--text-muted)]">
+          <span key={c.key} className="text-xs text-[var(--text-muted)]">
             {c.label} <span className="text-[var(--text-primary)] font-mono">{c.value}</span>
           </span>
         ))}
@@ -393,42 +393,42 @@ function BuyCard({
                 {rec.ticker}
               </Link>
               {tier && (
-                <span className={cn("px-2 py-0.5 rounded text-[11px] font-semibold border", cs.bg, cs.text, cs.border)}>
+                <span className={cn("px-2 py-0.5 rounded text-xs font-semibold border", cs.bg, cs.text, cs.border)}>
                   {tier.replace(/_/g, " ")}
                 </span>
               )}
               <span className="text-[var(--text-muted)] text-sm">Score</span>
               <span className={cn("font-mono font-bold text-sm", cs.text)}>{rec.factor_score.adjusted_total}</span>
               {rec.weekly_aligned && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-400 border border-purple-500/30">W✓</span>
+                <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--long)]/15 text-[var(--long)] border border-[var(--long)]/30">Weekly aligned</span>
               )}
             </div>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 text-xs text-[var(--text-muted)]">
               <span>{rec.sector}</span>
               <span>·</span>
-              <span className={TIER_STYLE[rec.sector_tier as SectorTier] ?? "text-slate-400"}>
+              <span className={TIER_STYLE[rec.sector_tier as SectorTier] ?? "text-[var(--text-muted)]"}>
                 {rec.sector_tier} #{rec.sector_rank}
               </span>
-              {rec.wave_position && <><span>·</span><span className="text-purple-400">{rec.wave_position}</span></>}
+              {rec.wave_position && <><span>·</span><span className="text-[var(--info)]">{rec.wave_position}</span></>}
             </div>
             {/* Sector context summary line */}
             {rec.sector_context?.summary && (
-              <p className="text-[11px] text-[var(--text-muted)] mt-1 leading-snug">{rec.sector_context.summary}</p>
+              <p className="text-xs text-[var(--text-muted)] mt-1 leading-snug">{rec.sector_context.summary}</p>
             )}
             <FactorBar score={rec.factor_score} />
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs">
               <span className="text-[var(--text-muted)]">
                 Entry <span className="font-mono text-[var(--text-primary)]">${rec.entry.trigger_price.toFixed(2)}</span>
-                <span className="ml-1 text-[10px]">({rec.entry.trigger_type})</span>
-                {rec.entry.volume_confirmed && <CheckCircle2 className="inline h-3 w-3 text-emerald-400 ml-1" />}
+                <span className="ml-1 text-xs">({rec.entry.trigger_type})</span>
+                {rec.entry.volume_confirmed && <CheckCircle2 className="inline h-3 w-3 text-[var(--long)] ml-1" />}
               </span>
               <span className="text-[var(--text-muted)]">
-                Stop <span className="font-mono text-red-400">${rec.risk.stop_loss.toFixed(2)}</span>
+                Stop <span className="font-mono text-[var(--short)]">${rec.risk.stop_loss.toFixed(2)}</span>
               </span>
               {r1 && (
                 <span className="text-[var(--text-muted)]">
-                  R1 <span className="font-mono text-emerald-400">${r1.price.toFixed(2)}</span>
-                  <span className="text-[10px] ml-0.5">+{r1.pct_gain.toFixed(1)}%</span>
+                  R1 <span className="font-mono text-[var(--long)]">${r1.price.toFixed(2)}</span>
+                  <span className="text-xs ml-0.5">+{r1.pct_gain.toFixed(1)}%</span>
                 </span>
               )}
               <span className="text-[var(--text-muted)]">
@@ -445,14 +445,14 @@ function BuyCard({
 
       {/* Add position button */}
       <div className="px-4 pb-3 flex items-center justify-between border-t border-[var(--border)]">
-        <span className="text-[10px] text-[var(--text-muted)]">
+        <span className="text-xs text-[var(--text-muted)]">
           {rec.entry.confirmation_days}d · {rec.entry.level_significance}
           {rec.entry.guard_warnings.length > 0 && (
-            <span className="ml-2 text-amber-400">⚠ {rec.entry.guard_warnings[0]}</span>
+            <span className="ml-2 text-[var(--caution)]">⚠ {rec.entry.guard_warnings[0]}</span>
           )}
         </span>
         {alreadyOpen ? (
-          <span className="text-[11px] px-2 py-1 rounded text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
+          <span className="text-xs px-2 py-1 rounded text-[var(--long)] bg-[var(--long)]/10 border border-[var(--long)]/20">
             <CheckCircle2 className="inline h-3 w-3 mr-1" />In portfolio
           </span>
         ) : (
@@ -472,7 +472,7 @@ function BuyCard({
         <div className="px-4 pb-4 border-t border-[var(--border)] space-y-3">
           {rec.screener_signals && (
             <div className="pt-3">
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block mb-1">Signals</span>
+              <span className="text-xs text-[var(--text-muted)] block mb-1">Signals</span>
               <div className="flex flex-wrap gap-1">
                 {rec.screener_signals.split("|").map(s => (
                   <span key={s} className="px-2 py-0.5 rounded text-xs bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20">{s.trim()}</span>
@@ -481,42 +481,42 @@ function BuyCard({
             </div>
           )}
           <div>
-            <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block mb-1">Rationale</span>
+            <span className="text-xs text-[var(--text-muted)] block mb-1">Rationale</span>
             <p className="text-xs text-[var(--text-primary)]">{rec.conviction.rationale}</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-[var(--border)]">
             <div>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Position %</span>
+              <span className="text-xs text-[var(--text-muted)] block">Position %</span>
               <span className="font-mono text-sm text-[var(--text-primary)]">{(rec.risk.position_pct * 100).toFixed(1)}%</span>
             </div>
             <div>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Position $</span>
+              <span className="text-xs text-[var(--text-muted)] block">Position $</span>
               <span className="font-mono text-sm text-[var(--text-primary)]">${rec.risk.position_value.toLocaleString()}</span>
             </div>
             <div>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Shares</span>
+              <span className="text-xs text-[var(--text-muted)] block">Shares</span>
               <span className="font-mono text-sm text-[var(--text-primary)]">{rec.risk.shares}</span>
             </div>
             <div>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">ATR(14)</span>
+              <span className="text-xs text-[var(--text-muted)] block">ATR(14)</span>
               <span className="font-mono text-sm text-[var(--text-primary)]">{rec.risk.atr_14.toFixed(2)}</span>
             </div>
             <div>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Trailing Stop</span>
-              <span className="font-mono text-sm text-amber-400">${rec.risk.trailing_stop.toFixed(2)}</span>
+              <span className="text-xs text-[var(--text-muted)] block">Trailing Stop</span>
+              <span className="font-mono text-sm text-[var(--caution)]">${rec.risk.trailing_stop.toFixed(2)}</span>
             </div>
             <div>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Wave Conf.</span>
-              <span className="font-mono text-sm text-purple-400">{rec.wave_confidence}%</span>
+              <span className="text-xs text-[var(--text-muted)] block">Wave Conf.</span>
+              <span className="font-mono text-sm text-[var(--info)]">{rec.wave_confidence}%</span>
             </div>
             {r2 && (
               <div>
-                <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Target R2</span>
-                <span className="font-mono text-sm text-emerald-400">${r2.price.toFixed(2)} (+{r2.pct_gain.toFixed(1)}%)</span>
+                <span className="text-xs text-[var(--text-muted)] block">Target R2</span>
+                <span className="font-mono text-sm text-[var(--long)]">${r2.price.toFixed(2)} (+{r2.pct_gain.toFixed(1)}%)</span>
               </div>
             )}
             <div>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Industry</span>
+              <span className="text-xs text-[var(--text-muted)] block">Industry</span>
               <span className="text-xs text-[var(--text-primary)]">{rec.industry}</span>
             </div>
           </div>
@@ -524,16 +524,16 @@ function BuyCard({
             <div className="pt-2 border-t border-[var(--border)] grid grid-cols-2 sm:grid-cols-4 gap-3">
               {rec.sector_context.etf_200d_extension_pct !== undefined && (
                 <div>
-                  <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">200d Ext</span>
-                  <span className={cn("font-mono text-sm", rec.sector_context.etf_200d_extension_pct >= 0 ? "text-emerald-400" : "text-red-400")}>
+                  <span className="text-xs text-[var(--text-muted)] block">200d Ext</span>
+                  <span className={cn("font-mono text-sm", rec.sector_context.etf_200d_extension_pct >= 0 ? "text-[var(--long)]" : "text-[var(--short)]")}>
                     {rec.sector_context.etf_200d_extension_pct >= 0 ? "+" : ""}{rec.sector_context.etf_200d_extension_pct.toFixed(1)}%
                   </span>
                 </div>
               )}
               {rec.sector_context.etf_vs_spy_20d_pct !== undefined && (
                 <div>
-                  <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">vs SPY 20d</span>
-                  <span className={cn("font-mono text-sm", rec.sector_context.etf_vs_spy_20d_pct >= 0 ? "text-emerald-400" : "text-red-400")}>
+                  <span className="text-xs text-[var(--text-muted)] block">vs SPY 20d</span>
+                  <span className={cn("font-mono text-sm", rec.sector_context.etf_vs_spy_20d_pct >= 0 ? "text-[var(--long)]" : "text-[var(--short)]")}>
                     {rec.sector_context.etf_vs_spy_20d_pct >= 0 ? "+" : ""}{rec.sector_context.etf_vs_spy_20d_pct.toFixed(1)}%
                   </span>
                 </div>
@@ -565,7 +565,7 @@ function ExitRow({
       <div className="flex items-center gap-2">
         <button className="flex-1 flex items-center gap-2 text-left" onClick={() => setExpanded(v => !v)}>
           <Icon className={cn("h-3.5 w-3.5 shrink-0", s.text)} />
-          <span className={cn("text-[11px] font-semibold px-1.5 py-0.5 rounded border", s.bg, s.text, s.border)}>
+          <span className={cn("text-xs font-semibold px-1.5 py-0.5 rounded border", s.bg, s.text, s.border)}>
             {signal.action}
           </span>
           <Link
@@ -577,13 +577,13 @@ function ExitRow({
           </Link>
           <span className="text-xs text-[var(--text-muted)] flex-1 truncate">{signal.reason}</span>
           {signal.urgency === "IMMEDIATE" && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 shrink-0">IMMEDIATE</span>
+            <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--short)]/20 text-[var(--short)] border border-[var(--short)]/30 shrink-0">Immediate</span>
           )}
         </button>
         <button
           onClick={() => onClose(signal.ticker, signal.action.toLowerCase())}
           disabled={isClosing === signal.ticker}
-          className="shrink-0 flex items-center gap-1 px-2 py-1 rounded text-xs text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors disabled:opacity-40"
+          className="shrink-0 flex items-center gap-1 px-2 py-1 rounded text-xs text-[var(--short)] hover:bg-[var(--short)]/10 border border-transparent hover:border-[var(--short)]/20 transition-colors disabled:opacity-40"
         >
           {isClosing === signal.ticker ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
           Close
@@ -591,10 +591,10 @@ function ExitRow({
         <ChevronDown className={cn("h-3.5 w-3.5 text-[var(--text-muted)] shrink-0 transition-transform cursor-pointer", expanded && "rotate-180")} onClick={() => setExpanded(v => !v)} />
       </div>
       {expanded && (
-        <div className="mt-2 pt-2 border-t border-white/10 space-y-1">
+        <div className="mt-2 pt-2 border-t border-[var(--border)] space-y-1">
           <p className="text-xs text-[var(--text-muted)]">{signal.details}</p>
           {signal.updated_stop != null && (
-            <p className="text-xs text-amber-400">Updated stop → <span className="font-mono">${signal.updated_stop.toFixed(2)}</span></p>
+            <p className="text-xs text-[var(--caution)]">Updated stop → <span className="font-mono">${signal.updated_stop.toFixed(2)}</span></p>
           )}
         </div>
       )}
@@ -608,29 +608,29 @@ function PendingCard({ b }: { b: PendingBreakout }) {
   const confirmed = b.closes_in_direction >= b.days_required;
   const progress = b.days_required > 0 ? (b.closes_in_direction / b.days_required) * 100 : 100;
   return (
-    <div className={cn("rounded-lg border p-3", confirmed ? "border-emerald-500/30 bg-emerald-500/5" : "border-[var(--border)] bg-[var(--bg-card)]")}>
+    <div className={cn("rounded-lg border p-3", confirmed ? "border-[var(--long)]/30 bg-[var(--long)]/5" : "border-[var(--border)] bg-[var(--bg-card)]")}>
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-2">
           {b.direction === "UP"
-            ? <ArrowUpRight className="h-3.5 w-3.5 text-emerald-400" />
-            : <ArrowDownRight className="h-3.5 w-3.5 text-red-400" />}
+            ? <ArrowUpRight className="h-3.5 w-3.5 text-[var(--long)]" />
+            : <ArrowDownRight className="h-3.5 w-3.5 text-[var(--short)]" />}
           <Link href={`/ticker/${b.ticker}`} className="font-mono text-sm font-bold text-[var(--text-primary)] hover:text-[var(--accent)]">
             {b.ticker}
           </Link>
           {confirmed && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">CONFIRMED</span>
+            <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--long)]/20 text-[var(--long)] border border-[var(--long)]/30">Confirmed</span>
           )}
         </div>
         <span className="font-mono text-xs text-[var(--text-muted)]">${b.breakout_level.toFixed(2)}</span>
       </div>
       <div className="flex items-center gap-2">
         <div className="flex-1 h-1.5 rounded-full bg-[var(--border)] overflow-hidden">
-          <div className={cn("h-full rounded-full", confirmed ? "bg-emerald-500" : "bg-[var(--accent)]")} style={{ width: `${Math.min(progress, 100)}%` }} />
+          <div className={cn("h-full rounded-full", confirmed ? "bg-[var(--long)]" : "bg-[var(--accent)]")} style={{ width: `${Math.min(progress, 100)}%` }} />
         </div>
-        <span className="text-[10px] text-[var(--text-muted)] shrink-0">{b.closes_in_direction}/{b.days_required}d</span>
-        <span className="text-[10px] text-[var(--text-muted)] shrink-0">q:{b.quality_score.toFixed(2)}</span>
+        <span className="text-xs text-[var(--text-muted)] shrink-0">{b.closes_in_direction}/{b.days_required}d</span>
+        <span className="text-xs text-[var(--text-muted)] shrink-0">q:{b.quality_score.toFixed(2)}</span>
       </div>
-      <div className="text-[10px] text-[var(--text-muted)] mt-1">{b.trigger_type} · {b.level_significance}</div>
+      <div className="text-xs text-[var(--text-muted)] mt-1">{b.trigger_type} · {b.level_significance}</div>
     </div>
   );
 }
@@ -639,22 +639,22 @@ function PendingCard({ b }: { b: PendingBreakout }) {
 
 function SectorRow({ s, max }: { s: SectorRanking; max: number }) {
   const w = (s.composite_score / max) * 100;
-  const barColor = s.tier === "LEADING" ? "bg-emerald-500" : s.tier === "NEUTRAL" ? "bg-slate-500" : "bg-red-500";
-  const dir = (s.rotation_accel ?? 0) > 0.2 ? <TrendingUp className="h-3 w-3 text-emerald-400" /> : (s.rotation_accel ?? 0) < -0.2 ? <TrendingDown className="h-3 w-3 text-red-400" /> : null;
+  const barColor = s.tier === "LEADING" ? "bg-[var(--long)]" : s.tier === "NEUTRAL" ? "bg-[var(--text-muted)]" : "bg-[var(--short)]";
+  const dir = (s.rotation_accel ?? 0) > 0.2 ? <TrendingUp className="h-3 w-3 text-[var(--long)]" /> : (s.rotation_accel ?? 0) < -0.2 ? <TrendingDown className="h-3 w-3 text-[var(--short)]" /> : null;
   return (
     <div className="flex items-center gap-2 py-1.5">
-      <span className="text-[10px] text-[var(--text-muted)] w-4 text-right shrink-0">{s.rank}</span>
+      <span className="text-xs text-[var(--text-muted)] w-4 text-right shrink-0">{s.rank}</span>
       <span className="text-xs font-mono font-semibold text-[var(--text-primary)] w-7 shrink-0">{s.etf}</span>
       <div className="flex-1">
         <div className="flex items-center gap-1 mb-0.5">
-          <span className="text-[10px] text-[var(--text-muted)] truncate">{s.name}</span>
+          <span className="text-xs text-[var(--text-muted)] truncate">{s.name}</span>
           {dir}
         </div>
         <div className="h-1 rounded-full bg-[var(--border)] overflow-hidden">
           <div className={cn("h-full rounded-full", barColor)} style={{ width: `${w}%` }} />
         </div>
       </div>
-      <span className={cn("text-[10px] font-medium w-8 text-right shrink-0", TIER_STYLE[s.tier])}>
+      <span className={cn("text-xs font-medium w-8 text-right shrink-0", TIER_STYLE[s.tier])}>
         {s.composite_score.toFixed(0)}
       </span>
     </div>
@@ -723,7 +723,7 @@ function DayDetail({
 
   if (recs.isLoading) return (
     <div className="space-y-3">
-      {[1, 2, 3].map(i => <div key={i} className="h-24 rounded-lg bg-[var(--bg-card)] animate-pulse" />)}
+      {[1, 2, 3].map(i => <div key={i} className="h-24 rounded-lg bg-[var(--bg-card)]" />)}
     </div>
   );
 
@@ -742,15 +742,15 @@ function DayDetail({
       {/* Summary stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {[
-          { label: "Buys",     value: data.buy_recommendations?.length ?? 0,  color: "text-green-400",   icon: TrendingUp  },
-          { label: "Exits",    value: data.sell_signals?.length ?? 0,          color: "text-red-400",     icon: TrendingDown },
-          { label: "Pending",  value: data.pending_breakouts?.length ?? 0,     color: "text-amber-400",   icon: Clock        },
+          { label: "Buys",     value: data.buy_recommendations?.length ?? 0,  color: "text-[var(--long)]",   icon: TrendingUp  },
+          { label: "Exits",    value: data.sell_signals?.length ?? 0,          color: "text-[var(--short)]",  icon: TrendingDown },
+          { label: "Pending",  value: data.pending_breakouts?.length ?? 0,     color: "text-[var(--caution)]", icon: Clock        },
           { label: "Screened", value: data.summary?.candidates_screened ?? 0,  color: "text-[var(--text-primary)]", icon: BarChart2 },
         ].map(stat => (
           <div key={stat.label} className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-3 flex items-center gap-2">
             <stat.icon className={cn("h-4 w-4 shrink-0", stat.color)} />
             <div>
-              <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{stat.label}</p>
+              <p className="text-xs text-[var(--text-muted)]">{stat.label}</p>
               <p className={cn("text-lg font-bold font-mono", stat.color)}>{stat.value}</p>
             </div>
           </div>
@@ -762,9 +762,9 @@ function DayDetail({
         <div className="lg:col-span-3 space-y-4">
           {(data.buy_recommendations?.length ?? 0) > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-green-400" />
-                Buy Recommendations ({data.buy_recommendations.length})
+              <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-[var(--long)]" />
+                Buy recommendations ({data.buy_recommendations.length})
               </h2>
               <div className="space-y-2">
                 {data.buy_recommendations.map(rec => (
@@ -776,9 +776,9 @@ function DayDetail({
 
           {(data.sell_signals?.length ?? 0) > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2">
-                <ShieldAlert className="h-4 w-4 text-red-400" />
-                Exit Signals ({data.sell_signals.length})
+              <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4 text-[var(--short)]" />
+                Exit signals ({data.sell_signals.length})
               </h2>
               <div className="space-y-2">
                 {data.sell_signals.map(sig => (
@@ -790,8 +790,8 @@ function DayDetail({
 
           {(data.hold_positions?.length ?? 0) > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-slate-400" />
+              <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[var(--text-muted)]" />
                 Hold ({data.hold_positions.length})
               </h2>
               <div className="space-y-1">
@@ -814,8 +814,8 @@ function DayDetail({
         <div className="lg:col-span-2 space-y-4">
           {allPending.length > 0 && (
             <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-              <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Clock className="h-4 w-4 text-amber-400" />Pending Breakouts ({allPending.length})
+              <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-[var(--caution)]" />Pending breakouts ({allPending.length})
               </h3>
               <div className="space-y-2">
                 {allPending.map(b => <PendingCard key={b.ticker} b={b} />)}
@@ -825,8 +825,8 @@ function DayDetail({
 
           {allRankings.length > 0 && (
             <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-              <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2">
-                <BarChart2 className="h-4 w-4 text-[var(--text-muted)]" />Sector Rankings
+              <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2 flex items-center gap-2">
+                <BarChart2 className="h-4 w-4 text-[var(--text-muted)]" />Sector rankings
               </h3>
               <div className="divide-y divide-[var(--border)]">
                 {allRankings.map(s => <SectorRow key={s.etf} s={s} max={maxScore} />)}
@@ -954,7 +954,7 @@ export function RecommendationsPanel() {
 
       {/* Regime banner */}
       {regime.isLoading
-        ? <div className="h-14 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+        ? <div className="h-14 rounded-lg bg-[var(--bg-card)]" />
         : <RegimeBanner regime={regime.data} />
       }
 
@@ -994,7 +994,7 @@ export function RecommendationsPanel() {
         <div className={cn("lg:col-span-2 space-y-2", mobilePanel !== "history" && "hidden lg:block")}>
           <div className="flex items-center gap-2 mb-1">
             <History className="h-4 w-4 text-[var(--text-muted)]" />
-            <span className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider">History</span>
+            <span className="text-sm font-semibold text-[var(--text-primary)]">History</span>
             {historyQuery.isLoading && <RefreshCw className="h-3 w-3 text-[var(--text-muted)] animate-spin" />}
           </div>
 
@@ -1013,7 +1013,7 @@ export function RecommendationsPanel() {
           ))}
 
           {historyQuery.isLoading && historyList.length === 0 && (
-            [1,2,3,4,5].map(i => <div key={i} className="h-16 rounded-lg bg-[var(--bg-card)] animate-pulse" />)
+            [1,2,3,4,5].map(i => <div key={i} className="h-16 rounded-lg bg-[var(--bg-card)]" />)
           )}
 
           {canLoadMore && !historyQuery.isLoading && (

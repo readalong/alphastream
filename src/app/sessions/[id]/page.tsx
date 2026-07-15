@@ -13,7 +13,7 @@ import type { SectorRunInfo } from "@/lib/types";
 
 function TodayBadge() {
   return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/25">
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-[var(--long)]/15 text-[var(--long)] border border-[var(--long)]/25">
       Today
     </span>
   );
@@ -72,7 +72,7 @@ export default function SessionDetailPage() {
           <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
             <p className="text-xs text-[var(--text-muted)] mb-1">Screener Output</p>
             {session.has_screener_output ? (
-              <CheckCircle className="h-5 w-5 text-green-500" />
+              <CheckCircle className="h-5 w-5 text-[var(--long)]" />
             ) : (
               <XCircle className="h-5 w-5 text-[var(--text-muted)]" />
             )}
@@ -80,7 +80,7 @@ export default function SessionDetailPage() {
           <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
             <p className="text-xs text-[var(--text-muted)] mb-1">Index Data</p>
             {session.has_index_data ? (
-              <CheckCircle className="h-5 w-5 text-green-500" />
+              <CheckCircle className="h-5 w-5 text-[var(--long)]" />
             ) : (
               <XCircle className="h-5 w-5 text-[var(--text-muted)]" />
             )}
@@ -88,7 +88,7 @@ export default function SessionDetailPage() {
           <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
             <p className="text-xs text-[var(--text-muted)] mb-1">AI Analysis</p>
             {session.has_ai_analysis ? (
-              <CheckCircle className="h-5 w-5 text-green-500" />
+              <CheckCircle className="h-5 w-5 text-[var(--long)]" />
             ) : (
               <XCircle className="h-5 w-5 text-[var(--text-muted)]" />
             )}
@@ -99,11 +99,11 @@ export default function SessionDetailPage() {
       {/* AI Report */}
       {session?.has_ai_analysis && (
         <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-6">
-          <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">
-            AI Market Report
+          <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+            AI market report
           </h2>
           {reportLoading ? (
-            <div className="h-96 rounded bg-[var(--bg-primary)] animate-pulse" />
+            <div className="h-96 rounded bg-[var(--bg-primary)]" />
           ) : report ? (
             <NativeReportRenderer report={report} />
           ) : (
@@ -126,7 +126,7 @@ export default function SessionDetailPage() {
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border)]/50">
+              <tr className="text-xs text-[var(--text-muted)] border-b border-[var(--border)]/50">
                 <th className="text-left font-medium px-5 py-2">Sector</th>
                 <th className="text-right font-medium px-5 py-2">Screened</th>
                 <th className="text-right font-medium px-5 py-2">Charts</th>

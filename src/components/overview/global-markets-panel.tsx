@@ -43,25 +43,25 @@ export function formatUpdated(isoStr: string): { label: string; stale: boolean }
 // ── Style constants (exported for /markets page) ───────────────────────────
 
 export const BIAS_STYLES = {
-  BULLISH: "text-green-400 bg-green-500/10 border-green-500/25",
-  BEARISH: "text-red-400 bg-red-500/10 border-red-500/25",
-  NEUTRAL: "text-amber-400 bg-amber-500/10 border-amber-500/25",
+  BULLISH: "text-[var(--long)] bg-[var(--long)]/10 border-[var(--long)]/25",
+  BEARISH: "text-[var(--short)] bg-[var(--short)]/10 border-[var(--short)]/25",
+  NEUTRAL: "text-[var(--caution)] bg-[var(--caution)]/10 border-[var(--caution)]/25",
 } as const;
 
 function regimeStyle(regime?: string): string {
-  if (!regime) return "text-amber-400 bg-amber-500/10 border-amber-500/25";
+  if (!regime) return "text-[var(--caution)] bg-[var(--caution)]/10 border-[var(--caution)]/25";
   const l = regime.toLowerCase();
-  if (l.includes("risk-on") || l.includes("bull")) return "text-green-400 bg-green-500/10 border-green-500/25";
-  if (l.includes("risk-off") || l.includes("bear")) return "text-red-400 bg-red-500/10 border-red-500/25";
-  return "text-amber-400 bg-amber-500/10 border-amber-500/25";
+  if (l.includes("risk-on") || l.includes("bull")) return "text-[var(--long)] bg-[var(--long)]/10 border-[var(--long)]/25";
+  if (l.includes("risk-off") || l.includes("bear")) return "text-[var(--short)] bg-[var(--short)]/10 border-[var(--short)]/25";
+  return "text-[var(--caution)] bg-[var(--caution)]/10 border-[var(--caution)]/25";
 }
 
 function riskStyle(appetite?: string): string {
-  if (!appetite) return "text-amber-400 bg-amber-500/10 border-amber-500/25";
+  if (!appetite) return "text-[var(--caution)] bg-[var(--caution)]/10 border-[var(--caution)]/25";
   const l = appetite.toLowerCase();
-  if (l === "high") return "text-green-400 bg-green-500/10 border-green-500/25";
-  if (l === "low")  return "text-red-400 bg-red-500/10 border-red-500/25";
-  return "text-amber-400 bg-amber-500/10 border-amber-500/25";
+  if (l === "high") return "text-[var(--long)] bg-[var(--long)]/10 border-[var(--long)]/25";
+  if (l === "low")  return "text-[var(--short)] bg-[var(--short)]/10 border-[var(--short)]/25";
+  return "text-[var(--caution)] bg-[var(--caution)]/10 border-[var(--caution)]/25";
 }
 
 // ── GlobalIndexCard (overview — links to /markets?index=ticker) ────────────
@@ -93,20 +93,20 @@ function GlobalIndexCard({ entry }: { entry: GlobalIndexEntry }) {
       <div className="pr-5">
         <span className="text-xl leading-none">{getCountryFlag(country)}</span>
         <div className="mt-1.5">
-          <div className="text-[11px] font-semibold text-[var(--text-primary)] leading-tight truncate">{name}</div>
-          <div className="text-[10px] text-[var(--text-muted)] font-mono mt-0.5">{ticker}</div>
+          <div className="text-xs font-semibold text-[var(--text-primary)] leading-tight truncate">{name}</div>
+          <div className="text-xs text-[var(--text-muted)] font-mono mt-0.5">{ticker}</div>
         </div>
       </div>
 
       <div>
         <div className={cn(
-          "text-[22px] font-bold tabular-nums leading-none",
+          "text-2xl font-bold tabular-nums leading-none",
           pct5d == null ? "text-[var(--text-muted)]"
-            : pct5d >= 0 ? "text-green-400" : "text-red-400",
+            : pct5d >= 0 ? "text-[var(--long)]" : "text-[var(--short)]",
         )}>
           {formatPct(pct5d)}
         </div>
-        <div className="text-[9px] uppercase tracking-widest text-[var(--text-muted)] mt-0.5">5-day</div>
+        <div className="text-xs uppercase tracking-widest text-[var(--text-muted)] mt-0.5">5-day</div>
       </div>
 
       <div className="flex items-center gap-1.5">
@@ -114,27 +114,27 @@ function GlobalIndexCard({ entry }: { entry: GlobalIndexEntry }) {
           const pos = p === "50" ? screening.sma50_position : screening.sma200_position;
           return (
             <div key={p} className="flex items-center gap-1">
-              <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-wide">{p}</span>
+              <span className="text-xs text-[var(--text-muted)] uppercase tracking-wide">{p}</span>
               <div className={cn("w-1.5 h-1.5 rounded-full",
-                pos === "Above" ? "bg-green-400" : pos === "Below" ? "bg-red-400" : "bg-[var(--text-muted)]"
+                pos === "Above" ? "bg-[var(--long)]" : pos === "Below" ? "bg-[var(--short)]" : "bg-[var(--text-muted)]"
               )} />
             </div>
           );
         })}
         {screening.rsi_14 != null && (
-          <span className="text-[9px] text-[var(--text-muted)] ml-auto font-mono">RSI {Math.round(screening.rsi_14)}</span>
+          <span className="text-xs text-[var(--text-muted)] ml-auto font-mono">RSI {Math.round(screening.rsi_14)}</span>
         )}
       </div>
 
       <div className="flex flex-wrap gap-1 mt-auto">
         {stageInfo && (
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide"
+          <span className="text-xs font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide"
             style={{ color: stageInfo.color, backgroundColor: `${stageInfo.color}15`, borderColor: `${stageInfo.color}30` }}>
             {stageInfo.label}
           </span>
         )}
         {bias && (
-          <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide", BIAS_STYLES[bias])}>
+          <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide", BIAS_STYLES[bias])}>
             {bias}
           </span>
         )}
@@ -165,12 +165,12 @@ export function GlobalSynthesisCard({ synthesis }: { synthesis: GlobalSynthesis 
       {(overall_regime || risk_appetite) && (
         <div className="flex flex-wrap items-center gap-2">
           {overall_regime && (
-            <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded border", regimeStyle(overall_regime))}>
+            <span className={cn("text-xs font-semibold px-2 py-0.5 rounded border", regimeStyle(overall_regime))}>
               {overall_regime}
             </span>
           )}
           {risk_appetite && (
-            <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded border", riskStyle(risk_appetite))}>
+            <span className={cn("text-xs font-semibold px-2 py-0.5 rounded border", riskStyle(risk_appetite))}>
               {risk_appetite} Risk Appetite
             </span>
           )}
@@ -183,13 +183,13 @@ export function GlobalSynthesisCard({ synthesis }: { synthesis: GlobalSynthesis 
           {strongest_index && (
             <div className="flex items-center gap-1">
               <span className="text-[var(--text-muted)]">Strongest</span>
-              <span className="font-mono font-medium text-green-400">{strongest_index}</span>
+              <span className="font-mono font-medium text-[var(--long)]">{strongest_index}</span>
             </div>
           )}
           {weakest_index && (
             <div className="flex items-center gap-1">
               <span className="text-[var(--text-muted)]">Weakest</span>
-              <span className="font-mono font-medium text-red-400">{weakest_index}</span>
+              <span className="font-mono font-medium text-[var(--short)]">{weakest_index}</span>
             </div>
           )}
         </div>
@@ -201,13 +201,13 @@ export function GlobalSynthesisCard({ synthesis }: { synthesis: GlobalSynthesis 
           {regional_leaders && regional_leaders.length > 0 && (
             <div className="flex items-center gap-1">
               <span className="text-[var(--text-muted)]">Leaders</span>
-              <span className="font-medium text-green-400">{regional_leaders.join(", ")}</span>
+              <span className="font-medium text-[var(--long)]">{regional_leaders.join(", ")}</span>
             </div>
           )}
           {regional_laggards && regional_laggards.length > 0 && (
             <div className="flex items-center gap-1">
               <span className="text-[var(--text-muted)]">Laggards</span>
-              <span className="font-medium text-red-400">{regional_laggards.join(", ")}</span>
+              <span className="font-medium text-[var(--short)]">{regional_laggards.join(", ")}</span>
             </div>
           )}
         </div>
@@ -216,7 +216,7 @@ export function GlobalSynthesisCard({ synthesis }: { synthesis: GlobalSynthesis 
       {/* Regional assessments */}
       {asia_pacific_assessment && (
         <div>
-          <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-semibold block mb-0.5">
+          <span className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-semibold block mb-0.5">
             Asia Pacific
           </span>
           <p className="text-xs text-[var(--text-muted)] leading-relaxed">{asia_pacific_assessment}</p>
@@ -224,7 +224,7 @@ export function GlobalSynthesisCard({ synthesis }: { synthesis: GlobalSynthesis 
       )}
       {europe_assessment && (
         <div>
-          <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-semibold block mb-0.5">
+          <span className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-semibold block mb-0.5">
             Europe
           </span>
           <p className="text-xs text-[var(--text-muted)] leading-relaxed">{europe_assessment}</p>
@@ -234,7 +234,7 @@ export function GlobalSynthesisCard({ synthesis }: { synthesis: GlobalSynthesis 
       {/* US implication */}
       {us_implication && (
         <div className="pt-2 border-t border-[var(--border)]">
-          <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-semibold block mb-0.5">
+          <span className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-semibold block mb-0.5">
             US Implication
           </span>
           <p className="text-xs text-[var(--text-muted)] leading-relaxed">{us_implication}</p>
@@ -255,7 +255,7 @@ export function GlobalSynthesisCard({ synthesis }: { synthesis: GlobalSynthesis 
 
 function SkeletonCard() {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-3.5 h-36 animate-pulse">
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-3.5 h-36">
       <div className="h-6 w-6 rounded bg-[var(--bg-primary)] mb-2" />
       <div className="h-3 w-3/4 rounded bg-[var(--bg-primary)] mb-1" />
       <div className="h-2 w-1/2 rounded bg-[var(--bg-primary)] mb-3" />
@@ -269,7 +269,7 @@ export function RegionLabel({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2 mb-2.5">
       <div className="w-[2px] h-3 rounded-full bg-[var(--accent)]" />
-      <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">{label}</span>
     </div>
   );
 }
@@ -320,7 +320,7 @@ export function GlobalMarketsPanel() {
         </div>
         <div className="flex items-center gap-3">
           {updated && (
-            <span className={cn("text-xs tabular-nums", updated.stale ? "text-amber-400" : "text-[var(--text-muted)]")}>
+            <span className={cn("text-xs tabular-nums", updated.stale ? "text-[var(--caution)]" : "text-[var(--text-muted)]")}>
               {updated.stale && "⚠ "}updated {updated.label}
             </span>
           )}
@@ -336,7 +336,7 @@ export function GlobalMarketsPanel() {
       <div className="p-5 space-y-5">
         {isLoading && (
           <div className="space-y-4">
-            <div className="h-2.5 w-20 rounded bg-[var(--bg-primary)] animate-pulse" />
+            <div className="h-2.5 w-20 rounded bg-[var(--bg-primary)]" />
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {Array.from({ length: 7 }).map((_, i) => <SkeletonCard key={i} />)}
             </div>
@@ -347,7 +347,7 @@ export function GlobalMarketsPanel() {
           <div className="py-5 text-center">
             <p className="text-xs text-[var(--text-muted)]">
               Global market data unavailable —{" "}
-              <code className="font-mono text-[10px] bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">global-indexes-ai</code>{" "}
+              <code className="font-mono text-xs bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">global-indexes-ai</code>{" "}
               job required
             </p>
           </div>

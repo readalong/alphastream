@@ -5,9 +5,9 @@ import { ScoreSparkline } from "./score-sparkline";
 import type { SectorFlow, SectorTier } from "@/lib/types";
 
 const tierColors: Record<SectorTier, string> = {
-  LEADING: "text-emerald-500",
+  LEADING: "text-[var(--long)]",
   NEUTRAL: "text-[var(--text-muted)]",
-  LAGGING: "text-red-500",
+  LAGGING: "text-[var(--short)]",
 };
 
 interface SectorFlowRankingsProps {
@@ -49,7 +49,7 @@ export function SectorFlowRankings({ sectors }: SectorFlowRankingsProps) {
                       <ScoreSparkline data={s.sparkline} variant="leaders" width={56} height={16} />
                     )}
                     {!s.flow_confirm && s.weekly_flow_dollars != null && (
-                      <span title="Weekly and monthly flow direction diverge" className="text-amber-500 text-xs">
+                      <span title="Weekly and monthly flow direction diverge" className="text-[var(--caution)] text-xs">
                         ⚠
                       </span>
                     )}
@@ -62,9 +62,9 @@ export function SectorFlowRankings({ sectors }: SectorFlowRankingsProps) {
                   className={cn(
                     "py-2 text-right tabular-nums text-xs",
                     s.wow_change > 0
-                      ? "text-emerald-500"
+                      ? "text-[var(--long)]"
                       : s.wow_change < 0
-                      ? "text-red-500"
+                      ? "text-[var(--short)]"
                       : "text-[var(--text-muted)]"
                   )}
                 >

@@ -47,7 +47,7 @@ function SummaryCard({
             style={{ width: `${pct}%`, backgroundColor: color }}
           />
         </div>
-        <p className="text-[10px] text-[var(--text-muted)] mt-1">{pct}%</p>
+        <p className="text-xs text-[var(--text-muted)] mt-1">{pct}%</p>
       </div>
     </button>
   );
@@ -72,7 +72,7 @@ export function UptrendSummaryCards({
         label="With Resistance"
         value={summary.with_resistance}
         total={summary.total_stocks}
-        color="#f59e0b"
+        color="var(--caution)"
         active={activeFilter === "has_resistance"}
         onClick={() => onFilterChange("has_resistance")}
       />
@@ -80,7 +80,7 @@ export function UptrendSummaryCards({
         label="At ATH (Clear)"
         value={summary.at_ath_no_resistance}
         total={summary.total_stocks}
-        color="#22c55e"
+        color="var(--long)"
         active={activeFilter === "at_ath"}
         onClick={() => onFilterChange("at_ath")}
       />

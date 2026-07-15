@@ -47,7 +47,7 @@ export function Topbar({ onMenuClick, onOpenPalette }: TopbarProps) {
         >
           <Search className="h-3.5 w-3.5" />
           <span>Search…</span>
-          <kbd className="ml-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-[var(--bg-primary)] border border-[var(--border)]">⌘K</kbd>
+          <kbd className="ml-1 px-1.5 py-0.5 text-xs font-mono bg-[var(--bg-primary)] border border-[var(--border)]">⌘K</kbd>
         </button>
       )}
 
@@ -70,7 +70,7 @@ export function Topbar({ onMenuClick, onOpenPalette }: TopbarProps) {
         <div
           className={cn(
             "h-2.5 w-2.5 rounded-full",
-            isHealthy ? "bg-green-500" : "bg-red-500"
+            isHealthy ? "bg-[var(--long)]" : "bg-[var(--short)]"
           )}
           title={isHealthy ? "Backend connected" : "Backend unreachable"}
         />

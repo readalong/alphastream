@@ -13,7 +13,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { Activity } from "lucide-react";
+import { Activity, ChevronRight } from "lucide-react";
 import { useSessions } from "@/hooks/use-sessions";
 import { useUptrendReport } from "@/hooks/use-uptrend-report";
 import { api } from "@/lib/api-client";
@@ -63,10 +63,10 @@ function AiReportSection() {
       <div className="p-5">
         {isLoading ? (
           <div className="space-y-3">
-            <div className="h-4 w-3/4 rounded bg-[var(--bg-primary)] animate-pulse" />
-            <div className="h-4 w-full rounded bg-[var(--bg-primary)] animate-pulse" />
-            <div className="h-4 w-5/6 rounded bg-[var(--bg-primary)] animate-pulse" />
-            <div className="h-4 w-2/3 rounded bg-[var(--bg-primary)] animate-pulse" />
+            <div className="h-4 w-3/4 rounded bg-[var(--bg-primary)]" />
+            <div className="h-4 w-full rounded bg-[var(--bg-primary)]" />
+            <div className="h-4 w-5/6 rounded bg-[var(--bg-primary)]" />
+            <div className="h-4 w-2/3 rounded bg-[var(--bg-primary)]" />
           </div>
         ) : report ? (
           <NativeReportRenderer report={report} />
@@ -87,8 +87,8 @@ function AthStocksCard() {
   const athStocks = report.stocks.filter((s) => !s.has_resistance).slice(0, 8);
 
   return (
-    <section className="rounded-lg border border-green-500/20 bg-green-500/5 p-5">
-      <h2 className="text-sm font-semibold text-green-400 mb-1">At All-Time Highs</h2>
+    <section className="rounded-lg border border-[var(--long)]/20 bg-[var(--long)]/5 p-5">
+      <h2 className="text-sm font-semibold text-[var(--long)] mb-1">At all-time highs</h2>
       <p className="text-xs text-[var(--text-muted)] mb-3">
         {report.summary.at_ath_no_resistance} Stage 2 stocks with no overhead resistance — clear
         runway above.
@@ -98,14 +98,14 @@ function AthStocksCard() {
           <Link
             key={s.ticker}
             href={`/ticker/${s.ticker}`}
-            className="px-2 py-1 rounded text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-colors"
+            className="px-2 py-1 rounded text-xs font-medium bg-[var(--long)]/10 text-[var(--long)] border border-[var(--long)]/20 hover:bg-[var(--long)]/20 transition-colors"
           >
             {s.ticker}
           </Link>
         ))}
       </div>
-      <Link href="/ideas?tab=uptrend" className="text-xs text-[var(--accent)] hover:underline">
-        View All &rarr;
+      <Link href="/ideas?tab=uptrend" className="inline-flex items-center gap-1 text-xs text-[var(--accent)] hover:underline">
+        View all <ChevronRight className="h-3 w-3" />
       </Link>
     </section>
   );

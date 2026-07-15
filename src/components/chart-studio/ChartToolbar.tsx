@@ -195,7 +195,7 @@ export function ChartToolbar({
           <Activity className="h-3 w-3" />
           Indicators
           {activeIndicatorCount > 0 && (
-            <span className="ml-0.5 rounded-full bg-[var(--accent)] text-white text-[9px] px-1">
+            <span className="ml-0.5 rounded-full bg-[var(--accent)] text-white text-xs px-1">
               {activeIndicatorCount}
             </span>
           )}
@@ -208,7 +208,7 @@ export function ChartToolbar({
         <button
           onClick={onClearAll}
           title="Clear all drawings"
-          className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs border border-[var(--border)] text-[var(--text-muted)] hover:text-red-400 hover:border-red-400/40 transition-colors"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--short)] hover:border-[var(--short)]/40 transition-colors"
         >
           <Trash2 className="h-3 w-3" />
           Clear All
@@ -251,7 +251,7 @@ export function ChartToolbar({
           <div className="flex flex-col gap-2">
             {INDICATOR_GROUPS.map((group) => (
               <div key={group.label} className="flex items-center gap-2">
-                <span className="text-[10px] text-[var(--text-muted)] w-24 shrink-0">{group.label}</span>
+                <span className="text-xs text-[var(--text-muted)] w-24 shrink-0">{group.label}</span>
                 <div className="flex flex-wrap gap-1">
                   {group.items.map(({ key, label, color }) => {
                     const active = indicators[key];
@@ -261,7 +261,7 @@ export function ChartToolbar({
                         onClick={() => onIndicatorChange(key, !active)}
                         style={active ? { borderColor: color, color } : undefined}
                         className={cn(
-                          "px-2 py-0.5 rounded-full text-[10px] border transition-colors",
+                          "px-2 py-0.5 rounded text-xs border transition-colors",
                           active
                             ? "bg-[var(--bg-page)]"
                             : "border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"

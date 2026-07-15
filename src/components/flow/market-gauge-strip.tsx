@@ -8,9 +8,9 @@ interface MarketGaugeStripProps {
 }
 
 const gaugeConfig: Record<FlowGaugeColor, { dot: string; text: string; label: string }> = {
-  GREEN: { dot: "bg-emerald-500", text: "text-emerald-500", label: "Bullish" },
-  AMBER: { dot: "bg-amber-500",   text: "text-amber-500",   label: "Neutral" },
-  RED:   { dot: "bg-red-500",     text: "text-red-500",     label: "Bearish" },
+  GREEN: { dot: "bg-[var(--long)]", text: "text-[var(--long)]", label: "Bullish" },
+  AMBER: { dot: "bg-[var(--caution)]", text: "text-[var(--caution)]", label: "Neutral" },
+  RED:   { dot: "bg-[var(--short)]", text: "text-[var(--short)]", label: "Bearish" },
 };
 
 function StatCard({

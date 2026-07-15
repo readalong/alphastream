@@ -58,20 +58,20 @@ function IndexCard({
       <div className="pr-5">
         <span className="text-xl leading-none">{getCountryFlag(country)}</span>
         <div className="mt-1.5">
-          <div className="text-[11px] font-semibold text-[var(--text-primary)] leading-tight truncate">{name}</div>
-          <div className="text-[10px] text-[var(--text-muted)] font-mono mt-0.5">{ticker}</div>
+          <div className="text-xs font-semibold text-[var(--text-primary)] leading-tight truncate">{name}</div>
+          <div className="text-xs text-[var(--text-muted)] font-mono mt-0.5">{ticker}</div>
         </div>
       </div>
 
       <div>
         <div className={cn(
-          "text-[22px] font-bold tabular-nums leading-none",
+          "text-2xl font-bold tabular-nums leading-none",
           pct5d == null ? "text-[var(--text-muted)]"
-            : pct5d >= 0 ? "text-green-400" : "text-red-400",
+            : pct5d >= 0 ? "text-[var(--long)]" : "text-[var(--short)]",
         )}>
           {formatPct(pct5d)}
         </div>
-        <div className="text-[9px] uppercase tracking-widest text-[var(--text-muted)] mt-0.5">5-day</div>
+        <div className="text-xs uppercase tracking-widest text-[var(--text-muted)] mt-0.5">5-day</div>
       </div>
 
       <div className="flex items-center gap-1.5">
@@ -79,27 +79,27 @@ function IndexCard({
           const pos = p === "50" ? screening.sma50_position : screening.sma200_position;
           return (
             <div key={p} className="flex items-center gap-1">
-              <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-wide">{p}</span>
+              <span className="text-xs text-[var(--text-muted)] uppercase tracking-wide">{p}</span>
               <div className={cn("w-1.5 h-1.5 rounded-full",
-                pos === "Above" ? "bg-green-400" : pos === "Below" ? "bg-red-400" : "bg-[var(--text-muted)]"
+                pos === "Above" ? "bg-[var(--long)]" : pos === "Below" ? "bg-[var(--short)]" : "bg-[var(--text-muted)]"
               )} />
             </div>
           );
         })}
         {screening.rsi_14 != null && (
-          <span className="text-[9px] text-[var(--text-muted)] ml-auto font-mono">RSI {Math.round(screening.rsi_14)}</span>
+          <span className="text-xs text-[var(--text-muted)] ml-auto font-mono">RSI {Math.round(screening.rsi_14)}</span>
         )}
       </div>
 
       <div className="flex flex-wrap gap-1 mt-auto">
         {stageInfo && (
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide"
+          <span className="text-xs font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide"
             style={{ color: stageInfo.color, backgroundColor: `${stageInfo.color}15`, borderColor: `${stageInfo.color}30` }}>
             {stageInfo.label}
           </span>
         )}
         {bias && (
-          <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide", BIAS_STYLES[bias])}>
+          <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide", BIAS_STYLES[bias])}>
             {bias}
           </span>
         )}
@@ -114,7 +114,7 @@ function SectionLabel({ icon: Icon, label }: { icon: React.ElementType; label: s
   return (
     <div className="flex items-center gap-1.5 mb-2.5">
       <Icon className="h-3 w-3 text-[var(--accent)]" />
-      <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">{label}</span>
     </div>
   );
 }
@@ -161,7 +161,7 @@ function IndexDetail({ entry }: { entry: GlobalIndexEntry }) {
         <div className="flex flex-wrap gap-x-5 gap-y-2.5">
           {screening.close_price != null && (
             <div>
-              <div className="text-[9px] text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Price</div>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Price</div>
               <div className="text-sm font-bold font-mono tabular-nums text-[var(--text-primary)]">
                 {screening.close_price >= 1000
                   ? screening.close_price.toLocaleString(undefined, { maximumFractionDigits: 0 })
@@ -175,19 +175,19 @@ function IndexDetail({ entry }: { entry: GlobalIndexEntry }) {
             { key: "20D", val: screening.pct_chg_20d },
           ].map(({ key, val }) => val != null && (
             <div key={key}>
-              <div className="text-[9px] text-[var(--text-muted)] uppercase tracking-wide mb-0.5">{key}</div>
-              <div className={cn("text-sm font-bold tabular-nums", val >= 0 ? "text-green-400" : "text-red-400")}>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">{key}</div>
+              <div className={cn("text-sm font-bold tabular-nums", val >= 0 ? "text-[var(--long)]" : "text-[var(--short)]")}>
                 {formatPct(val)}
               </div>
             </div>
           ))}
           {screening.rsi_14 != null && (
             <div>
-              <div className="text-[9px] text-[var(--text-muted)] uppercase tracking-wide mb-0.5">RSI 14</div>
+              <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">RSI 14</div>
               <div className={cn(
                 "text-sm font-bold tabular-nums",
-                screening.rsi_14 > 70 ? "text-red-400"
-                  : screening.rsi_14 < 30 ? "text-green-400"
+                screening.rsi_14 > 70 ? "text-[var(--short)]"
+                  : screening.rsi_14 < 30 ? "text-[var(--long)]"
                   : "text-[var(--text-primary)]",
               )}>
                 {screening.rsi_14.toFixed(1)}
@@ -196,7 +196,7 @@ function IndexDetail({ entry }: { entry: GlobalIndexEntry }) {
           )}
           {stageInfo && (
             <div className="ml-auto self-end">
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide"
+              <span className="text-xs font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide"
                 style={{ color: stageInfo.color, backgroundColor: `${stageInfo.color}15`, borderColor: `${stageInfo.color}30` }}>
                 {stageInfo.label}
               </span>
@@ -208,7 +208,7 @@ function IndexDetail({ entry }: { entry: GlobalIndexEntry }) {
       {/* Chart */}
       <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
         {chartLoading ? (
-          <div className="h-72 w-full rounded-lg bg-[var(--bg-primary)] animate-pulse" />
+          <div className="h-72 w-full rounded-lg bg-[var(--bg-primary)]" />
         ) : chartData?.chart_base64 ? (
           <StaticChart base64={chartData.chart_base64} alt={`${ticker} chart`} />
         ) : (
@@ -241,7 +241,7 @@ function IndexDetail({ entry }: { entry: GlobalIndexEntry }) {
               <SectionLabel icon={Zap} label="Market Signal" />
               <div className="flex items-center gap-3 mb-2.5">
                 {bias && (
-                  <span className={cn("text-[11px] font-bold px-2 py-0.5 rounded border uppercase tracking-wide", BIAS_STYLES[bias])}>
+                  <span className={cn("text-xs font-bold px-2 py-0.5 rounded border uppercase tracking-wide", BIAS_STYLES[bias])}>
                     {bias}
                   </span>
                 )}
@@ -250,14 +250,14 @@ function IndexDetail({ entry }: { entry: GlobalIndexEntry }) {
                     <div className="flex-1 h-1.5 rounded-full bg-[var(--border)] overflow-hidden">
                       <div
                         className={cn("h-full rounded-full",
-                          bias === "BULLISH" ? "bg-green-400"
-                            : bias === "BEARISH" ? "bg-red-400"
-                            : "bg-amber-400",
+                          bias === "BULLISH" ? "bg-[var(--long)]"
+                            : bias === "BEARISH" ? "bg-[var(--short)]"
+                            : "bg-[var(--caution)]",
                         )}
                         style={{ width: `${confidence}%` }}
                       />
                     </div>
-                    <span className="text-[10px] text-[var(--text-muted)] tabular-nums w-8 text-right shrink-0">
+                    <span className="text-xs text-[var(--text-muted)] tabular-nums w-8 text-right shrink-0">
                       {confidence}%
                     </span>
                   </div>
@@ -279,7 +279,7 @@ function IndexDetail({ entry }: { entry: GlobalIndexEntry }) {
                   { label: "Key Levels",      val: ai_analysis.implications.key_levels },
                 ].map(({ label, val }) => (
                   <div key={label}>
-                    <div className="text-[9px] uppercase tracking-widest text-[var(--text-muted)] mb-0.5">{label}</div>
+                    <div className="text-xs uppercase tracking-widest text-[var(--text-muted)] mb-0.5">{label}</div>
                     <p className="text-xs text-[var(--text-primary)] leading-relaxed">{val}</p>
                   </div>
                 ))}
@@ -365,7 +365,7 @@ function GlobalMarketsContent() {
           <h1 className="text-xl font-semibold text-[var(--text-primary)]">Global Markets</h1>
         </div>
         {updated && (
-          <span className={cn("text-xs tabular-nums", updated.stale ? "text-amber-400" : "text-[var(--text-muted)]")}>
+          <span className={cn("text-xs tabular-nums", updated.stale ? "text-[var(--caution)]" : "text-[var(--text-muted)]")}>
             {updated.stale && "⚠ "}updated {updated.label}
           </span>
         )}
@@ -377,16 +377,16 @@ function GlobalMarketsContent() {
           <div className="space-y-4">
             {[5, 2].map((count, ri) => (
               <div key={ri}>
-                <div className="h-2.5 w-24 rounded bg-[var(--bg-card)] animate-pulse mb-3" />
+                <div className="h-2.5 w-24 rounded bg-[var(--bg-card)] mb-3" />
                 <div className="grid grid-cols-2 gap-2">
                   {Array.from({ length: count }).map((_, i) => (
-                    <div key={i} className="h-36 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+                    <div key={i} className="h-36 rounded-lg bg-[var(--bg-card)]" />
                   ))}
                 </div>
               </div>
             ))}
           </div>
-          <div className="h-96 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+          <div className="h-96 rounded-lg bg-[var(--bg-card)]" />
         </div>
       )}
 
@@ -396,7 +396,7 @@ function GlobalMarketsContent() {
           <Globe className="h-8 w-8 text-[var(--text-muted)]/40 mx-auto mb-3" />
           <p className="text-sm text-[var(--text-muted)]">
             Global market data unavailable —{" "}
-            <code className="font-mono text-[10px] bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">global-indexes-ai</code>{" "}
+            <code className="font-mono text-xs bg-[var(--bg-primary)] px-1.5 py-0.5 rounded">global-indexes-ai</code>{" "}
             job required
           </p>
         </div>
@@ -443,7 +443,7 @@ function GlobalMarketsContent() {
             {/* Invisible spacer that matches RegionLabel height + mb-2.5 */}
             <div className="flex items-center gap-2 mb-2.5 invisible" aria-hidden>
               <div className="w-[2px] h-3 rounded-full" />
-              <span className="text-[10px] font-semibold uppercase tracking-widest">·</span>
+              <span className="text-xs font-semibold uppercase tracking-widest">·</span>
             </div>
             {selectedEntry ? (
               <IndexDetail entry={selectedEntry} />

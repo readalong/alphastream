@@ -18,10 +18,10 @@ import type { GexAlert, GexLevels } from "@/lib/types";
 const UNIVERSE = ["SPY", "QQQ", "GLD", "SLV"] as const;
 
 const REGIME_STYLE: Record<string, string> = {
-  STABLE: "text-emerald-400 bg-emerald-500/10 border-emerald-500/25",
-  PINNED: "text-blue-400 bg-blue-500/10 border-blue-500/25",
-  VOLATILE: "text-amber-400 bg-amber-500/10 border-amber-500/25",
-  SQUEEZE_PRONE: "text-red-400 bg-red-500/10 border-red-500/25",
+  STABLE: "text-[var(--long)] bg-[var(--long)]/10 border-[var(--long)]/25",
+  PINNED: "text-[var(--info)] bg-[var(--info)]/10 border-[var(--info)]/25",
+  VOLATILE: "text-[var(--caution)] bg-[var(--caution)]/10 border-[var(--caution)]/25",
+  SQUEEZE_PRONE: "text-[var(--short)] bg-[var(--short)]/10 border-[var(--short)]/25",
   UNKNOWN: "text-[var(--text-muted)] bg-[var(--bg-primary)] border-[var(--border)]",
 };
 
@@ -112,9 +112,9 @@ function RegimeStrip({
                       className={cn(
                         "text-xs font-semibold",
                         alert.dealer_bias === "selling"
-                          ? "text-red-400"
+                          ? "text-[var(--short)]"
                           : alert.dealer_bias === "buying"
-                            ? "text-emerald-400"
+                            ? "text-[var(--long)]"
                             : "text-[var(--text-muted)]"
                       )}
                     >
@@ -141,14 +141,14 @@ function LevelLadder({ levels, spot }: { levels: GexLevels; spot: number }) {
   const rows: Row[] = [];
 
   if (levels.ceiling != null)
-    rows.push({ key: "ceiling", label: "Ceiling", price: levels.ceiling, tone: "text-blue-400 border-blue-500/25 bg-blue-500/5" });
+    rows.push({ key: "ceiling", label: "Ceiling", price: levels.ceiling, tone: "text-[var(--info)] border-[var(--info)]/25 bg-[var(--info)]/5" });
   if (levels.nearest_breakout != null)
-    rows.push({ key: "nearest_breakout", label: "Breakout", price: levels.nearest_breakout, tone: "text-emerald-400 border-emerald-500/25 bg-emerald-500/5" });
+    rows.push({ key: "nearest_breakout", label: "Breakout", price: levels.nearest_breakout, tone: "text-[var(--long)] border-[var(--long)]/25 bg-[var(--long)]/5" });
   rows.push({ key: "spot", label: "Spot", price: spot, tone: "text-[var(--accent)] border-[var(--accent)]/40 bg-[var(--accent)]/5 font-bold" });
   if (levels.magnet != null)
-    rows.push({ key: "magnet", label: "Magnet", price: levels.magnet, tone: "text-blue-400 border-blue-500/25 bg-blue-500/5" });
+    rows.push({ key: "magnet", label: "Magnet", price: levels.magnet, tone: "text-[var(--info)] border-[var(--info)]/25 bg-[var(--info)]/5" });
   if (levels.cascade != null)
-    rows.push({ key: "cascade", label: "Cascade", price: levels.cascade, tone: "text-red-400 border-red-500/25 bg-red-500/5" });
+    rows.push({ key: "cascade", label: "Cascade", price: levels.cascade, tone: "text-[var(--short)] border-[var(--short)]/25 bg-[var(--short)]/5" });
 
   const sorted = rows.sort((a, b) => b.price - a.price);
 
@@ -213,7 +213,7 @@ function InstrumentDetail({ alert, ticker }: { alert: GexAlert | null; ticker: s
           <p className="text-xs text-[var(--text-muted)] mb-1">Proximity alerts</p>
           {alert.proximity_alerts.map((p, i) => (
             <div key={i} className="flex items-start gap-2 text-sm">
-              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-400" />
+              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-[var(--caution)]" />
               <span className="text-[var(--text-primary)]">
                 Price is within {p.pct_away.toFixed(2)}% of {fmtStrike(p.strike)} ({p.direction}) —{" "}
                 {p.label}
@@ -251,8 +251,8 @@ export default function OptionsPage() {
   if (isLoading) {
     return (
       <div className="space-y-4 max-w-4xl">
-        <div className="h-6 w-32 rounded bg-[var(--bg-card)] animate-pulse" />
-        <div className="h-40 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+        <div className="h-6 w-32 bg-[var(--bg-card)]" />
+        <div className="h-40 bg-[var(--bg-card)]" />
       </div>
     );
   }

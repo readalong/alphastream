@@ -5,19 +5,6 @@ import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import type { MarketReport, InstrumentEntry } from "@/lib/types";
 
-// ── Tile color palette ─────────────────────────────────────────────────────
-
-const TILE_STYLES: Record<string, { border: string; bg: string; accent: string }> = {
-  indigo:  { border: "#6366f1", bg: "rgba(99,102,241,0.07)",  accent: "#6366f1" },
-  green:   { border: "#22c55e", bg: "rgba(34,197,94,0.07)",   accent: "#22c55e" },
-  amber:   { border: "#f59e0b", bg: "rgba(245,158,11,0.07)",  accent: "#f59e0b" },
-  cyan:    { border: "#06b6d4", bg: "rgba(6,182,212,0.07)",   accent: "#06b6d4" },
-  red:     { border: "#ef4444", bg: "rgba(239,68,68,0.07)",   accent: "#ef4444" },
-  purple:  { border: "#a855f7", bg: "rgba(168,85,247,0.07)",  accent: "#a855f7" },
-  blue:    { border: "#3b82f6", bg: "rgba(59,130,246,0.07)",  accent: "#3b82f6" },
-  emerald: { border: "#10b981", bg: "rgba(16,185,129,0.07)",  accent: "#10b981" },
-};
-
 // ── Internal display types ─────────────────────────────────────────────────
 
 interface Metric {
@@ -31,7 +18,6 @@ interface Metric {
 interface ParsedCard {
   title: string;
   metrics: Metric[];
-  isGuidance?: boolean;
   confidence?: number;
 }
 
@@ -130,7 +116,7 @@ function buildCards(report: MarketReport): ParsedCard[] {
       metrics.push({ label: "Prefer", value: tg.sector_preference.join(", "), isFullWidth: true });
     if (tg.sector_avoid?.length)
       metrics.push({ label: "Avoid", value: tg.sector_avoid.join(", "), isFullWidth: true });
-    cards.push({ title: "Trading Guidance", isGuidance: true, metrics });
+    cards.push({ title: "Trading Guidance", metrics });
   }
 
   return cards;
@@ -176,22 +162,20 @@ function toRow(e: InstrumentEntry): InstrumentRow {
 
 // ── BadgeChip ──────────────────────────────────────────────────────────────
 
+const BADGE_STYLES: Record<string, string> = {
+  bullish: "bg-[var(--long)]/15 text-[var(--long)]",
+  bearish: "bg-[var(--short)]/15 text-[var(--short)]",
+  neutral: "bg-[var(--caution)]/15 text-[var(--caution)]",
+  stage2:  "bg-[var(--long)]/15 text-[var(--long)]",
+  stage1:  "bg-[var(--bg-primary)] text-[var(--text-muted)]",
+  stage3:  "bg-[var(--caution)]/15 text-[var(--caution)]",
+  stage4:  "bg-[var(--short)]/15 text-[var(--short)]",
+};
+
 function BadgeChip({ text, type }: { text: string; type?: string }) {
-  const colors: Record<string, { bg: string; text: string }> = {
-    bullish: { bg: "rgba(34,197,94,0.15)",   text: "#22c55e" },
-    bearish: { bg: "rgba(239,68,68,0.15)",   text: "#ef4444" },
-    neutral: { bg: "rgba(245,158,11,0.15)",  text: "#f59e0b" },
-    stage2:  { bg: "rgba(34,197,94,0.15)",   text: "#22c55e" },
-    stage1:  { bg: "rgba(59,130,246,0.15)",  text: "#3b82f6" },
-    stage3:  { bg: "rgba(245,158,11,0.15)",  text: "#f59e0b" },
-    stage4:  { bg: "rgba(239,68,68,0.15)",   text: "#ef4444" },
-  };
-  const c = colors[type || ""] || { bg: "rgba(100,116,139,0.15)", text: "#94a3b8" };
+  const style = BADGE_STYLES[type ?? ""] ?? "bg-[var(--bg-primary)] text-[var(--text-muted)]";
   return (
-    <span
-      className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold"
-      style={{ backgroundColor: c.bg, color: c.text }}
-    >
+    <span className={`inline-block px-2.5 py-0.5 text-xs font-semibold ${style}`}>
       {text}
     </span>
   );
@@ -199,19 +183,10 @@ function BadgeChip({ text, type }: { text: string; type?: string }) {
 
 // ── MetricTile ─────────────────────────────────────────────────────────────
 
-function MetricTile({ card, color }: { card: ParsedCard; color: string }) {
-  const style = TILE_STYLES[color] || TILE_STYLES.indigo;
+function MetricTile({ card }: { card: ParsedCard }) {
   return (
-    <div
-      className="rounded-lg p-4 flex flex-col gap-3"
-      style={{
-        background: card.isGuidance
-          ? "linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(79,70,229,0.18) 100%)"
-          : style.bg,
-        borderLeft: `3px solid ${style.border}`,
-      }}
-    >
-      <h3 className="text-[11px] font-bold uppercase tracking-wider" style={{ color: style.accent }}>
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 flex flex-col gap-3">
+      <h3 className="text-sm font-semibold text-[var(--text-primary)]">
         {card.title}
       </h3>
       <div className="space-y-2">
@@ -220,7 +195,7 @@ function MetricTile({ card, color }: { card: ParsedCard; color: string }) {
             key={i}
             className={m.isFullWidth ? "flex flex-col gap-0.5" : "flex items-center justify-between gap-2"}
           >
-            <span className="text-[11px] text-[var(--text-muted)] shrink-0">{m.label}</span>
+            <span className="text-xs text-[var(--text-muted)] shrink-0">{m.label}</span>
             {m.isBadge ? (
               <BadgeChip text={m.value} type={m.badgeType} />
             ) : (
@@ -233,7 +208,7 @@ function MetricTile({ card, color }: { card: ParsedCard; color: string }) {
       </div>
       {card.confidence != null && (
         <div className="h-1.5 rounded-full bg-[var(--border)] overflow-hidden">
-          <div className="h-full rounded-full" style={{ width: `${card.confidence}%`, background: style.accent }} />
+          <div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${card.confidence}%` }} />
         </div>
       )}
     </div>
@@ -243,13 +218,9 @@ function MetricTile({ card, color }: { card: ParsedCard; color: string }) {
 // ── SectorTile ─────────────────────────────────────────────────────────────
 
 function SectorTile({ sectors }: { sectors: SectorData }) {
-  const style = TILE_STYLES.emerald;
   return (
-    <div
-      className="rounded-lg p-4 md:col-span-2"
-      style={{ background: style.bg, borderLeft: `3px solid ${style.border}` }}
-    >
-      <h3 className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: style.accent }}>
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 md:col-span-2">
+      <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">
         Sector Rotation
       </h3>
       {sectors.summary && (
@@ -258,20 +229,20 @@ function SectorTile({ sectors }: { sectors: SectorData }) {
       <div className="flex flex-wrap gap-4">
         {sectors.leading.length > 0 && (
           <div>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-green-500 block mb-1.5">Leading</span>
+            <span className="text-xs font-medium text-[var(--long)] block mb-1.5">Leading</span>
             <div className="flex flex-wrap gap-1.5">
               {sectors.leading.map((s) => (
-                <span key={s} className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e" }}>{s}</span>
+                <span key={s} className="px-2 py-0.5 text-xs font-medium bg-[var(--long)]/15 text-[var(--long)]">{s}</span>
               ))}
             </div>
           </div>
         )}
         {sectors.lagging.length > 0 && (
           <div>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-red-500 block mb-1.5">Lagging</span>
+            <span className="text-xs font-medium text-[var(--short)] block mb-1.5">Lagging</span>
             <div className="flex flex-wrap gap-1.5">
               {sectors.lagging.map((s) => (
-                <span key={s} className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444" }}>{s}</span>
+                <span key={s} className="px-2 py-0.5 text-xs font-medium bg-[var(--short)]/15 text-[var(--short)]">{s}</span>
               ))}
             </div>
           </div>
@@ -285,30 +256,25 @@ function SectorTile({ sectors }: { sectors: SectorData }) {
 
 function InstrumentsTable({ instruments }: { instruments: InstrumentRow[] }) {
   const [open, setOpen] = useState(false);
-  const style = TILE_STYLES.blue;
 
   return (
-    <div
-      className="rounded-lg overflow-hidden md:col-span-2"
-      style={{ background: style.bg, borderLeft: `3px solid ${style.border}` }}
-    >
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden md:col-span-2">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-4 py-3 hover:brightness-110 transition-all"
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--bg-primary)] transition-colors"
       >
-        <h3 className="text-[11px] font-bold uppercase tracking-wider" style={{ color: style.accent }}>
-          All Instruments ({instruments.length})
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+          All instruments ({instruments.length})
         </h3>
         <ChevronDown
-          className={`h-4 w-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          style={{ color: style.accent }}
+          className={`h-4 w-4 text-[var(--text-muted)] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
         <div className="px-4 pb-4 overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
-              <tr className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+              <tr className="text-xs text-[var(--text-muted)]">
                 <th className="text-left font-medium py-2 pr-3">Ticker</th>
                 <th className="text-left font-medium py-2 pr-3">Name</th>
                 <th className="text-right font-medium py-2 pr-3">Price</th>
@@ -321,7 +287,7 @@ function InstrumentsTable({ instruments }: { instruments: InstrumentRow[] }) {
             </thead>
             <tbody>
               {instruments.map((r) => (
-                <tr key={r.ticker} className="border-t border-[var(--border)]/30">
+                <tr key={r.ticker} className="border-t border-[var(--border)]">
                   <td className="py-2 pr-3 font-semibold text-[var(--text-primary)]">
                     <Link href={`/ticker/${r.ticker}`} className="hover:text-[var(--accent)] transition-colors">
                       {r.ticker}
@@ -329,8 +295,8 @@ function InstrumentsTable({ instruments }: { instruments: InstrumentRow[] }) {
                   </td>
                   <td className="py-2 pr-3 text-[var(--text-muted)]">{r.name}</td>
                   <td className="py-2 pr-3 text-right font-mono tabular-nums text-[var(--text-primary)]">{r.price}</td>
-                  <td className="py-2 pr-3 text-right font-mono tabular-nums" style={{ color: r.d1Positive ? "#22c55e" : "#ef4444" }}>{r.d1}</td>
-                  <td className="py-2 pr-3 text-right font-mono tabular-nums" style={{ color: r.d5Positive ? "#22c55e" : "#ef4444" }}>{r.d5}</td>
+                  <td className="py-2 pr-3 text-right font-mono tabular-nums" style={{ color: r.d1Positive ? "var(--long)" : "var(--short)" }}>{r.d1}</td>
+                  <td className="py-2 pr-3 text-right font-mono tabular-nums" style={{ color: r.d5Positive ? "var(--long)" : "var(--short)" }}>{r.d5}</td>
                   <td className="py-2 pr-3 text-[var(--text-muted)]">{r.vsSma}</td>
                   <td className="py-2 pr-3"><BadgeChip text={r.stage} type={r.stageType} /></td>
                   <td className="py-2"><BadgeChip text={r.signal} /></td>
@@ -364,7 +330,7 @@ export function NativeReportRenderer({ report }: { report: MarketReport }) {
       {cards.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {cards.map((card, i) => (
-            <MetricTile key={i} card={card} color={["indigo", "amber", "purple"][i % 3]} />
+            <MetricTile key={i} card={card} />
           ))}
         </div>
       )}

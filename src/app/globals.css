@@ -1,46 +1,116 @@
 @import "tailwindcss";
 
-@theme {
-  --color-bg-primary: #0a0a0f;
-  --color-bg-card: #12121a;
-  --color-bg-sidebar: #0e0e16;
-  --color-border: #1e1e2e;
-  --color-text-primary: #e2e8f0;
-  --color-text-muted: #64748b;
-  --color-accent: #6366f1;
-  --color-green: #22c55e;
-  --color-red: #ef4444;
-  --color-amber: #f59e0b;
-  --color-blue: #3b82f6;
-  --color-gold: #fbbf24;
-  --color-cyan: #06b6d4;
-  --color-emerald: #10b981;
-  --color-purple: #a855f7;
-  --color-slate: #64748b;
+/*
+ * Design system — Phase 4 restyle (docs/ALPHASTREAM_UX_REDESIGN.md Part 4).
+ * Terminal/print hybrid: Bloomberg discipline, broadsheet typography, zero
+ * glass/glow/gradients. One accent for interaction, a semantic quartet for
+ * direction/severity, everything else is ink on paper.
+ *
+ * --accent appears ONLY on interactive elements (links, buttons, focus,
+ * active nav) - never on data, never as decoration. --long/--short/
+ * --caution/--severe/--info appear ONLY to encode direction or severity.
+ * The @theme overrides below remap Tailwind's green/emerald/red/amber/
+ * orange/blue palettes straight onto these tokens, so every existing
+ * text-green-400 / bg-red-500/10 / border-amber-500/25 usage across the
+ * app inherits the new semantic meaning without a per-file edit - the highest-leverage
+ * single change available, since arbitrary color choice (not the token
+ * values) was the actual defect.
+ */
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+@theme {
+  /* Radius: one value everywhere (2px) instead of the rounded/md/lg/full mix.
+     rounded-full is a fixed keyword in the Tailwind engine, not driven by
+     this scale - genuine circles (dots, avatars) stay circular; pill/chip
+     badges using rounded-full are fixed per-component since the shape
+     itself, not just the radius, is what's wrong there. */
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 2px;
+  --radius-3xl: 2px;
+  --radius-4xl: 2px;
+  --radius: 2px;
+
+  /* Semantic palette remap - direction/severity only, never decoration */
+  --color-green-300: var(--long-soft);
+  --color-green-400: var(--long);
+  --color-green-500: var(--long);
+  --color-green-600: var(--long-ink);
+  --color-emerald-300: var(--long-soft);
+  --color-emerald-400: var(--long);
+  --color-emerald-500: var(--long);
+  --color-emerald-600: var(--long-ink);
+  --color-red-300: var(--short-soft);
+  --color-red-400: var(--short);
+  --color-red-500: var(--short);
+  --color-red-600: var(--short-ink);
+  --color-amber-300: var(--caution-soft);
+  --color-amber-400: var(--caution);
+  --color-amber-500: var(--caution);
+  --color-orange-300: var(--severe-soft);
+  --color-orange-400: var(--severe);
+  --color-orange-500: var(--severe);
+  --color-blue-400: var(--info);
+  --color-blue-500: var(--info);
+  --color-sky-400: var(--info);
+  --color-sky-500: var(--info);
+
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 @layer base {
   :root {
-    --bg-primary: #ffffff;
-    --bg-card: #f8f9fa;
-    --bg-sidebar: #f1f3f5;
-    --border: #e2e8f0;
-    --text-primary: #1a202c;
-    --text-muted: #94a3b8;
-    --accent: #4f46e5;
+    /* Light — warm newsprint, primary reading mode (a trader at 7am
+       pre-market is not in a dark room) */
+    --bg-primary: #F4F2EC;
+    --bg-card: #FBFAF7;
+    --bg-sidebar: #EDEAE1;
+    --border: #D8D5CC;
+    --text-primary: #1C1E1D;
+    --text-muted: #6B6F69;
+    --text-faint: #8A8F8B;
+    --accent: #1A5CFF;
+
+    --long: #1E7A4A;
+    --long-ink: #14522F;
+    --long-soft: #DCEBE1;
+    --short: #B3382E;
+    --short-ink: #7E2620;
+    --short-soft: #F3DCDA;
+    --caution: #9A6B00;
+    --caution-soft: #F0E4C8;
+    --severe: #B4560F;
+    --severe-soft: #F3E0CE;
+    --info: #3D6EA8;
+    --info-soft: #DCE6F0;
   }
 
   .dark {
-    --bg-primary: #0a0a0f;
-    --bg-card: #12121a;
-    --bg-sidebar: #0e0e16;
-    --border: #1e1e2e;
-    --text-primary: #e2e8f0;
-    --text-muted: #64748b;
-    --accent: #6366f1;
+    /* Dark — charcoal, not blue-black; a true equal for after-hours use */
+    --bg-primary: #16181A;
+    --bg-card: #1D2023;
+    --bg-sidebar: #121415;
+    --border: #2E3134;
+    --text-primary: #E8E6DF;
+    --text-muted: #A6A79F;
+    --text-faint: #6E7069;
+    --accent: #6D9BFF;
+
+    --long: #4CAF7D;
+    --long-ink: #7AC79E;
+    --long-soft: #1B2E24;
+    --short: #E06A5E;
+    --short-ink: #EB958C;
+    --short-soft: #332019;
+    --caution: #D0A02E;
+    --caution-soft: #332B18;
+    --severe: #D98A4A;
+    --severe-soft: #33240F;
+    --info: #7FA8D9;
+    --info-soft: #1C2731;
   }
 
   /* Compact density mode — reduces card padding and row height */
@@ -64,6 +134,26 @@
 
   * {
     border-color: var(--border);
+  }
+
+  /* Tabular figures wherever numbers line up in columns */
+  .font-mono,
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -122,14 +212,14 @@
   font-size: 0.8em;
   background: var(--bg-primary);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 2px;
   padding: 0.1em 0.3em;
 }
 
 .ai-report-content pre {
   background: var(--bg-primary);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 0.75em;
   overflow-x: auto;
   margin-bottom: 0.75em;
@@ -158,7 +248,7 @@
 .ai-report-content img {
   max-width: 100%;
   height: auto;
-  border-radius: 6px;
+  border-radius: 2px;
 }
 
 /* ── Tables (shared between fallback and tiles) ── */
@@ -231,7 +321,7 @@
   font-size: 0.8em;
   background: var(--bg-primary);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 2px;
   padding: 0.1em 0.3em;
 }
 
@@ -246,13 +336,13 @@
 .ai-report-tile-content img {
   max-width: 100%;
   height: auto;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 /* ── Collapsible details/summary (fallback mode) ── */
 .ai-report-content details {
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 2px;
   margin-bottom: 0.75em;
   overflow: hidden;
 }

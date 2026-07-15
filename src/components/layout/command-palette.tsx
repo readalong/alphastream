@@ -115,7 +115,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center pt-[15vh] px-4">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-xl border border-[var(--border)] bg-[var(--bg-card)] shadow-2xl shadow-black/40 overflow-hidden">
+      <div className="relative w-full max-w-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-lg overflow-hidden">
         {/* Search input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)]">
           <Search className="h-4 w-4 text-[var(--text-muted)] shrink-0" />
@@ -131,7 +131,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               <X className="h-4 w-4" />
             </button>
           )}
-          <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono border border-[var(--border)] text-[var(--text-muted)]">Esc</kbd>
+          <kbd className="px-1.5 py-0.5 text-xs font-mono border border-[var(--border)] text-[var(--text-muted)]">Esc</kbd>
         </div>
 
         {/* Results */}
@@ -141,7 +141,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           ) : (
             Object.entries(groups).map(([group, groupItems]) => (
               <div key={group}>
-                <p className="px-4 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                <p className="px-4 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                   {group}
                 </p>
                 {groupItems.map((item) => {
@@ -171,7 +171,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           )}
         </div>
 
-        <div className="px-4 py-2.5 border-t border-[var(--border)] flex items-center gap-3 text-[10px] text-[var(--text-muted)]">
+        <div className="px-4 py-2.5 border-t border-[var(--border)] flex items-center gap-3 text-xs text-[var(--text-muted)]">
           <span><kbd className="font-mono">↑↓</kbd> navigate</span>
           <span><kbd className="font-mono">↵</kbd> open</span>
           <span><kbd className="font-mono">Esc</kbd> close</span>

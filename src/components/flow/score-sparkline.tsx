@@ -27,7 +27,7 @@ export function ScoreSparkline({
     })
     .join(" ");
 
-  const color = variant === "exits" ? "#ef4444" : "var(--accent)";
+  const color = variant === "exits" ? "var(--short)" : "var(--accent)";
 
   return (
     <svg

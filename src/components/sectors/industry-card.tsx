@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import type { IndustryInfo } from "@/lib/types";
 
 interface IndustryCardProps {
@@ -19,9 +20,10 @@ export function IndustryCard({ industry, sectorEtf }: IndustryCardProps) {
       </p>
       <Link
         href={`/sectors/${sectorEtf}/${encodeURIComponent(industry.industry)}`}
-        className="mt-auto text-sm text-[var(--accent)] hover:underline"
+        className="mt-auto inline-flex items-center gap-1 text-sm text-[var(--accent)] hover:underline"
       >
-        View Industry &rarr;
+        View industry
+        <ChevronRight className="h-3.5 w-3.5" />
       </Link>
     </div>
   );

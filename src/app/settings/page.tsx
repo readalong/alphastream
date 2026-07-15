@@ -42,7 +42,7 @@ export default function SettingsPage() {
 
       {/* Appearance */}
       <section className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-6 mb-4">
-        <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">
           Appearance
         </h2>
         <div>
@@ -88,7 +88,7 @@ export default function SettingsPage() {
 
       {/* API Configuration */}
       <section className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-6 mb-4">
-        <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">
           API Configuration
         </h2>
         <div className="space-y-4">
@@ -117,13 +117,13 @@ export default function SettingsPage() {
               Test Connection
             </button>
             {testStatus === "ok" && (
-              <span className="flex items-center gap-1 text-sm text-green-400">
+              <span className="flex items-center gap-1 text-sm text-[var(--long)]">
                 <CheckCircle className="h-4 w-4" />
                 Connected {testInfo}
               </span>
             )}
             {testStatus === "error" && (
-              <span className="flex items-center gap-1 text-sm text-red-400">
+              <span className="flex items-center gap-1 text-sm text-[var(--short)]">
                 <XCircle className="h-4 w-4" />
                 {testInfo}
               </span>
@@ -134,7 +134,7 @@ export default function SettingsPage() {
 
       {/* Data Preferences */}
       <section className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-6">
-        <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-4">
           Data Preferences
         </h2>
         <div className="space-y-4">

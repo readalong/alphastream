@@ -26,7 +26,7 @@ const STEPS = [
               <Icon className="h-4 w-4 text-[var(--accent)] shrink-0 mt-0.5" />
               <div>
                 <p className="text-xs font-semibold text-[var(--text-primary)]">{label}</p>
-                <p className="text-[11px] text-[var(--text-muted)]">{desc}</p>
+                <p className="text-xs text-[var(--text-muted)]">{desc}</p>
               </div>
             </div>
           ))}
@@ -55,12 +55,12 @@ const STEPS = [
             </span>
             <div className="min-w-0">
               <p className="text-xs font-semibold text-[var(--text-primary)]">{label}</p>
-              <p className="text-[11px] text-[var(--text-muted)] truncate">{desc}</p>
+              <p className="text-xs text-[var(--text-muted)] truncate">{desc}</p>
             </div>
             <ChevronRight className="h-3.5 w-3.5 text-[var(--text-muted)] shrink-0 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
           </Link>
         ))}
-        <p className="text-[11px] text-[var(--text-muted)] mt-1">Click any step to navigate there now.</p>
+        <p className="text-xs text-[var(--text-muted)] mt-1">Click any step to navigate there now.</p>
       </div>
     ),
   },
@@ -74,18 +74,19 @@ const STEPS = [
         <div className="space-y-3">
           <div className="p-3 rounded-lg bg-[var(--bg-primary)] border border-[var(--border)]">
             <p className="text-xs font-semibold text-[var(--text-primary)] mb-1">API URL</p>
-            <p className="text-[11px] text-[var(--text-muted)]">Configure the backend URL in Settings if your engine runs on a different host or port.</p>
+            <p className="text-xs text-[var(--text-muted)]">Configure the backend URL in Settings if your engine runs on a different host or port.</p>
           </div>
           <div className="p-3 rounded-lg bg-[var(--bg-primary)] border border-[var(--border)]">
             <p className="text-xs font-semibold text-[var(--text-primary)] mb-1">AI Analysis (optional)</p>
-            <p className="text-[11px] text-[var(--text-muted)]">Add a Google Gemini API key in Settings to enable AI chart analysis and the Alpha Lens chat panel.</p>
+            <p className="text-xs text-[var(--text-muted)]">Add a Google Gemini API key in Settings to enable AI chart analysis and the Alpha Lens chat panel.</p>
           </div>
         </div>
         <Link
           href="/settings"
-          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 hover:bg-[var(--accent)]/20 transition-colors text-sm font-medium"
+          className="flex items-center justify-center gap-2 w-full py-2.5 bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 hover:bg-[var(--accent)]/20 transition-colors text-sm font-medium"
         >
-          Open Settings →
+          Open Settings
+          <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       </div>
     ),
@@ -114,7 +115,7 @@ export function OnboardingModal() {
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60" onClick={dismiss} />
-      <div className="relative w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--bg-card)] shadow-2xl shadow-black/40 overflow-hidden">
+      <div className="relative w-full max-w-md border border-[var(--border)] bg-[var(--bg-card)] shadow-lg overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
           <div className="flex items-center gap-2">

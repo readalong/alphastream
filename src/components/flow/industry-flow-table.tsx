@@ -32,7 +32,7 @@ export function IndustryFlowTable({ flows }: IndustryFlowTableProps) {
                 <td
                   className={cn(
                     "py-2 text-right tabular-nums font-medium",
-                    isInflow ? "text-emerald-500" : "text-red-500"
+                    isInflow ? "text-[var(--long)]" : "text-[var(--short)]"
                   )}
                 >
                   {formatFlow(f.weekly_flow_dollars)}
@@ -40,7 +40,7 @@ export function IndustryFlowTable({ flows }: IndustryFlowTableProps) {
                 <td
                   className={cn(
                     "py-2 text-right tabular-nums text-xs",
-                    isInflow ? "text-emerald-500" : "text-red-500"
+                    isInflow ? "text-[var(--long)]" : "text-[var(--short)]"
                   )}
                 >
                   {f.flow_aum_pct > 0 ? "+" : ""}

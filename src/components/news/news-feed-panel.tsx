@@ -17,9 +17,9 @@ function SkeletonList() {
     <div className="divide-y divide-[var(--border)]">
       {Array.from({ length: 5 }).map((_, i) => (
         <div key={i} className="py-3.5">
-          <div className="h-4 w-full rounded bg-[var(--bg-primary)] animate-pulse mb-2" />
-          <div className="h-3 w-3/4 rounded bg-[var(--bg-primary)] animate-pulse mb-1.5" />
-          <div className="h-2.5 w-1/3 rounded bg-[var(--bg-primary)] animate-pulse" />
+          <div className="h-4 w-full rounded bg-[var(--bg-primary)] mb-2" />
+          <div className="h-3 w-3/4 rounded bg-[var(--bg-primary)] mb-1.5" />
+          <div className="h-2.5 w-1/3 rounded bg-[var(--bg-primary)]" />
         </div>
       ))}
     </div>
@@ -44,17 +44,17 @@ function HeadlineItem({
         {article.title}
       </p>
       <div className="flex items-center flex-wrap gap-x-1.5 gap-y-1">
-        <span className="text-[11px] font-medium text-[var(--accent)]/80">
+        <span className="text-xs font-medium text-[var(--accent)]/80">
           {formatSource(article.source)}
         </span>
-        <span className="text-[var(--text-muted)] text-[11px]">·</span>
-        <span className="text-[11px] text-[var(--text-muted)]">
+        <span className="text-[var(--text-muted)] text-xs">·</span>
+        <span className="text-xs text-[var(--text-muted)]">
           {relativeTime(article.published_at)}
         </span>
         {article.tags.slice(0, 2).map((tag) => (
           <span
             key={tag}
-            className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-primary)] text-[var(--text-muted)] border border-[var(--border)]"
+            className="text-xs px-1.5 py-0.5 rounded bg-[var(--bg-primary)] text-[var(--text-muted)] border border-[var(--border)]"
           >
             {tag}
           </span>

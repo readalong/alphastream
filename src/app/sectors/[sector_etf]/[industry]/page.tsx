@@ -45,7 +45,7 @@ export default function IndustryDetailPage() {
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-10 rounded bg-[var(--bg-card)] animate-pulse" />
+            <div key={i} className="h-10 rounded bg-[var(--bg-card)]" />
           ))}
         </div>
       ) : data?.results.length === 0 ? (
@@ -108,7 +108,7 @@ export default function IndustryDetailPage() {
                 <span
                   key={code}
                   className="text-xs font-medium"
-                  style={{ color: STAGE_COLORS[code]?.color || "#64748b" }}
+                  style={{ color: STAGE_COLORS[code]?.color || "var(--text-faint)" }}
                 >
                   {STAGE_COLORS[code]?.label || code}: {count}
                 </span>

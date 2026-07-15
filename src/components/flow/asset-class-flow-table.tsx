@@ -27,7 +27,7 @@ export function AssetClassFlowTable({ flows }: AssetClassFlowTableProps) {
               <td
                 className={cn(
                   "py-2 text-right font-medium tabular-nums",
-                  f.flow_direction === "inflow" ? "text-emerald-500" : "text-red-500"
+                  f.flow_direction === "inflow" ? "text-[var(--long)]" : "text-[var(--short)]"
                 )}
               >
                 {formatFlow(f.weekly_flow_dollars)}
@@ -35,7 +35,7 @@ export function AssetClassFlowTable({ flows }: AssetClassFlowTableProps) {
               <td
                 className={cn(
                   "py-2 text-right tabular-nums",
-                  f.flow_direction === "inflow" ? "text-emerald-500" : "text-red-500"
+                  f.flow_direction === "inflow" ? "text-[var(--long)]" : "text-[var(--short)]"
                 )}
               >
                 {formatFlow(f.daily_flow_dollars)}

@@ -7,10 +7,10 @@ const quadrantConfig: Record<
   RotationQuadrant,
   { label: string; bg: string; position: string }
 > = {
-  LEADING:   { label: "Leading",   bg: "bg-emerald-500/8", position: "top-2 right-2" },
-  WEAKENING: { label: "Weakening", bg: "bg-amber-500/8",   position: "bottom-2 right-2" },
-  LAGGING:   { label: "Lagging",   bg: "bg-red-500/8",     position: "bottom-2 left-2" },
-  IMPROVING: { label: "Improving", bg: "bg-blue-500/8",    position: "top-2 left-2" },
+  LEADING:   { label: "Leading",   bg: "bg-[var(--long)]/8",    position: "top-2 right-2" },
+  WEAKENING: { label: "Weakening", bg: "bg-[var(--caution)]/8", position: "bottom-2 right-2" },
+  LAGGING:   { label: "Lagging",   bg: "bg-[var(--short)]/8",   position: "bottom-2 left-2" },
+  IMPROVING: { label: "Improving", bg: "bg-[var(--info)]/8",    position: "top-2 left-2" },
 };
 
 function normalize(val: number, min: number, max: number): number {
@@ -47,7 +47,7 @@ export function SectorRotationMap({ points }: SectorRotationMapProps) {
             <span
               key={cfg.label}
               className={cn(
-                "absolute text-[10px] font-medium text-[var(--text-muted)] pointer-events-none",
+                "absolute text-xs font-medium text-[var(--text-muted)] pointer-events-none",
                 cfg.position
               )}
             >
@@ -81,9 +81,8 @@ export function SectorRotationMap({ points }: SectorRotationMapProps) {
                 style={{ width: size, height: size }}
               />
               <span
-                className="text-[9px] text-[var(--text-muted)] mt-0.5 whitespace-nowrap leading-none"
-                style={{ fontSize: "9px" }}
-              >
+                className="text-xs text-[var(--text-muted)] mt-0.5 whitespace-nowrap leading-none"
+                >
                 {p.etf}
               </span>
             </div>

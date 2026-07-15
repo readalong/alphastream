@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Newspaper, ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
+import { Newspaper, ArrowLeft, ExternalLink, RefreshCw, ChevronRight } from "lucide-react";
 import { useTickerNews } from "@/hooks/use-news";
 import { formatSource, relativeTime, formatAbsoluteDate } from "@/lib/news-utils";
 import type { TickerNewsArticle } from "@/lib/types";
@@ -13,9 +13,9 @@ function SkeletonList() {
     <div className="divide-y divide-[var(--border)]">
       {Array.from({ length: 5 }).map((_, i) => (
         <div key={i} className="py-3.5">
-          <div className="h-4 w-full rounded bg-[var(--bg-primary)] animate-pulse mb-2" />
-          <div className="h-3.5 w-4/5 rounded bg-[var(--bg-primary)] animate-pulse mb-2" />
-          <div className="h-2.5 w-1/3 rounded bg-[var(--bg-primary)] animate-pulse" />
+          <div className="h-4 w-full rounded bg-[var(--bg-primary)] mb-2" />
+          <div className="h-3.5 w-4/5 rounded bg-[var(--bg-primary)] mb-2" />
+          <div className="h-2.5 w-1/3 rounded bg-[var(--bg-primary)]" />
         </div>
       ))}
     </div>
@@ -55,7 +55,7 @@ function ArticleModal({
 
       {/* Modal card */}
       <div
-        className="relative z-10 w-full max-w-3xl max-h-[90vh] rounded-xl border border-[var(--border)] bg-[var(--bg-card)] shadow-2xl flex flex-col"
+        className="relative z-10 w-full max-w-3xl max-h-[90vh] border border-[var(--border)] bg-[var(--bg-card)] shadow-lg flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header bar */}
@@ -143,7 +143,7 @@ function HeadlineItem({
       <p className="text-sm text-[var(--text-primary)] font-medium leading-snug line-clamp-2 mb-1.5">
         {article.title}
       </p>
-      <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
+      <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
         {article.source && (
           <span className="font-medium text-[var(--accent)]/80">
             {formatSource(article.source)}
@@ -154,7 +154,7 @@ function HeadlineItem({
         )}
         {time && <span>{time}</span>}
         {article.full_text.trim().length > 0 && (
-          <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-400 border border-green-500/20">
+          <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-[var(--long)]/10 text-[var(--long)] border border-[var(--long)]/20">
             Full text
           </span>
         )}
@@ -179,7 +179,7 @@ export function TickerNewsPanel({ ticker, withCard = true }: TickerNewsPanelProp
       return (
         <>
           <SkeletonList />
-          <p className="text-[11px] text-[var(--text-muted)] text-center mt-3">
+          <p className="text-xs text-[var(--text-muted)] text-center mt-3">
             Fetching articles — may take a few seconds on first load…
           </p>
         </>
@@ -243,11 +243,11 @@ export function TickerNewsPanel({ ticker, withCard = true }: TickerNewsPanelProp
       <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)]">
         <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border)]">
           <Newspaper className="h-3.5 w-3.5 text-[var(--accent)]" />
-          <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-            {ticker} News
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+            {ticker} news
           </h3>
           {data?.cached && (
-            <span className="ml-auto text-[10px] text-[var(--text-muted)]/60">cached</span>
+            <span className="ml-auto text-xs text-[var(--text-muted)]/60">cached</span>
           )}
         </div>
         <div className="px-4 py-1 max-h-[600px] overflow-y-auto">{body}</div>
@@ -311,14 +311,15 @@ export function NewsTickerCard({ ticker, onMoreNews }: NewsTickerCardProps) {
       <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-            Latest News
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+            Latest news
           </h3>
           <button
             onClick={onMoreNews}
-            className="text-xs text-[var(--accent)] hover:underline"
+            className="inline-flex items-center gap-1 text-xs text-[var(--accent)] hover:underline"
           >
-            More news →
+            More news
+            <ChevronRight className="h-3 w-3" />
           </button>
         </div>
 
@@ -327,8 +328,8 @@ export function NewsTickerCard({ ticker, onMoreNews }: NewsTickerCardProps) {
           <div className="space-y-2.5">
             {[0, 1, 2].map((i) => (
               <div key={i}>
-                <div className="h-3 w-full rounded bg-[var(--bg-primary)] animate-pulse mb-1" />
-                <div className="h-2.5 w-1/3 rounded bg-[var(--bg-primary)] animate-pulse" />
+                <div className="h-3 w-full rounded bg-[var(--bg-primary)] mb-1" />
+                <div className="h-2.5 w-1/3 rounded bg-[var(--bg-primary)]" />
               </div>
             ))}
           </div>
@@ -354,15 +355,15 @@ export function NewsTickerCard({ ticker, onMoreNews }: NewsTickerCardProps) {
                   </p>
                   <div className="flex items-center gap-1 mt-0.5">
                     {article.source && (
-                      <span className="text-[10px] text-[var(--text-muted)]">
+                      <span className="text-xs text-[var(--text-muted)]">
                         {formatSource(article.source)}
                       </span>
                     )}
                     {article.source && article.published_at && (
-                      <span className="text-[10px] text-[var(--text-muted)]">·</span>
+                      <span className="text-xs text-[var(--text-muted)]">·</span>
                     )}
                     {article.published_at && (
-                      <span className="text-[10px] text-[var(--text-muted)]">
+                      <span className="text-xs text-[var(--text-muted)]">
                         {relativeTime(article.published_at)}
                       </span>
                     )}

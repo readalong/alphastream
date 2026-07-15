@@ -30,7 +30,7 @@ export function SectorSignalBar({ results }: SectorSignalBarProps) {
           key={code}
           style={{
             width: `${(count / total) * 100}%`,
-            backgroundColor: STAGE_COLORS[code]?.color || "#64748b",
+            backgroundColor: STAGE_COLORS[code]?.color || "var(--text-faint)",
           }}
           title={`${STAGE_COLORS[code]?.label || code}: ${count}`}
         />

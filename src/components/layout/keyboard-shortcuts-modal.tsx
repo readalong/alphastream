@@ -34,7 +34,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-sm rounded-xl border border-[var(--border)] bg-[var(--bg-card)] shadow-2xl">
+      <div className="relative w-full max-w-sm border border-[var(--border)] bg-[var(--bg-card)] shadow-lg">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
           <div className="flex items-center gap-2">
             <Keyboard className="h-4 w-4 text-[var(--accent)]" />

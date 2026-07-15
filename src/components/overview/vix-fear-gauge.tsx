@@ -7,23 +7,23 @@ import type { VixAnalysis } from "@/lib/types";
 import { Activity, TrendingDown, TrendingUp, Minus, Shield, Target, Crosshair } from "lucide-react";
 
 const FEAR_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  Low:      { bg: "bg-green-500/10", text: "text-green-400", border: "border-green-500/25" },
-  Elevated: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/25" },
-  High:     { bg: "bg-orange-500/10", text: "text-orange-400", border: "border-orange-500/25" },
-  Extreme:  { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/25" },
+  Low:      { bg: "bg-[var(--long)]/10", text: "text-[var(--long)]", border: "border-[var(--long)]/25" },
+  Elevated: { bg: "bg-[var(--caution)]/10", text: "text-[var(--caution)]", border: "border-[var(--caution)]/25" },
+  High:     { bg: "bg-[var(--severe)]/10", text: "text-[var(--severe)]", border: "border-[var(--severe)]/25" },
+  Extreme:  { bg: "bg-[var(--short)]/10", text: "text-[var(--short)]", border: "border-[var(--short)]/25" },
 };
 
 const REGIME_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  "Risk-On":  { bg: "bg-green-500/10", text: "text-green-400", border: "border-green-500/25" },
-  "Neutral":  { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/25" },
-  "Risk-Off": { bg: "bg-orange-500/10", text: "text-orange-400", border: "border-orange-500/25" },
-  "Crisis":   { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/25" },
+  "Risk-On":  { bg: "bg-[var(--long)]/10", text: "text-[var(--long)]", border: "border-[var(--long)]/25" },
+  "Neutral":  { bg: "bg-[var(--info)]/10", text: "text-[var(--info)]", border: "border-[var(--info)]/25" },
+  "Risk-Off": { bg: "bg-[var(--severe)]/10", text: "text-[var(--severe)]", border: "border-[var(--severe)]/25" },
+  "Crisis":   { bg: "bg-[var(--short)]/10", text: "text-[var(--short)]", border: "border-[var(--short)]/25" },
 };
 
 function VixGaugeBar({ level }: { level: number }) {
   // Map VIX 0-50+ to percentage for the gauge
   const pct = Math.min((level / 50) * 100, 100);
-  const color = level < 15 ? "#22c55e" : level < 20 ? "#22c55e" : level < 30 ? "#f59e0b" : level < 40 ? "#f97316" : "#ef4444";
+  const color = level < 20 ? "var(--long)" : level < 30 ? "var(--caution)" : level < 40 ? "var(--severe)" : "var(--short)";
 
   return (
     <div className="relative h-2 rounded-full bg-[var(--bg-primary)] overflow-hidden">
@@ -52,15 +52,15 @@ function ImplicationItem({ icon: Icon, label, value, variant }: {
   variant: "green" | "amber" | "red";
 }) {
   const colors = {
-    green: "text-green-400",
-    amber: "text-amber-400",
-    red: "text-red-400",
+    green: "text-[var(--long)]",
+    amber: "text-[var(--caution)]",
+    red: "text-[var(--short)]",
   };
   return (
     <div className="flex items-center gap-2.5 rounded-lg bg-[var(--bg-primary)] px-3 py-2.5">
       <Icon className={`h-4 w-4 ${colors[variant]} shrink-0`} />
       <div className="min-w-0">
-        <p className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider">{label}</p>
+        <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider">{label}</p>
         <p className={`text-sm font-medium ${colors[variant]}`}>{value}</p>
       </div>
     </div>
@@ -92,7 +92,7 @@ export function VixFearGauge() {
 
   const fearStyle = FEAR_COLORS[vix.fear_level] ?? FEAR_COLORS.Low;
   const regimeStyle = REGIME_COLORS[vix.regime_signal] ?? REGIME_COLORS.Neutral;
-  const changeColor = vix.daily_change_pct < 0 ? "text-green-400" : vix.daily_change_pct > 0 ? "text-red-400" : "text-[var(--text-muted)]";
+  const changeColor = vix.daily_change_pct < 0 ? "text-[var(--long)]" : vix.daily_change_pct > 0 ? "text-[var(--short)]" : "text-[var(--text-muted)]";
   const TrendIcon = vix.trend_direction === "Falling" ? TrendingDown : vix.trend_direction === "Rising" ? TrendingUp : Minus;
 
   return (
@@ -105,10 +105,10 @@ export function VixFearGauge() {
           </h2>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${fearStyle.bg} ${fearStyle.text} border ${fearStyle.border}`}>
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${fearStyle.bg} ${fearStyle.text} border ${fearStyle.border}`}>
             {vix.fear_level}
           </span>
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${regimeStyle.bg} ${regimeStyle.text} border ${regimeStyle.border}`}>
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${regimeStyle.bg} ${regimeStyle.text} border ${regimeStyle.border}`}>
             {vix.regime_signal}
           </span>
         </div>
@@ -118,7 +118,7 @@ export function VixFearGauge() {
         {/* VIX Level + Change */}
         <div className="flex items-end gap-4">
           <div>
-            <p className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider mb-1">VIX Level</p>
+            <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1">VIX Level</p>
             <p className="text-3xl font-bold text-[var(--text-primary)] tabular-nums">
               {vix.current_level.toFixed(2)}
             </p>
@@ -135,7 +135,7 @@ export function VixFearGauge() {
         {/* Gauge bar */}
         <div>
           <VixGaugeBar level={vix.current_level} />
-          <div className="flex justify-between mt-1 text-[10px] text-[var(--text-muted)]">
+          <div className="flex justify-between mt-1 text-xs text-[var(--text-muted)]">
             <span>0</span>
             <span>15</span>
             <span>20</span>

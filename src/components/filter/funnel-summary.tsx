@@ -35,11 +35,11 @@ function Step({
       >
         {count.toLocaleString()}
       </span>
-      <span className="text-[10px] text-[var(--text-muted)] text-center mt-0.5 leading-tight">
+      <span className="text-xs text-[var(--text-muted)] text-center mt-0.5 leading-tight">
         {label}
       </span>
       {pct != null && (
-        <span className="text-[10px] font-medium text-emerald-500 mt-0.5">
+        <span className="text-xs font-medium text-[var(--long)] mt-0.5">
           {pct.toFixed(0)}% pass
         </span>
       )}
@@ -57,7 +57,7 @@ function LayerBadge({ label, color }: { label: string; color: string }) {
   return (
     <div
       className={cn(
-        "px-2 py-1 rounded text-[10px] font-semibold border self-center whitespace-nowrap",
+        "px-2 py-1 rounded text-xs font-semibold border self-center whitespace-nowrap",
         color
       )}
     >
@@ -73,25 +73,25 @@ export function FunnelSummary({ stats }: FunnelSummaryProps) {
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">
+      <p className="text-xs font-semibold text-[var(--text-muted)] mb-3">
         Funnel
       </p>
       <div className="flex flex-wrap items-center gap-1.5">
         <Step count={stats.universe_count} label="Universe" />
         <Arrow />
-        <LayerBadge label="FLOW" color="border-blue-500/40 bg-blue-500/10 text-blue-400" />
+        <LayerBadge label="FLOW" color="border-[var(--info)]/40 bg-[var(--info)]/10 text-[var(--info)]" />
         <Arrow />
         <Step count={stats.after_layer1} label="After L1" pct={l1Pct} />
         <Arrow />
-        <LayerBadge label="TREND" color="border-emerald-500/40 bg-emerald-500/10 text-emerald-400" />
+        <LayerBadge label="TREND" color="border-[var(--long)]/40 bg-[var(--long)]/10 text-[var(--long)]" />
         <Arrow />
         <Step count={stats.after_layer2} label="After L2" pct={l2Pct} />
         <Arrow />
-        <LayerBadge label="RS" color="border-purple-500/40 bg-purple-500/10 text-purple-400" />
+        <LayerBadge label="RS" color="border-[var(--severe)]/40 bg-[var(--severe)]/10 text-[var(--severe)]" />
         <Arrow />
         <Step count={stats.after_layer3} label="After L3" />
         <Arrow />
-        <LayerBadge label="MOM" color="border-amber-500/40 bg-amber-500/10 text-amber-400" />
+        <LayerBadge label="MOM" color="border-[var(--caution)]/40 bg-[var(--caution)]/10 text-[var(--caution)]" />
         <Arrow />
         <Step count={stats.after_layer4} label="After L4" pct={l4Pct} />
         <Arrow />

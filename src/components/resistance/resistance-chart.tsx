@@ -12,8 +12,8 @@ export function ResistanceChart({ ticker, enabled = true }: ResistanceChartProps
 
   if (isLoading) {
     return (
-      <div className="h-96 rounded-lg bg-[var(--bg-card)] animate-pulse flex items-center justify-center">
-        <div className="text-sm text-[var(--text-muted)]">Loading chart...</div>
+      <div className="h-96 rounded-lg bg-[var(--bg-card)] flex items-center justify-center">
+        <div className="text-sm text-[var(--text-muted)]">Loading chart…</div>
       </div>
     );
   }

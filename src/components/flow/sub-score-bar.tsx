@@ -6,16 +6,10 @@ interface SubScoreBarProps {
   label: string;
   value: number;
   max: number;
-  color: "blue" | "emerald" | "purple";
+  color?: "blue" | "emerald" | "purple";
 }
 
-const colorMap: Record<string, string> = {
-  blue: "bg-blue-500",
-  emerald: "bg-emerald-500",
-  purple: "bg-purple-500",
-};
-
-export function SubScoreBar({ label, value, max, color }: SubScoreBarProps) {
+export function SubScoreBar({ label, value, max }: SubScoreBarProps) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
 
   return (
@@ -23,7 +17,7 @@ export function SubScoreBar({ label, value, max, color }: SubScoreBarProps) {
       <span className="w-6 text-[var(--text-muted)] font-medium shrink-0">{label}</span>
       <div className="flex-1 h-1.5 rounded-full bg-[var(--border)]">
         <div
-          className={cn("h-full rounded-full transition-all", colorMap[color])}
+          className={cn("h-full rounded-full bg-[var(--accent)] transition-all")}
           style={{ width: `${pct}%` }}
         />
       </div>

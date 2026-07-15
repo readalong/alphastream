@@ -4,11 +4,11 @@ import { cn, formatFlow } from "@/lib/utils";
 import type { ConvergenceRow, ConvergenceSignal } from "@/lib/types";
 
 const signalConfig: Record<ConvergenceSignal, { label: string; color: string }> = {
-  BULLISH:       { label: "Bullish",       color: "text-emerald-500" },
-  BEARISH:       { label: "Bearish",       color: "text-red-500" },
-  DIVERGENT:     { label: "Divergent",     color: "text-amber-500" },
-  LEANING_LONG:  { label: "Leaning Long",  color: "text-blue-400" },
-  LEANING_SHORT: { label: "Leaning Short", color: "text-orange-400" },
+  BULLISH:       { label: "Bullish",       color: "text-[var(--long)]" },
+  BEARISH:       { label: "Bearish",       color: "text-[var(--short)]" },
+  DIVERGENT:     { label: "Divergent",     color: "text-[var(--caution)]" },
+  LEANING_LONG:  { label: "Leaning long",  color: "text-[var(--info)]" },
+  LEANING_SHORT: { label: "Leaning short", color: "text-[var(--severe)]" },
 };
 
 function getVerdict(signal: ConvergenceSignal, etfDir: string, cotStance: string): string {
@@ -56,7 +56,7 @@ export function ConvergenceTable({ rows }: ConvergenceTableProps) {
                 <td
                   className={cn(
                     "py-2 text-right tabular-nums font-medium",
-                    r.etf_flow_direction === "inflow" ? "text-emerald-500" : "text-red-500"
+                    r.etf_flow_direction === "inflow" ? "text-[var(--long)]" : "text-[var(--short)]"
                   )}
                 >
                   {formatFlow(r.etf_weekly_flow)}
@@ -66,7 +66,7 @@ export function ConvergenceTable({ rows }: ConvergenceTableProps) {
                   <span
                     className={cn(
                       "text-xs font-medium",
-                      r.cot_stance === "NET_LONG" ? "text-emerald-500" : "text-red-500"
+                      r.cot_stance === "NET_LONG" ? "text-[var(--long)]" : "text-[var(--short)]"
                     )}
                   >
                     ({r.cot_stance.replace("_", " ")})

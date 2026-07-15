@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Filter, Play, ArrowUpDown, CheckCircle2, Bookmark, X } from "lucide-react";
+import { Filter, Play, ArrowUpDown, CheckCircle2, Bookmark, X, ChevronRight } from "lucide-react";
 import { useFilterSetup } from "@/hooks/use-filter";
 import { FunnelSummary } from "@/components/filter/funnel-summary";
 import { SectorContextStrip } from "@/components/filter/sector-context-strip";
@@ -196,7 +196,7 @@ export function FilterPanel() {
             <button
               onClick={() => applyPreset(preset)}
               className={cn(
-                "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
+                "px-3 py-1 rounded text-xs font-medium border transition-colors",
                 activePresetId === preset.id
                   ? "bg-[var(--accent)]/15 text-[var(--accent)] border-[var(--accent)]/40"
                   : "bg-[var(--bg-card)] text-[var(--text-muted)] border-[var(--border)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/30",
@@ -208,7 +208,7 @@ export function FilterPanel() {
             {!preset.builtin && (
               <button
                 onClick={() => deleteCustomPreset(preset.id)}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--short)] opacity-0 group-hover:opacity-100 transition-opacity"
                 title="Remove preset"
               >
                 <X className="h-3 w-3" />
@@ -218,7 +218,7 @@ export function FilterPanel() {
         ))}
         <button
           onClick={saveCurrentAsPreset}
-          className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border border-dashed border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/30 transition-colors"
+          className="flex items-center gap-1 px-3 py-1 rounded text-xs font-medium border border-dashed border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/30 transition-colors"
         >
           <Bookmark className="h-3 w-3" />
           Save
@@ -333,16 +333,16 @@ export function FilterPanel() {
       {/* Loading */}
       {isLoading && (
         <div className="space-y-3">
-          <div className="h-24 rounded-lg bg-[var(--bg-card)] animate-pulse" />
-          <div className="h-20 rounded-lg bg-[var(--bg-card)] animate-pulse" />
-          <div className="h-72 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+          <div className="h-24 rounded-lg bg-[var(--bg-card)]" />
+          <div className="h-20 rounded-lg bg-[var(--bg-card)]" />
+          <div className="h-72 rounded-lg bg-[var(--bg-card)]" />
         </div>
       )}
 
       {/* Error */}
       {isError && !isLoading && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-6 text-center">
-          <p className="text-sm text-amber-400 mb-1">Filter data not available.</p>
+        <div className="rounded-lg border border-[var(--caution)]/30 bg-[var(--caution)]/5 p-6 text-center">
+          <p className="text-sm text-[var(--caution)] mb-1">Filter data not available.</p>
           <p className="text-xs text-[var(--text-muted)]">
             Run the backend pipeline first, then click Run Filter Job or wait for scheduled data.
           </p>
@@ -369,7 +369,7 @@ export function FilterPanel() {
               <div className="flex items-center gap-1.5">
                 <span className="text-[var(--text-muted)]">Inflow:</span>
                 {data.funnel_stats.inflow_sectors.map((etf) => (
-                  <span key={etf} className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-medium">
+                  <span key={etf} className="px-1.5 py-0.5 rounded bg-[var(--long)]/10 text-[var(--long)] font-medium">
                     {etf}
                   </span>
                 ))}
@@ -378,7 +378,7 @@ export function FilterPanel() {
                 <div className="flex items-center gap-1.5">
                   <span className="text-[var(--text-muted)]">Outflow:</span>
                   {data.funnel_stats.outflow_sectors.map((etf) => (
-                    <span key={etf} className="px-1.5 py-0.5 rounded bg-red-500/10 text-red-500/70 font-medium">
+                    <span key={etf} className="px-1.5 py-0.5 rounded bg-[var(--short)]/10 text-[var(--short)]/70 font-medium">
                       {etf}
                     </span>
                   ))}
@@ -393,8 +393,8 @@ export function FilterPanel() {
               <p className="text-sm font-medium text-[var(--text-primary)] mb-1">No results match the current filters.</p>
               <p className="text-xs text-[var(--text-muted)]">
                 Try a preset above, relax the momentum threshold, or{" "}
-                <button onClick={handleRunJob} disabled={jobRunning} className="text-[var(--accent)] hover:underline">
-                  re-run the filter job →
+                <button onClick={handleRunJob} disabled={jobRunning} className="inline-flex items-center gap-0.5 text-[var(--accent)] hover:underline">
+                  re-run the filter job<ChevronRight className="h-3 w-3" />
                 </button>
               </p>
             </div>
@@ -486,7 +486,7 @@ function ResultRow({ result: r }: { result: FilterResult }) {
             {r.ticker}
           </Link>
           {r.rs_52w_high && (
-            <span className="px-1 py-0.5 text-[9px] font-medium rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">
+            <span className="px-1 py-0.5 text-xs font-medium rounded bg-[var(--long)]/10 text-[var(--long)] border border-[var(--long)]/20">
               RS52W
             </span>
           )}
@@ -496,7 +496,7 @@ function ResultRow({ result: r }: { result: FilterResult }) {
 
       {/* Sector ETF */}
       <td className="px-3 py-2.5">
-        <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+        <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-[var(--long)]/10 text-[var(--long)]">
           {r.sector_etf}
         </span>
       </td>
@@ -506,7 +506,7 @@ function ResultRow({ result: r }: { result: FilterResult }) {
         <span
           className={cn(
             "tabular-nums font-semibold",
-            r.rs_composite > 75 ? "text-emerald-500" : "text-[var(--text-primary)]"
+            r.rs_composite > 75 ? "text-[var(--long)]" : "text-[var(--text-primary)]"
           )}
         >
           {r.rs_composite.toFixed(1)}
@@ -518,7 +518,7 @@ function ResultRow({ result: r }: { result: FilterResult }) {
         <span
           className={cn(
             "tabular-nums font-medium",
-            r.flow_score >= 70 ? "text-emerald-500" : r.flow_score >= 40 ? "text-[var(--text-primary)]" : "text-red-500"
+            r.flow_score >= 70 ? "text-[var(--long)]" : r.flow_score >= 40 ? "text-[var(--text-primary)]" : "text-[var(--short)]"
           )}
         >
           {r.flow_score}
@@ -526,7 +526,7 @@ function ResultRow({ result: r }: { result: FilterResult }) {
       </td>
 
       {/* SMA200 rising — always ^ for results */}
-      <td className="px-3 py-2.5 text-center text-emerald-500 font-medium">↑</td>
+      <td className="px-3 py-2.5 text-center text-[var(--long)] font-medium">↑</td>
 
       {/* Near 20d high */}
       <td className="px-3 py-2.5 text-center">
@@ -535,7 +535,7 @@ function ResultRow({ result: r }: { result: FilterResult }) {
             <CheckCircle2
               className={cn(
                 "h-4 w-4 mx-auto",
-                r.at_20d_high ? "text-emerald-400" : "text-emerald-600/60"
+                r.at_20d_high ? "text-[var(--long)]" : "text-[var(--long)]/60"
               )}
             />
           </span>
@@ -550,7 +550,7 @@ function ResultRow({ result: r }: { result: FilterResult }) {
           {r.momentum_score}
         </span>
         {r.consolidation_break && (
-          <span className="mt-0.5 block text-[9px] font-medium text-amber-400 text-right">BREAK</span>
+          <span className="mt-0.5 block text-xs font-medium text-[var(--caution)] text-right">BREAK</span>
         )}
       </td>
 

@@ -33,10 +33,10 @@ export function ContextLine() {
 
   const modeColor =
     mode === "BULL"
-      ? "text-emerald-400"
+      ? "text-[var(--long)]"
       : mode === "BEAR" || mode === "CORRECTION"
-        ? "text-red-400"
-        : "text-amber-400";
+        ? "text-[var(--short)]"
+        : "text-[var(--caution)]";
 
   return (
     <div className="flex items-center gap-x-4 gap-y-1 px-4 py-1.5 text-xs bg-[var(--bg-sidebar)] border-b border-[var(--border)] overflow-x-auto whitespace-nowrap text-[var(--text-muted)]">

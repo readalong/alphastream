@@ -19,8 +19,8 @@ export function SectorContextStrip({
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">
-        Sector Flow Context
+      <p className="text-xs font-semibold text-[var(--text-muted)] mb-3">
+        Sector flow context
       </p>
       <div className="flex flex-wrap gap-2">
         {sorted.map((s) => {
@@ -36,14 +36,14 @@ export function SectorContextStrip({
               className={cn(
                 "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs transition-colors",
                 isInflow
-                  ? "border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10"
-                  : "border-red-500/30 bg-red-500/5 hover:bg-red-500/10 opacity-60",
+                  ? "border-[var(--long)]/40 bg-[var(--long)]/5 hover:bg-[var(--long)]/10"
+                  : "border-[var(--short)]/30 bg-[var(--short)]/5 hover:bg-[var(--short)]/10 opacity-60",
                 isSelected && "ring-1 ring-[var(--accent)]"
               )}
               title={`${s.name} — ${isInflow ? "Inflow" : "Outflow"}, Score: ${s.composite_score.toFixed(0)}, ${s.stock_count_after_l2} stocks after L2`}
             >
               {/* Inflow check / outflow X */}
-              <span className={cn("shrink-0 font-bold", isInflow ? "text-emerald-500" : "text-red-500/70")}>
+              <span className={cn("shrink-0 font-bold", isInflow ? "text-[var(--long)]" : "text-[var(--short)]/70")}>
                 {isInflow ? "✓" : "✗"}
               </span>
 
@@ -61,7 +61,7 @@ export function SectorContextStrip({
               <span
                 className={cn(
                   "tabular-nums",
-                  s.pct_20d >= 0 ? "text-emerald-500" : "text-red-500"
+                  s.pct_20d >= 0 ? "text-[var(--long)]" : "text-[var(--short)]"
                 )}
               >
                 {pctSign}{s.pct_20d.toFixed(0)}

@@ -24,7 +24,7 @@ function fmtPct(v: number | undefined) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-2">
+    <p className="text-xs text-[var(--text-muted)] mb-2">
       {children}
     </p>
   );
@@ -57,22 +57,22 @@ function CollarVisualizer({ longPutSpy, shortCallSpy, currentSpy }: CollarVisual
   return (
     <div className="space-y-2">
       <SectionLabel>Price Position in Collar</SectionLabel>
-      <div className="relative h-10 rounded-lg overflow-hidden border border-[var(--border)]">
+      <div className="relative h-10 overflow-hidden border border-[var(--border)]">
         {/* danger zone left */}
-        <div className="absolute inset-y-0 left-0 w-[20%] bg-red-500/10" />
+        <div className="absolute inset-y-0 left-0 w-[20%] bg-[var(--short)]/10" />
         {/* safe zone */}
-        <div className="absolute inset-y-0 left-[20%] right-[20%] bg-emerald-500/5" />
+        <div className="absolute inset-y-0 left-[20%] right-[20%] bg-[var(--long)]/5" />
         {/* cap zone right */}
-        <div className="absolute inset-y-0 right-0 w-[20%] bg-red-500/10" />
+        <div className="absolute inset-y-0 right-0 w-[20%] bg-[var(--short)]/10" />
 
         {/* SPY price marker */}
         {positionPct != null && (
           <div
-            className="absolute inset-y-0 w-0.5 bg-white/80 z-10"
+            className="absolute inset-y-0 w-0.5 bg-[var(--text-primary)]/80 z-10"
             style={{ left: `${positionPct}%` }}
           >
             <span
-              className="absolute -top-5 left-1/2 -translate-x-1/2 font-mono text-[10px] text-white whitespace-nowrap"
+              className="absolute -top-5 left-1/2 -translate-x-1/2 font-mono text-xs text-[var(--text-primary)] whitespace-nowrap"
               style={{ top: "-1.25rem" }}
             >
               SPY {fmtLevel(currentSpy)}
@@ -80,9 +80,9 @@ function CollarVisualizer({ longPutSpy, shortCallSpy, currentSpy }: CollarVisual
           </div>
         )}
       </div>
-      <div className="flex justify-between text-[10px] font-mono">
-        <span className="text-red-400">FLOOR {fmtLevel(longPutSpy)}</span>
-        <span className="text-red-400">CAP {fmtLevel(shortCallSpy)}</span>
+      <div className="flex justify-between text-xs font-mono">
+        <span className="text-[var(--short)]">Floor {fmtLevel(longPutSpy)}</span>
+        <span className="text-[var(--short)]">Cap {fmtLevel(shortCallSpy)}</span>
       </div>
     </div>
   );
@@ -101,25 +101,25 @@ interface StrikeLevelCardProps {
 
 function StrikeLevelCard({ label, description, strike, spy, distancePct, accentClass }: StrikeLevelCardProps) {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+    <div className="border border-[var(--border)] bg-[var(--bg-card)] p-4">
       <div className="flex items-center gap-1.5 mb-2">
         <Shield className={cn("w-3.5 h-3.5", accentClass)} />
-        <span className={cn("text-[10px] font-semibold uppercase tracking-wider", accentClass)}>{label}</span>
+        <span className={cn("text-xs font-semibold", accentClass)}>{label}</span>
       </div>
-      <p className="text-[10px] text-[var(--text-muted)] mb-3">{description}</p>
+      <p className="text-xs text-[var(--text-muted)] mb-3">{description}</p>
       <div className="space-y-1">
         <div className="flex justify-between text-xs">
-          <span className="text-[var(--text-muted)]">SPX Strike</span>
+          <span className="text-[var(--text-muted)]">SPX strike</span>
           <span className={cn("font-mono", accentClass)}>{fmtLevel(strike)}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-[var(--text-muted)]">SPY Equiv.</span>
+          <span className="text-[var(--text-muted)]">SPY equiv.</span>
           <span className="font-mono text-[var(--text-primary)]">{fmtLevel(spy)}</span>
         </div>
         {distancePct != null && (
           <div className="flex justify-between text-xs">
             <span className="text-[var(--text-muted)]">Distance</span>
-            <span className={cn("font-mono", distancePct < 0 ? "text-red-400" : "text-emerald-400")}>
+            <span className={cn("font-mono", distancePct < 0 ? "text-[var(--short)]" : "text-[var(--long)]")}>
               {fmtPct(distancePct)}
             </span>
           </div>
@@ -133,15 +133,15 @@ function StrikeLevelCard({ label, description, strike, spy, distancePct, accentC
 
 function SisterFundsTable({ funds, activeFund }: { funds: SisterFund[]; activeFund: string }) {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
+    <div className="border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
       <div className="px-4 py-3 border-b border-[var(--border)]">
-        <SectionLabel>Sister Funds (Quarterly Rotation)</SectionLabel>
+        <SectionLabel>Sister funds (quarterly rotation)</SectionLabel>
       </div>
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-[var(--border)]">
             <th className="px-4 py-2 text-left text-[var(--text-muted)] font-normal">Fund</th>
-            <th className="px-4 py-2 text-left text-[var(--text-muted)] font-normal">Reset Date</th>
+            <th className="px-4 py-2 text-left text-[var(--text-muted)] font-normal">Reset date</th>
             <th className="px-4 py-2 text-right text-[var(--text-muted)] font-normal">Days</th>
             <th className="px-4 py-2 text-left text-[var(--text-muted)] font-normal">Status</th>
           </tr>
@@ -152,13 +152,13 @@ function SisterFundsTable({ funds, activeFund }: { funds: SisterFund[]; activeFu
               key={f.fund}
               className={cn(
                 "border-b border-[var(--border)] last:border-0",
-                f.fund === activeFund ? "bg-blue-500/5" : ""
+                f.fund === activeFund ? "bg-[var(--info)]/5" : ""
               )}
             >
               <td className="px-4 py-2 font-mono font-semibold text-[var(--text-primary)]">
                 {f.fund}
                 {f.fund === activeFund && (
-                  <span className="ml-1.5 text-[9px] text-blue-400 uppercase tracking-wider">active</span>
+                  <span className="ml-1.5 text-xs text-[var(--info)]">active</span>
                 )}
               </td>
               <td className="px-4 py-2 font-mono text-[var(--text-muted)]">{f.reset_date}</td>
@@ -197,12 +197,12 @@ function CollarDisplay({ collar }: CollarDisplayProps) {
   return (
     <div className="space-y-6">
       {/* Header card */}
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+      <div className="border border-[var(--border)] bg-[var(--bg-card)] p-4">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Shield className="w-4 h-4 text-blue-400" />
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Active Fund</span>
+              <Shield className="w-4 h-4 text-[var(--info)]" />
+              <span className="text-xs text-[var(--text-muted)]">Active fund</span>
             </div>
             <p className="font-mono text-2xl font-bold text-[var(--text-primary)]">{collar.active_fund}</p>
             <p className="text-sm text-[var(--text-muted)] mt-1">
@@ -210,10 +210,10 @@ function CollarDisplay({ collar }: CollarDisplayProps) {
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Days Until Reset</p>
+            <p className="text-xs text-[var(--text-muted)] mb-1">Days until reset</p>
             <p className={cn(
               "font-mono text-4xl font-bold",
-              collar.days_until_reset <= 5 ? "text-red-400" : collar.days_until_reset <= 14 ? "text-amber-400" : "text-[var(--text-primary)]"
+              collar.days_until_reset <= 5 ? "text-[var(--short)]" : collar.days_until_reset <= 14 ? "text-[var(--caution)]" : "text-[var(--text-primary)]"
             )}>
               {collar.days_until_reset}
             </p>
@@ -221,7 +221,7 @@ function CollarDisplay({ collar }: CollarDisplayProps) {
         </div>
 
         {isWarning && (
-          <div className="flex items-center gap-2 mt-3 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs">
+          <div className="flex items-center gap-2 mt-3 px-3 py-2 bg-[var(--caution)]/10 border border-[var(--caution)]/25 text-[var(--caution)] text-xs">
             <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
             <span>
               {typeof collar.reset_warning === "string" && collar.reset_warning
@@ -232,7 +232,7 @@ function CollarDisplay({ collar }: CollarDisplayProps) {
         )}
 
         {(collar.data_source || collar.last_updated) && (
-          <p className="text-[10px] text-[var(--text-muted)] mt-3">
+          <p className="text-xs text-[var(--text-muted)] mt-3">
             {collar.data_source && <>Source: {collar.data_source}</>}
             {collar.data_source && collar.last_updated && <> · </>}
             {collar.last_updated && <>Updated: {collar.last_updated}</>}
@@ -241,7 +241,7 @@ function CollarDisplay({ collar }: CollarDisplayProps) {
       </div>
 
       {/* Position visualizer */}
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+      <div className="border border-[var(--border)] bg-[var(--bg-card)] p-4">
         <CollarVisualizer
           longPutSpy={longPutSpy}
           shortCallSpy={shortCallSpy}
@@ -252,11 +252,11 @@ function CollarDisplay({ collar }: CollarDisplayProps) {
             Position:{" "}
             <span className={cn(
               "font-semibold",
-              collar.position_in_collar === "near_floor" ? "text-red-400" :
-              collar.position_in_collar === "near_cap"   ? "text-amber-400" :
-              "text-emerald-400"
+              collar.position_in_collar === "near_floor" ? "text-[var(--short)]" :
+              collar.position_in_collar === "near_cap"   ? "text-[var(--caution)]" :
+              "text-[var(--long)]"
             )}>
-              {collar.position_in_collar.replace("_", " ").toUpperCase()}
+              {collar.position_in_collar.replace("_", " ")}
             </span>
             {collar.distance_to_floor_pct != null && (
               <span className="ml-2 font-mono text-[var(--text-muted)]">
@@ -275,30 +275,30 @@ function CollarDisplay({ collar }: CollarDisplayProps) {
       {/* Strike level cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StrikeLevelCard
-          label="Long Put — Floor"
+          label="Long put — floor"
           description="Downside protection. Major support — dealers hedge below here."
           strike={longPutStrike}
           spy={longPutSpy}
           distancePct={collar.distance_to_floor_pct != null ? -Math.abs(collar.distance_to_floor_pct) : undefined}
-          accentClass="text-red-400"
+          accentClass="text-[var(--short)]"
         />
         {shortPutStrike != null && (
           <StrikeLevelCard
-            label="Short Put — Funding"
+            label="Short put — funding"
             description="Collar funding leg. Moderate support zone."
             strike={shortPutStrike}
             spy={shortPutSpy}
             distancePct={undefined}
-            accentClass="text-orange-400"
+            accentClass="text-[var(--severe)]"
           />
         )}
         <StrikeLevelCard
-          label="Short Call — Cap"
+          label="Short call — cap"
           description="Upside cap. Resistance — dealers sell above here."
           strike={shortCallStrike}
           spy={shortCallSpy}
           distancePct={collar.distance_to_cap_pct}
-          accentClass="text-amber-400"
+          accentClass="text-[var(--caution)]"
         />
       </div>
 
@@ -308,7 +308,7 @@ function CollarDisplay({ collar }: CollarDisplayProps) {
       )}
 
       {/* About JHEQX */}
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+      <div className="border border-[var(--border)] bg-[var(--bg-card)] p-4">
         <div className="flex items-center gap-2 mb-2">
           <Shield className="w-3.5 h-3.5 text-[var(--text-muted)]" />
           <SectionLabel>About the JPM Hedged Equity Collar (JHEQX)</SectionLabel>
@@ -335,7 +335,7 @@ function CollarFallbackDisplay() {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="animate-pulse rounded bg-[var(--border)] h-20 w-full" />
+          <div key={i} className="bg-[var(--border)] h-20 w-full" />
         ))}
       </div>
     );
@@ -369,17 +369,17 @@ function CollarFallbackDisplay() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 p-3 text-xs text-amber-300">
+      <div className="border border-[var(--caution)]/25 bg-[var(--caution)]/5 p-3 text-xs text-[var(--caution)]">
         Showing fallback data from /api/market/direction. Deploy the collar module for full data.
       </div>
 
       {/* Header card */}
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+      <div className="border border-[var(--border)] bg-[var(--bg-card)] p-4">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Shield className="w-4 h-4 text-blue-400" />
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Active Fund</span>
+              <Shield className="w-4 h-4 text-[var(--info)]" />
+              <span className="text-xs text-[var(--text-muted)]">Active fund</span>
             </div>
             <p className="font-mono text-2xl font-bold text-[var(--text-primary)]">{collar.active_fund}</p>
             <p className="text-sm text-[var(--text-muted)] mt-1">
@@ -387,17 +387,17 @@ function CollarFallbackDisplay() {
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Days Until Reset</p>
+            <p className="text-xs text-[var(--text-muted)] mb-1">Days until reset</p>
             <p className={cn(
               "font-mono text-4xl font-bold",
-              collar.days_until_reset <= 5 ? "text-red-400" : collar.days_until_reset <= 14 ? "text-amber-400" : "text-[var(--text-primary)]"
+              collar.days_until_reset <= 5 ? "text-[var(--short)]" : collar.days_until_reset <= 14 ? "text-[var(--caution)]" : "text-[var(--text-primary)]"
             )}>
               {collar.days_until_reset}
             </p>
           </div>
         </div>
         {isWarning && (
-          <div className="flex items-center gap-2 mt-3 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs">
+          <div className="flex items-center gap-2 mt-3 px-3 py-2 bg-[var(--caution)]/10 border border-[var(--caution)]/25 text-[var(--caution)] text-xs">
             <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
             <span>Reset approaching — expect potential pinning / increased collar influence</span>
           </div>
@@ -407,20 +407,20 @@ function CollarFallbackDisplay() {
       {/* Strike levels */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <StrikeLevelCard
-          label="Long Put — Floor"
+          label="Long put — floor"
           description="Downside protection."
           strike={longPutStrike}
           spy={longPutSpy}
           distancePct={distancePct(longPutStrike, longPutSpy)}
-          accentClass="text-red-400"
+          accentClass="text-[var(--short)]"
         />
         <StrikeLevelCard
-          label="Short Call — Cap"
+          label="Short call — cap"
           description="Upside cap."
           strike={shortCallStrike}
           spy={shortCallSpy}
           distancePct={distancePct(shortCallStrike, shortCallSpy)}
-          accentClass="text-amber-400"
+          accentClass="text-[var(--caution)]"
         />
       </div>
     </div>
@@ -444,7 +444,7 @@ export function CollarPanel() {
       {isPending ? (
         <div className="space-y-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="animate-pulse rounded bg-[var(--border)] h-24 w-full" />
+            <div key={i} className="bg-[var(--border)] h-24 w-full" />
           ))}
         </div>
       ) : isError || !collarData || !collarData.collar_levels ? (

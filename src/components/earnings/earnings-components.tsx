@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Calendar, TrendingUp } from "lucide-react";
+import { ChevronDown, Calendar, TrendingUp, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { EarningsResponse, EarningsSignal } from "@/lib/types";
 
@@ -20,24 +20,24 @@ function formatPct(val: number | null, decimals = 1): string {
 }
 
 const SIGNAL_STYLE: Record<EarningsSignal, string> = {
-  EPS_BEAT:              "bg-green-500/15 text-green-400 border-green-500/30",
-  EPS_MISS:              "bg-red-500/15 text-red-400 border-red-500/30",
-  EPS_IN_LINE:           "bg-slate-500/15 text-slate-400 border-slate-500/30",
-  STRONG_EPS_GROWTH:     "bg-green-500/15 text-green-400 border-green-500/30",
-  EPS_DECLINE:           "bg-red-500/15 text-red-400 border-red-500/30",
-  STRONG_REVENUE_GROWTH: "bg-green-500/15 text-green-400 border-green-500/30",
-  REVENUE_DECLINE:       "bg-red-500/15 text-red-400 border-red-500/30",
-  ACCELERATING_GROWTH:   "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-  DECELERATING_GROWTH:   "bg-red-600/15 text-red-300 border-red-600/30",
-  MARGIN_EXPANSION:      "bg-teal-500/15 text-teal-400 border-teal-500/30",
-  MARGIN_CONTRACTION:    "bg-orange-500/15 text-orange-400 border-orange-500/30",
+  EPS_BEAT:              "bg-[var(--long)]/15 text-[var(--long)] border-[var(--long)]/30",
+  EPS_MISS:              "bg-[var(--short)]/15 text-[var(--short)] border-[var(--short)]/30",
+  EPS_IN_LINE:           "bg-[var(--bg-primary)] text-[var(--text-muted)] border-[var(--border)]",
+  STRONG_EPS_GROWTH:     "bg-[var(--long)]/15 text-[var(--long)] border-[var(--long)]/30",
+  EPS_DECLINE:           "bg-[var(--short)]/15 text-[var(--short)] border-[var(--short)]/30",
+  STRONG_REVENUE_GROWTH: "bg-[var(--long)]/15 text-[var(--long)] border-[var(--long)]/30",
+  REVENUE_DECLINE:       "bg-[var(--short)]/15 text-[var(--short)] border-[var(--short)]/30",
+  ACCELERATING_GROWTH:   "bg-[var(--long)]/15 text-[var(--long)] border-[var(--long)]/30",
+  DECELERATING_GROWTH:   "bg-[var(--caution)]/15 text-[var(--caution)] border-[var(--caution)]/30",
+  MARGIN_EXPANSION:      "bg-[var(--long)]/15 text-[var(--long)] border-[var(--long)]/30",
+  MARGIN_CONTRACTION:    "bg-[var(--severe)]/15 text-[var(--severe)] border-[var(--severe)]/30",
 };
 
 function SignalBadge({ signal }: { signal: EarningsSignal }) {
   return (
     <span
       className={cn(
-        "px-1.5 py-0.5 rounded text-[10px] font-medium border whitespace-nowrap",
+        "px-1.5 py-0.5 rounded text-xs font-medium border whitespace-nowrap",
         SIGNAL_STYLE[signal]
       )}
     >
@@ -60,12 +60,12 @@ export function EarningsHighlight({
 
   const isBeat = q.signals.includes("EPS_BEAT");
   const isMiss = q.signals.includes("EPS_MISS");
-  const epsColor = isBeat ? "text-green-400" : isMiss ? "text-red-400" : "text-[var(--text-primary)]";
+  const epsColor = isBeat ? "text-[var(--long)]" : isMiss ? "text-[var(--short)]" : "text-[var(--text-primary)]";
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">
           Earnings
         </h3>
         <span className="text-xs font-medium text-[var(--text-muted)]">{q.fiscal_quarter}</span>
@@ -83,15 +83,15 @@ export function EarningsHighlight({
             <span className="text-sm text-[var(--text-muted)]">—</span>
           )}
           {q.eps.estimate != null && (
-            <span className="text-[10px] text-[var(--text-muted)]">
+            <span className="text-xs text-[var(--text-muted)]">
               est ${q.eps.estimate.toFixed(2)}
             </span>
           )}
           {q.eps.surprise_pct != null && (
             <span
               className={cn(
-                "text-[10px] font-medium",
-                q.eps.surprise_pct > 0 ? "text-green-400" : "text-red-400"
+                "text-xs font-medium",
+                q.eps.surprise_pct > 0 ? "text-[var(--long)]" : "text-[var(--short)]"
               )}
             >
               {formatPct(q.eps.surprise_pct)}
@@ -110,8 +110,8 @@ export function EarningsHighlight({
           {q.revenue.yoy_growth_pct != null && (
             <span
               className={cn(
-                "text-[10px] font-medium",
-                q.revenue.yoy_growth_pct >= 0 ? "text-green-400" : "text-red-400"
+                "text-xs font-medium",
+                q.revenue.yoy_growth_pct >= 0 ? "text-[var(--long)]" : "text-[var(--short)]"
               )}
             >
               {formatPct(q.revenue.yoy_growth_pct)} YoY
@@ -127,7 +127,7 @@ export function EarningsHighlight({
             <SignalBadge key={s} signal={s} />
           ))}
           {q.signals.length > 3 && (
-            <span className="text-[10px] text-[var(--text-muted)] self-center">
+            <span className="text-xs text-[var(--text-muted)] self-center">
               +{q.signals.length - 3}
             </span>
           )}
@@ -137,9 +137,9 @@ export function EarningsHighlight({
       {/* Next earnings */}
       {data.next_earnings && (
         <div className="pt-2.5 border-t border-[var(--border)] space-y-1">
-          <div className="flex items-center gap-1 text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
+          <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
             <Calendar className="h-3 w-3" />
-            Next Earnings
+            Next earnings
           </div>
           <div className="flex items-baseline justify-between">
             <span className="text-xs text-[var(--text-primary)]">
@@ -150,7 +150,7 @@ export function EarningsHighlight({
             </span>
             {data.next_earnings.eps_estimate != null && (
               <span className="text-xs text-[var(--text-muted)]">
-                Est EPS{" "}
+                Est. EPS{" "}
                 <span className="font-mono text-[var(--text-primary)]">
                   ${data.next_earnings.eps_estimate.toFixed(2)}
                 </span>
@@ -162,9 +162,9 @@ export function EarningsHighlight({
 
       <button
         onClick={onViewEarnings}
-        className="mt-3 w-full text-xs text-[var(--accent)] hover:underline text-right"
+        className="mt-3 w-full inline-flex items-center justify-end gap-0.5 text-xs text-[var(--accent)] hover:underline"
       >
-        Full breakdown →
+        Full breakdown<ChevronRight className="h-3 w-3" />
       </button>
     </div>
   );
@@ -182,12 +182,12 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
         <div className="rounded-lg border border-[var(--accent)]/20 bg-[var(--accent)]/5 p-4">
           <div className="flex items-center gap-2 mb-2">
             <Calendar className="h-4 w-4 text-[var(--accent)]" />
-            <span className="text-sm font-semibold text-[var(--text-primary)]">Next Earnings</span>
+            <span className="text-sm font-semibold text-[var(--text-primary)]">Next earnings</span>
           </div>
           <div className="flex flex-wrap gap-x-8 gap-y-2">
             <div>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block mb-0.5">
-                Date Window
+              <span className="text-xs text-[var(--text-muted)] block mb-0.5">
+                Date window
               </span>
               <span className="font-medium text-[var(--text-primary)]">
                 {data.next_earnings.date_range[0]}
@@ -198,8 +198,8 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
             </div>
             {data.next_earnings.eps_estimate != null && (
               <div>
-                <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block mb-0.5">
-                  Est EPS
+                <span className="text-xs text-[var(--text-muted)] block mb-0.5">
+                  Est. EPS
                 </span>
                 <span className="font-mono font-medium text-[var(--text-primary)]">
                   ${data.next_earnings.eps_estimate.toFixed(2)}
@@ -208,8 +208,8 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
             )}
             {data.next_earnings.revenue_estimate != null && (
               <div>
-                <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block mb-0.5">
-                  Est Revenue
+                <span className="text-xs text-[var(--text-muted)] block mb-0.5">
+                  Est. revenue
                 </span>
                 <span className="font-mono font-medium text-[var(--text-primary)]">
                   {formatRevenue(data.next_earnings.revenue_estimate)}
@@ -224,8 +224,8 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
       <div>
         <div className="flex items-center gap-2 mb-3">
           <TrendingUp className="h-4 w-4 text-[var(--text-muted)]" />
-          <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-            Quarterly Results · Last {data.quarters_returned} Quarters
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+            Quarterly results · last {data.quarters_returned} quarters
           </h3>
         </div>
 
@@ -235,9 +235,9 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
             const isBeat = q.signals.includes("EPS_BEAT");
             const isMiss = q.signals.includes("EPS_MISS");
             const epsColor = isBeat
-              ? "text-green-400"
+              ? "text-[var(--long)]"
               : isMiss
-                ? "text-red-400"
+                ? "text-[var(--short)]"
                 : "text-[var(--text-primary)]";
 
             return (
@@ -255,13 +255,13 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
                       {q.fiscal_quarter}
                     </span>
                     {q.report_date && (
-                      <span className="text-[10px] text-[var(--text-muted)]">{q.report_date}</span>
+                      <span className="text-xs text-[var(--text-muted)]">{q.report_date}</span>
                     )}
                   </div>
 
                   {/* EPS */}
                   <div className="flex-1 min-w-0">
-                    <span className="text-[10px] text-[var(--text-muted)] block">EPS</span>
+                    <span className="text-xs text-[var(--text-muted)] block">EPS</span>
                     <div className="flex items-center gap-1 flex-wrap">
                       {q.eps.actual != null ? (
                         <span className={cn("font-mono text-sm font-medium", epsColor)}>
@@ -273,8 +273,8 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
                       {q.eps.surprise_pct != null && (
                         <span
                           className={cn(
-                            "text-[10px]",
-                            q.eps.surprise_pct > 0 ? "text-green-400" : "text-red-400"
+                            "text-xs",
+                            q.eps.surprise_pct > 0 ? "text-[var(--long)]" : "text-[var(--short)]"
                           )}
                         >
                           {formatPct(q.eps.surprise_pct)}
@@ -285,7 +285,7 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
 
                   {/* Revenue */}
                   <div className="flex-1 min-w-0 hidden sm:block">
-                    <span className="text-[10px] text-[var(--text-muted)] block">Revenue</span>
+                    <span className="text-xs text-[var(--text-muted)] block">Revenue</span>
                     <div className="flex items-center gap-1">
                       <span className="font-mono text-sm text-[var(--text-primary)]">
                         {formatRevenue(q.revenue.actual)}
@@ -293,8 +293,8 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
                       {q.revenue.yoy_growth_pct != null && (
                         <span
                           className={cn(
-                            "text-[10px]",
-                            q.revenue.yoy_growth_pct >= 0 ? "text-green-400" : "text-red-400"
+                            "text-xs",
+                            q.revenue.yoy_growth_pct >= 0 ? "text-[var(--long)]" : "text-[var(--short)]"
                           )}
                         >
                           {formatPct(q.revenue.yoy_growth_pct)}
@@ -306,7 +306,7 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
                   {/* Margins */}
                   <div className="hidden md:flex gap-4 shrink-0">
                     <div>
-                      <span className="text-[10px] text-[var(--text-muted)] block">Gross</span>
+                      <span className="text-xs text-[var(--text-muted)] block">Gross</span>
                       <span className="font-mono text-sm text-[var(--text-primary)]">
                         {q.gross_margin_pct != null
                           ? `${q.gross_margin_pct.toFixed(1)}%`
@@ -314,7 +314,7 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
                       </span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-[var(--text-muted)] block">Op</span>
+                      <span className="text-xs text-[var(--text-muted)] block">Op</span>
                       <span className="font-mono text-sm text-[var(--text-primary)]">
                         {q.operating_margin_pct != null
                           ? `${q.operating_margin_pct.toFixed(1)}%`
@@ -329,7 +329,7 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
                       <SignalBadge key={s} signal={s} />
                     ))}
                     {q.signals.length > 2 && (
-                      <span className="text-[10px] text-[var(--text-muted)] self-center">
+                      <span className="text-xs text-[var(--text-muted)] self-center">
                         +{q.signals.length - 2}
                       </span>
                     )}
@@ -360,7 +360,7 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 pt-3 border-t border-[var(--border)]">
                       <div>
-                        <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">
+                        <span className="text-xs text-[var(--text-muted)] block">
                           EPS YoY
                         </span>
                         <span
@@ -369,15 +369,15 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
                             q.eps_yoy_growth_pct == null
                               ? "text-[var(--text-muted)]"
                               : q.eps_yoy_growth_pct >= 0
-                                ? "text-green-400"
-                                : "text-red-400"
+                                ? "text-[var(--long)]"
+                                : "text-[var(--short)]"
                           )}
                         >
                           {formatPct(q.eps_yoy_growth_pct)}
                         </span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">
+                        <span className="text-xs text-[var(--text-muted)] block">
                           Rev QoQ
                         </span>
                         <span
@@ -386,24 +386,24 @@ export function EarningsTab({ data }: { data: EarningsResponse }) {
                             q.revenue.qoq_growth_pct == null
                               ? "text-[var(--text-muted)]"
                               : q.revenue.qoq_growth_pct >= 0
-                                ? "text-green-400"
-                                : "text-red-400"
+                                ? "text-[var(--long)]"
+                                : "text-[var(--short)]"
                           )}
                         >
                           {formatPct(q.revenue.qoq_growth_pct)}
                         </span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">
-                          Net Income
+                        <span className="text-xs text-[var(--text-muted)] block">
+                          Net income
                         </span>
                         <span className="font-mono text-sm text-[var(--text-primary)]">
                           {formatRevenue(q.net_income)}
                         </span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">
-                          EPS Est
+                        <span className="text-xs text-[var(--text-muted)] block">
+                          EPS est.
                         </span>
                         <span className="font-mono text-sm text-[var(--text-primary)]">
                           {q.eps.estimate != null ? `$${q.eps.estimate.toFixed(2)}` : "—"}

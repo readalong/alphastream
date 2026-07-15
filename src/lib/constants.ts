@@ -1,14 +1,19 @@
+// Stage/category color is semantic (bull/bear/caution meaning), never
+// decorative - a 10-hue rainbow collapsed to the same 3-4 tokens every
+// other signal in the app uses. Values are CSS var() references (not
+// resolved hex) so every consumer - most of which set inline
+// style={{color: ...}} - stays theme-aware across light/dark for free.
 export const STAGE_COLORS: Record<string, { color: string; label: string }> = {
-  S: { color: "#fbbf24", label: "SURE SHOT" },
-  B: { color: "#06b6d4", label: "BOUNCE" },
-  A: { color: "#10b981", label: "ACTION" },
-  X: { color: "#a855f7", label: "ANOMALY" },
-  "0": { color: "#64748b", label: "TRANSITION" },
-  "1": { color: "#3b82f6", label: "STAGE 1" },
-  "1D": { color: "rgba(59,130,246,0.5)", label: "DORMANT" },
-  "2": { color: "#22c55e", label: "STAGE 2" },
-  "3": { color: "#f59e0b", label: "STAGE 3" },
-  "4": { color: "#ef4444", label: "STAGE 4" },
+  S: { color: "var(--long)", label: "SURE SHOT" },
+  B: { color: "var(--long)", label: "BOUNCE" },
+  A: { color: "var(--long)", label: "ACTION" },
+  X: { color: "var(--caution)", label: "ANOMALY" },
+  "0": { color: "var(--text-muted)", label: "TRANSITION" },
+  "1": { color: "var(--text-muted)", label: "STAGE 1" },
+  "1D": { color: "var(--text-faint)", label: "DORMANT" },
+  "2": { color: "var(--long)", label: "STAGE 2" },
+  "3": { color: "var(--caution)", label: "STAGE 3" },
+  "4": { color: "var(--short)", label: "STAGE 4" },
 };
 
 export const SIGNAL_DESCRIPTIONS: Record<string, { name: string; description: string }> = {
@@ -90,10 +95,10 @@ export const BREADLINE_TICKERS = ["SPY", "QQQ", "DIA", "IWM", "BTC-USD", "ETH-US
 export const CATEGORY_FILTERS = ["All", "S", "A", "B", "X", "0", "1", "1D", "2", "3", "4"];
 
 export const JOB_STATUS_COLORS: Record<string, { color: string; icon: string }> = {
-  pending: { color: "#64748b", icon: "Clock" },
-  running: { color: "#3b82f6", icon: "Loader2" },
-  completed: { color: "#22c55e", icon: "CheckCircle" },
-  failed: { color: "#ef4444", icon: "XCircle" },
+  pending: { color: "var(--text-muted)", icon: "Clock" },
+  running: { color: "var(--info)", icon: "Loader2" },
+  completed: { color: "var(--long)", icon: "CheckCircle" },
+  failed: { color: "var(--short)", icon: "XCircle" },
 };
 
 export const SECTOR_ETF_NAMES: Record<string, string> = {

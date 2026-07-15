@@ -151,7 +151,7 @@ export default function SectorDetailPage() {
           {isLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 10 }).map((_, i) => (
-                <div key={i} className="h-10 rounded bg-[var(--bg-card)] animate-pulse" />
+                <div key={i} className="h-10 rounded bg-[var(--bg-card)]" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
@@ -257,7 +257,7 @@ export default function SectorDetailPage() {
       {tab === "chart" && (
         <div className="max-w-4xl">
           {chartLoading ? (
-            <div className="h-96 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+            <div className="h-96 rounded-lg bg-[var(--bg-card)]" />
           ) : chartData ? (
             <StaticChart base64={chartData.chart_base64} alt={`${sectorEtf} chart`} />
           ) : (
@@ -279,7 +279,7 @@ export default function SectorDetailPage() {
             {flowLeadersLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-24 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+                  <div key={i} className="h-24 rounded-lg bg-[var(--bg-card)]" />
                 ))}
               </div>
             ) : flowLeaders?.leaders?.length ? (
@@ -303,7 +303,7 @@ export default function SectorDetailPage() {
             {flowExitsLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-24 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+                  <div key={i} className="h-24 rounded-lg bg-[var(--bg-card)]" />
                 ))}
               </div>
             ) : flowExits?.exits?.length ? (
@@ -341,7 +341,7 @@ export default function SectorDetailPage() {
                       <td className="px-4 py-2.5">
                         <div className="flex items-center gap-2">
                           {isTodaySession(s.session_id) && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/25">Today</span>
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-[var(--long)]/15 text-[var(--long)] border border-[var(--long)]/25">Today</span>
                           )}
                           <span className="text-[var(--text-primary)]">{formatSessionDate(s.session_id)}</span>
                         </div>

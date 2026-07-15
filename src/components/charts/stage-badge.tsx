@@ -10,16 +10,15 @@ interface StageBadgeProps {
 
 export function StageBadge({ category, className }: StageBadgeProps) {
   const code = parseCategory(category);
-  const config = STAGE_COLORS[code] || { color: "#64748b", label: code };
+  const config = STAGE_COLORS[code] || { color: "var(--text-muted)", label: code };
 
+  // Typographic, not a pill: the stage code carries its bull/bear/caution
+  // meaning through color alone, set in the mono face used for every
+  // other categorical signal in the app.
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${className || ""}`}
-      style={{
-        backgroundColor: `${config.color}20`,
-        color: config.color,
-        border: `1px solid ${config.color}40`,
-      }}
+      className={`font-mono text-xs font-semibold ${className || ""}`}
+      style={{ color: config.color }}
     >
       {config.label}
     </span>

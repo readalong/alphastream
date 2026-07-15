@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { SECTOR_ETF_NAMES, STAGE_COLORS } from "@/lib/constants";
 import { useSectorTickers } from "@/hooks/use-sector-tickers";
 import { parseCategory } from "@/lib/utils";
@@ -41,7 +42,7 @@ export function SectorCard({ sector, totalTickers }: SectorCardProps) {
 
       {/* Universe percentage bar */}
       <div>
-        <div className="flex justify-between text-[10px] text-[var(--text-muted)] mb-1">
+        <div className="flex justify-between text-xs text-[var(--text-muted)] mb-1">
           <span>{pct}% of universe</span>
         </div>
         <div className="h-1.5 rounded-full bg-[var(--bg-primary)] overflow-hidden">
@@ -73,8 +74,9 @@ export function SectorCard({ sector, totalTickers }: SectorCardProps) {
         </>
       )}
 
-      <span className="mt-auto text-sm text-[var(--accent)]">
-        View Sector &rarr;
+      <span className="mt-auto inline-flex items-center gap-1 text-sm text-[var(--accent)]">
+        View sector
+        <ChevronRight className="h-3.5 w-3.5" />
       </span>
     </Link>
   );

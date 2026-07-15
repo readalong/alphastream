@@ -37,9 +37,9 @@ function toRotationPoints(rankings: SectorRanking[]): SectorRotationPoint[] {
 type SectorSort = "score" | "name" | "rotation" | "count";
 
 const tierConfig: Record<SectorTier, { label: string; cls: string }> = {
-  LEADING: { label: "Leading", cls: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" },
+  LEADING: { label: "Leading", cls: "bg-[var(--long)]/10 text-[var(--long)] border-[var(--long)]/20" },
   NEUTRAL: { label: "Neutral", cls: "bg-[var(--border)] text-[var(--text-muted)] border-[var(--border)]" },
-  LAGGING: { label: "Lagging", cls: "bg-red-500/10 text-red-500 border-red-500/20" },
+  LAGGING: { label: "Lagging", cls: "bg-[var(--short)]/10 text-[var(--short)] border-[var(--short)]/20" },
 };
 
 interface EnhancedSectorCardProps {
@@ -89,14 +89,14 @@ function EnhancedSectorCard({ sector, ranking, totalTickers }: EnhancedSectorCar
               <div className="text-right">
                 <div className="flex items-center justify-end gap-1">
                   {accelPositive ? (
-                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    <TrendingUp className="h-4 w-4 text-[var(--long)]" />
                   ) : (
-                    <TrendingDown className="h-4 w-4 text-red-500" />
+                    <TrendingDown className="h-4 w-4 text-[var(--short)]" />
                   )}
                   <span
                     className={cn(
                       "text-sm font-medium tabular-nums",
-                      accelPositive ? "text-emerald-500" : "text-red-500"
+                      accelPositive ? "text-[var(--long)]" : "text-[var(--short)]"
                     )}
                   >
                     {accelPositive ? "+" : ""}
@@ -110,7 +110,7 @@ function EnhancedSectorCard({ sector, ranking, totalTickers }: EnhancedSectorCar
                 <span
                   className={cn(
                     "text-sm font-medium tabular-nums",
-                    ranking.pct_20d > 0 ? "text-emerald-500" : "text-red-500"
+                    ranking.pct_20d > 0 ? "text-[var(--long)]" : "text-[var(--short)]"
                   )}
                 >
                   {ranking.pct_20d > 0 ? "+" : ""}
@@ -133,7 +133,7 @@ function EnhancedSectorCard({ sector, ranking, totalTickers }: EnhancedSectorCar
             <span
               className={cn(
                 "font-medium tabular-nums",
-                ranking.etf_vs_spy_20d_pct > 0 ? "text-emerald-500" : "text-red-500"
+                ranking.etf_vs_spy_20d_pct > 0 ? "text-[var(--long)]" : "text-[var(--short)]"
               )}
             >
               {ranking.etf_vs_spy_20d_pct > 0 ? "+" : ""}
@@ -297,12 +297,12 @@ export function SectorsPanel() {
       {viewMode === "cards" && isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-52 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+            <div key={i} className="h-52 rounded-lg bg-[var(--bg-card)]" />
           ))}
         </div>
       ) : viewMode === "cards" && isError ? (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-6 text-center">
-          <p className="text-sm text-amber-400 mb-2">No universe data available.</p>
+        <div className="rounded-lg border border-[var(--caution)]/30 bg-[var(--caution)]/5 p-6 text-center">
+          <p className="text-sm text-[var(--caution)] mb-2">No universe data available.</p>
           <p className="text-xs text-[var(--text-muted)]">
             Run the pipeline first or{" "}
             <a href="/jobs" className="text-[var(--accent)] hover:underline">

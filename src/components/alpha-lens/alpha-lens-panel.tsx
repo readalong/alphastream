@@ -111,7 +111,7 @@ export function AlphaLensPanel({ context }: AlphaLensPanelProps) {
           <Sparkles className="h-5 w-5" />
           <span className="text-sm font-medium">Alpha Lens</span>
           {messages.length > 0 && (
-            <span className="flex items-center justify-center h-5 w-5 rounded-full bg-white/20 text-[10px] font-bold tabular-nums">
+            <span className="flex items-center justify-center h-5 w-5 rounded-full bg-white/20 text-xs font-bold tabular-nums">
               {messages.length}
             </span>
           )}
@@ -120,7 +120,7 @@ export function AlphaLensPanel({ context }: AlphaLensPanelProps) {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-6 right-6 z-50 w-[420px] max-h-[600px] flex flex-col rounded-xl border border-[var(--border)] bg-[var(--bg-card)] shadow-2xl shadow-black/30 overflow-hidden">
+        <div className="fixed bottom-6 right-6 z-50 w-[420px] max-h-[600px] flex flex-col rounded-xl border border-[var(--border)] bg-[var(--bg-card)] shadow-lg overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)] bg-[var(--bg-card)]">
             <div className="flex items-center gap-2">
@@ -136,7 +136,7 @@ export function AlphaLensPanel({ context }: AlphaLensPanelProps) {
               {messages.length > 0 && (
                 <button
                   onClick={handleClear}
-                  className="p-1.5 rounded-md text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--short)] hover:bg-[var(--short)]/10 transition-colors"
                   title="Clear conversation"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -158,7 +158,7 @@ export function AlphaLensPanel({ context }: AlphaLensPanelProps) {
               {contextPills.map((pill) => (
                 <span
                   key={pill}
-                  className="px-2 py-0.5 rounded text-[10px] bg-[var(--accent)]/8 text-[var(--accent)] border border-[var(--accent)]/15"
+                  className="px-2 py-0.5 rounded text-xs bg-[var(--accent)]/8 text-[var(--accent)] border border-[var(--accent)]/15"
                 >
                   {pill}
                 </span>
@@ -187,13 +187,13 @@ export function AlphaLensPanel({ context }: AlphaLensPanelProps) {
               <div className="flex justify-start">
                 <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--bg-primary)] border border-[var(--border)]">
                   <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--accent)]" />
-                  <span className="text-xs text-[var(--text-muted)]">Thinking...</span>
+                  <span className="text-xs text-[var(--text-muted)]">Thinking…</span>
                 </div>
               </div>
             )}
             {error && (
               <div className="flex justify-start">
-                <div className="px-3 py-2 rounded-lg bg-red-500/5 border border-red-500/20 text-xs text-red-400">
+                <div className="px-3 py-2 rounded-lg bg-[var(--short)]/5 border border-[var(--short)]/20 text-xs text-[var(--short)]">
                   Error: {error.message}
                 </div>
               </div>
@@ -218,7 +218,7 @@ export function AlphaLensPanel({ context }: AlphaLensPanelProps) {
               <button
                 type="button"
                 onClick={() => stop()}
-                className="p-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
+                className="p-2 rounded-lg bg-[var(--short)]/10 text-[var(--short)] border border-[var(--short)]/20 hover:bg-[var(--short)]/20 transition-colors"
                 title="Stop generating"
               >
                 <Square className="h-4 w-4" />

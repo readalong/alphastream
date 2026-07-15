@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useJobWithPolling, useJobStatus } from "@/hooks/use-job";
-import { JOB_STATUS_COLORS } from "@/lib/constants";
 import { timeAgo } from "@/lib/utils";
 import {
   Download,
@@ -85,14 +84,14 @@ function JobResultSummary({
       parts.push(`${result.tickers_processed} tickers`);
   } else {
     return (
-      <span className="text-xs text-green-400 ml-auto truncate max-w-48">
+      <span className="text-xs text-[var(--long)] ml-auto truncate max-w-48">
         {JSON.stringify(result).substring(0, 60)}
       </span>
     );
   }
 
   return (
-    <span className="text-xs text-green-400 ml-auto whitespace-nowrap">
+    <span className="text-xs text-[var(--long)] ml-auto whitespace-nowrap">
       {parts.join(" · ")}
     </span>
   );
@@ -101,13 +100,13 @@ function JobResultSummary({
 function StatusIcon({ status }: { status: string }) {
   switch (status) {
     case "pending":
-      return <Clock className="h-4 w-4 text-slate-400" />;
+      return <Clock className="h-4 w-4 text-[var(--text-muted)]" />;
     case "running":
-      return <Loader2 className="h-4 w-4 text-blue-400 animate-spin" />;
+      return <Loader2 className="h-4 w-4 text-[var(--info)] animate-spin" />;
     case "completed":
-      return <CheckCircle className="h-4 w-4 text-green-400" />;
+      return <CheckCircle className="h-4 w-4 text-[var(--long)]" />;
     case "failed":
-      return <XCircle className="h-4 w-4 text-red-400" />;
+      return <XCircle className="h-4 w-4 text-[var(--short)]" />;
     default:
       return null;
   }
@@ -151,7 +150,7 @@ function JobTriggerCard({
             <JobResultSummary type={type} result={status.data.result} />
           )}
           {status.data.error && (
-            <span className="text-xs text-red-400 ml-auto truncate max-w-48">
+            <span className="text-xs text-[var(--short)] ml-auto truncate max-w-48">
               {status.data.error}
             </span>
           )}
@@ -159,9 +158,9 @@ function JobTriggerCard({
       )}
 
       {completionMessage && (
-        <div className="flex items-center gap-2 mb-3 px-2 py-1.5 rounded bg-green-500/10 border border-green-500/20">
-          <CheckCircle className="h-3.5 w-3.5 text-green-400 flex-shrink-0" />
-          <span className="text-xs text-green-400">{completionMessage}</span>
+        <div className="flex items-center gap-2 mb-3 px-2 py-1.5 rounded bg-[var(--long)]/10 border border-[var(--long)]/20">
+          <CheckCircle className="h-3.5 w-3.5 text-[var(--long)] flex-shrink-0" />
+          <span className="text-xs text-[var(--long)]">{completionMessage}</span>
         </div>
       )}
 

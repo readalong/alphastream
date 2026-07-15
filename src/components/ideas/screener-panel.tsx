@@ -11,7 +11,7 @@ import { SectorFilterDropdown } from "@/components/sectors/sector-filter-dropdow
 import { IndustryFilterDropdown } from "@/components/sectors/industry-filter-dropdown";
 import { TickerDrawer } from "@/components/screener/ticker-drawer";
 import { formatPrice, parseCategory, parseSignals, formatSessionDate, isTodaySession } from "@/lib/utils";
-import { ArrowUpDown, Eye } from "lucide-react";
+import { ArrowUpDown, Eye, ChevronRight } from "lucide-react";
 import type { ScreenerResult } from "@/lib/types";
 
 const ALL_TICKERS = [
@@ -159,7 +159,7 @@ export function ScreenerPanel() {
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="h-10 rounded bg-[var(--bg-card)] animate-pulse" />
+            <div key={i} className="h-10 rounded bg-[var(--bg-card)]" />
           ))}
         </div>
       ) : (
@@ -255,8 +255,8 @@ export function ScreenerPanel() {
               <p className="text-sm font-medium text-[var(--text-primary)] mb-1">No results match the current filters.</p>
               <p className="text-xs text-[var(--text-muted)]">
                 Try broadening the filters above, or{" "}
-                <Link href="/jobs" className="text-[var(--accent)] hover:underline">
-                  trigger a new scan in Jobs →
+                <Link href="/jobs" className="inline-flex items-center gap-0.5 text-[var(--accent)] hover:underline">
+                  trigger a new scan in jobs<ChevronRight className="h-3 w-3" />
                 </Link>
               </p>
             </div>

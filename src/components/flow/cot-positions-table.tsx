@@ -45,7 +45,7 @@ export function COTPositionsTable({ positions }: COTPositionsTableProps) {
                     <td
                       className={cn(
                         "py-1.5 text-right text-xs font-medium",
-                        p.stance === "NET_LONG" ? "text-emerald-500" : "text-red-500"
+                        p.stance === "NET_LONG" ? "text-[var(--long)]" : "text-[var(--short)]"
                       )}
                     >
                       {p.stance.replace("_", " ")}

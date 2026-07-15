@@ -24,8 +24,8 @@ export function ResistanceSummaryCard({
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-      <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">
-        {ticker} — Upside Resistance
+      <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+        {ticker} — upside resistance
       </h3>
 
       <div className="space-y-3">
@@ -56,7 +56,7 @@ export function ResistanceSummaryCard({
               </span>
               <table className="w-full">
                 <thead>
-                  <tr className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                  <tr className="text-xs text-[var(--text-muted)]">
                     <th className="text-left font-medium py-1 pr-3">Level</th>
                     <th className="text-left font-medium py-1 pr-3">Price</th>
                     <th className="text-left font-medium py-1 pr-3">%&uarr;</th>

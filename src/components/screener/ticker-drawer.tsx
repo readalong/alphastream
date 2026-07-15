@@ -37,7 +37,7 @@ export function TickerDrawer({ ticker, screener, onClose }: TickerDrawerProps) {
       />
 
       {/* Drawer */}
-      <div className="fixed top-0 right-0 z-50 h-full w-80 flex flex-col border-l border-[var(--border)] bg-[var(--bg-card)] shadow-2xl shadow-black/30 animate-in slide-in-from-right duration-200">
+      <div className="fixed top-0 right-0 z-50 h-full w-80 flex flex-col border-l border-[var(--border)] bg-[var(--bg-card)] shadow-lg animate-in slide-in-from-right duration-200">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-[var(--border)]">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -74,7 +74,7 @@ export function TickerDrawer({ ticker, screener, onClose }: TickerDrawerProps) {
           {/* Sector / Industry */}
           {screener.sector && (
             <div className="space-y-1.5">
-              <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">Location</p>
+              <p className="text-xs text-[var(--text-muted)] font-semibold">Location</p>
               <div className="space-y-1">
                 <Link
                   href={`/sectors/${screener.sector_etf}`}
@@ -99,7 +99,7 @@ export function TickerDrawer({ ticker, screener, onClose }: TickerDrawerProps) {
           {/* Signals */}
           {signals.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">Signals</p>
+              <p className="text-xs text-[var(--text-muted)] font-semibold">Signals</p>
               <div className="flex flex-wrap gap-1.5">
                 {signals.map((s) => (
                   <span
@@ -121,7 +121,7 @@ export function TickerDrawer({ ticker, screener, onClose }: TickerDrawerProps) {
             onClick={onClose}
             className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 hover:bg-[var(--accent)]/20 transition-colors text-sm font-medium"
           >
-            Full Detail Page
+            Full detail page
             <ExternalLink className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -133,7 +133,7 @@ export function TickerDrawer({ ticker, screener, onClose }: TickerDrawerProps) {
 function Metric({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
     <div className="p-2.5 rounded-lg bg-[var(--bg-primary)] border border-[var(--border)]">
-      <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-0.5">{label}</p>
+      <p className="text-xs text-[var(--text-muted)] mb-0.5">{label}</p>
       <p className={cn("text-sm font-semibold tabular-nums", highlight ? "text-[var(--accent)]" : "text-[var(--text-primary)]")}>
         {value}
       </p>

@@ -25,7 +25,7 @@ import type { IChartApi, ISeriesApi } from "lightweight-charts";
 
 const CandlestickChart = dynamic(
   () => import("@/components/chart-studio/CandlestickChart"),
-  { ssr: false, loading: () => <div className="w-full h-full animate-pulse bg-[var(--bg-card)]" /> }
+  { ssr: false, loading: () => <div className="w-full h-full bg-[var(--bg-card)]" /> }
 );
 
 const DEFAULT_INDICATORS: IndicatorSettings = {
@@ -152,10 +152,10 @@ export function ChartStudioPanel({ symbol }: { symbol: string }) {
 
       {/* Elliott wave disclaimer */}
       {elliottDisclaimer && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-xs text-amber-400">
+        <div className="flex items-center gap-2 px-4 py-2 bg-[var(--caution)]/10 border-b border-[var(--caution)]/20 text-xs text-[var(--caution)]">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
           Suggested Elliott Wave count — verify manually. Automated EW counting is heuristic; results may be unreliable in choppy markets.
-          <button onClick={() => setElliottDisclaimer(false)} className="ml-auto hover:text-amber-300">✕</button>
+          <button onClick={() => setElliottDisclaimer(false)} className="ml-auto hover:opacity-70">✕</button>
         </div>
       )}
 
@@ -173,7 +173,7 @@ export function ChartStudioPanel({ symbol }: { symbol: string }) {
         {error && (
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <div className="flex flex-col items-center gap-3 text-center max-w-sm p-6">
-              <AlertCircle className="h-8 w-8 text-red-400" />
+              <AlertCircle className="h-8 w-8 text-[var(--short)]" />
               <p className="text-sm font-medium text-[var(--text-primary)]">Failed to load chart data</p>
               <p className="text-xs text-[var(--text-muted)]">
                 {error instanceof Error ? error.message : "Could not fetch OHLCV data. The ticker may not be available."}

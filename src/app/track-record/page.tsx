@@ -22,8 +22,8 @@ function fmtR(v: number | null | undefined) {
 }
 
 const SEVERITY_STYLE: Record<string, string> = {
-  CRITICAL: "text-red-400 bg-red-500/10 border-red-500/25",
-  WARN: "text-amber-400 bg-amber-500/10 border-amber-500/25",
+  CRITICAL: "text-[var(--short)] bg-[var(--short)]/10 border-[var(--short)]/25",
+  WARN: "text-[var(--caution)] bg-[var(--caution)]/10 border-[var(--caution)]/25",
   INFO: "text-[var(--text-muted)] bg-[var(--bg-primary)] border-[var(--border)]",
 };
 
@@ -45,8 +45,8 @@ function BucketRow({ label, bucket }: { label: string; bucket: ScorecardBucket }
           bucket.avg_r == null
             ? "text-[var(--text-muted)]"
             : bucket.avg_r > 0
-              ? "text-emerald-400"
-              : "text-red-400"
+              ? "text-[var(--long)]"
+              : "text-[var(--short)]"
         )}
       >
         {fmtR(bucket.avg_r)}
@@ -59,7 +59,7 @@ function ScorecardSection() {
   const { data, isLoading } = useScorecard();
 
   if (isLoading) {
-    return <div className="h-48 rounded-lg bg-[var(--bg-card)] animate-pulse" />;
+    return <div className="h-48 bg-[var(--bg-card)]" />;
   }
   if (!data) return null;
 
@@ -157,10 +157,10 @@ function ReviewPanel({ review }: { review: BacktestReview }) {
         className={cn(
           "rounded px-3 py-2 text-sm font-semibold",
           review.finding_counts.CRITICAL > 0
-            ? "bg-red-500/10 text-red-400 border border-red-500/25"
+            ? "bg-[var(--short)]/10 text-[var(--short)] border border-[var(--short)]/25"
             : review.finding_counts.WARN > 0
-              ? "bg-amber-500/10 text-amber-400 border border-amber-500/25"
-              : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25"
+              ? "bg-[var(--caution)]/10 text-[var(--caution)] border border-[var(--caution)]/25"
+              : "bg-[var(--long)]/10 text-[var(--long)] border border-[var(--long)]/25"
         )}
       >
         {review.verdict}
@@ -184,7 +184,7 @@ function ReviewPanel({ review }: { review: BacktestReview }) {
           <dd
             className={cn(
               "font-mono tabular-nums",
-              (s.avg_r ?? 0) > 0 ? "text-emerald-400" : "text-red-400"
+              (s.avg_r ?? 0) > 0 ? "text-[var(--long)]" : "text-[var(--short)]"
             )}
           >
             {fmtR(s.avg_r)}
@@ -223,7 +223,7 @@ function BacktestSection() {
   const [engine, setEngine] = useState<"futures" | "breakout">("futures");
 
   if (isLoading) {
-    return <div className="h-48 rounded-lg bg-[var(--bg-card)] animate-pulse" />;
+    return <div className="h-48 bg-[var(--bg-card)]" />;
   }
   if (!data) return null;
 

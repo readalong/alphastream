@@ -16,7 +16,7 @@ import { SIGNAL_DESCRIPTIONS } from "@/lib/constants";
 import { cn, formatPrice, parseCategory, parseSignals } from "@/lib/utils";
 import { AlphaLensPanel } from "@/components/alpha-lens/alpha-lens-panel";
 import type { AlphaLensContext } from "@/lib/alpha-lens-context";
-import { RefreshCw, Brain, ChevronDown, ChevronUp, AlertCircle, Info, Heart, AlertTriangle } from "lucide-react";
+import { RefreshCw, Brain, ChevronDown, ChevronUp, AlertCircle, Info, Heart, AlertTriangle, ChevronRight } from "lucide-react";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { TickerNewsPanel, NewsTickerCard } from "@/components/news/ticker-news-panel";
 import { ChartStudioPanel } from "@/components/ticker/chart-studio-panel";
@@ -31,8 +31,8 @@ function BusinessSummaryCard({ summary }: { summary: string }) {
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-      <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
-        Business Summary
+      <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">
+        Business summary
       </h3>
       <p className="text-sm text-[var(--text-primary)] leading-relaxed">
         {display}
@@ -52,7 +52,7 @@ function BusinessSummaryCard({ summary }: { summary: string }) {
 function ScreenerCard({ screener }: { screener: ScreenerResult }) {
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-      <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">
+      <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
         Screener
       </h3>
       <div className="space-y-3">
@@ -115,8 +115,8 @@ function ScreenerCard({ screener }: { screener: ScreenerResult }) {
 function AiAnalysisCard({ analysis }: { analysis: AiAnalysis }) {
   if (analysis.error) {
     return (
-      <div className="rounded-lg border border-red-500/30 bg-[var(--bg-card)] p-4">
-        <h3 className="text-sm font-semibold text-red-400 mb-2">AI Analysis Error</h3>
+      <div className="rounded-lg border border-[var(--short)]/30 bg-[var(--bg-card)] p-4">
+        <h3 className="text-sm font-semibold text-[var(--short)] mb-2">AI analysis error</h3>
         <p className="text-sm text-[var(--text-muted)]">{analysis.message || analysis.error}</p>
       </div>
     );
@@ -126,10 +126,10 @@ function AiAnalysisCard({ analysis }: { analysis: AiAnalysis }) {
   const confidence = analysis.decision?.confidence_score;
   const verdictColor =
     verdict === "APPROVE"
-      ? "text-green-400"
+      ? "text-[var(--long)]"
       : verdict === "REJECT"
-        ? "text-red-400"
-        : "text-amber-400";
+        ? "text-[var(--short)]"
+        : "text-[var(--caution)]";
 
   const verdictLabel =
     verdict === "APPROVE"
@@ -140,8 +140,8 @@ function AiAnalysisCard({ analysis }: { analysis: AiAnalysis }) {
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-      <h3 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">
-        AI Analysis
+      <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+        AI analysis
       </h3>
       <div className="space-y-3">
         <div className="flex justify-between items-center">
@@ -161,10 +161,10 @@ function AiAnalysisCard({ analysis }: { analysis: AiAnalysis }) {
                   width: `${confidence}%`,
                   background:
                     confidence >= 70
-                      ? "#22c55e"
+                      ? "var(--long)"
                       : confidence >= 40
-                        ? "#f59e0b"
-                        : "#ef4444",
+                        ? "var(--caution)"
+                        : "var(--short)",
                 }}
               />
             </div>
@@ -184,7 +184,7 @@ function AiAnalysisCard({ analysis }: { analysis: AiAnalysis }) {
             <div className="grid grid-cols-3 gap-2">
               {analysis.visual_audit.trend_structure && (
                 <div>
-                  <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Trend</span>
+                  <span className="text-xs text-[var(--text-muted)] block">Trend</span>
                   <p className="text-xs font-medium text-[var(--text-primary)]">
                     {analysis.visual_audit.trend_structure}
                   </p>
@@ -192,7 +192,7 @@ function AiAnalysisCard({ analysis }: { analysis: AiAnalysis }) {
               )}
               {analysis.visual_audit.key_levels && (
                 <div>
-                  <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">Levels</span>
+                  <span className="text-xs text-[var(--text-muted)] block">Levels</span>
                   <p className="text-xs font-medium text-[var(--text-primary)]">
                     {analysis.visual_audit.key_levels}
                   </p>
@@ -200,7 +200,7 @@ function AiAnalysisCard({ analysis }: { analysis: AiAnalysis }) {
               )}
               {analysis.visual_audit.obv_analysis && (
                 <div>
-                  <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">OBV</span>
+                  <span className="text-xs text-[var(--text-muted)] block">OBV</span>
                   <p className="text-xs font-medium text-[var(--text-primary)]">
                     {analysis.visual_audit.obv_analysis}
                   </p>
@@ -225,7 +225,7 @@ function AiAnalysisCard({ analysis }: { analysis: AiAnalysis }) {
               </span>
             )}
             {analysis.screener_signals && (
-              <span className="px-2 py-0.5 rounded text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <span className="px-2 py-0.5 rounded text-xs bg-[var(--info)]/10 text-[var(--info)] border border-[var(--info)]/20">
                 {analysis.screener_signals}
               </span>
             )}
@@ -247,9 +247,9 @@ function SignalDetails({ signals }: { signals: string }) {
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 mt-4">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex items-center justify-between w-full text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider"
+        className="flex items-center justify-between w-full text-sm font-semibold text-[var(--text-primary)]"
       >
-        Technical Signals
+        Technical signals
         {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
       </button>
       {expanded && (
@@ -298,22 +298,22 @@ function AiLoadingCard({ elapsed }: { elapsed: number }) {
       : `${seconds}s`;
 
   return (
-    <div className="rounded-lg border border-purple-500/20 bg-[var(--bg-card)] p-4">
+    <div className="rounded-lg border border-[var(--info)]/20 bg-[var(--bg-card)] p-4">
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2 text-sm text-purple-400">
-          <Brain className="h-4 w-4 animate-pulse" />
-          <span className="font-medium">Running AI Analysis...</span>
+        <div className="flex items-center gap-2 text-sm text-[var(--info)]">
+          <Brain className="h-4 w-4" />
+          <span className="font-medium">Running AI analysis…</span>
         </div>
         <span className="text-xs font-mono tabular-nums text-[var(--text-muted)]">
           {timeStr}
         </span>
       </div>
       <div className="space-y-2">
-        <div className="h-3 w-3/4 rounded bg-purple-500/10 animate-pulse" />
-        <div className="h-3 w-full rounded bg-purple-500/10 animate-pulse" />
-        <div className="h-3 w-2/3 rounded bg-purple-500/10 animate-pulse" />
+        <div className="h-3 w-3/4 rounded bg-[var(--info)]/10" />
+        <div className="h-3 w-full rounded bg-[var(--info)]/10" />
+        <div className="h-3 w-2/3 rounded bg-[var(--info)]/10" />
       </div>
-      <p className="text-[10px] text-[var(--text-muted)] mt-3">
+      <p className="text-xs text-[var(--text-muted)] mt-3">
         AI analysis can take up to 2 minutes depending on model load.
       </p>
     </div>
@@ -328,15 +328,15 @@ function AiErrorCard({
   onRetry: () => void;
 }) {
   return (
-    <div className="rounded-lg border border-red-500/20 bg-[var(--bg-card)] p-4">
-      <div className="flex items-center gap-2 text-sm text-red-400 mb-2">
+    <div className="rounded-lg border border-[var(--short)]/20 bg-[var(--bg-card)] p-4">
+      <div className="flex items-center gap-2 text-sm text-[var(--short)] mb-2">
         <AlertCircle className="h-4 w-4" />
-        <span className="font-medium">Analysis Failed</span>
+        <span className="font-medium">Analysis failed</span>
       </div>
       <p className="text-xs text-[var(--text-muted)] mb-3">{error.message}</p>
       <button
         onClick={onRetry}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-[var(--info)]/10 text-[var(--info)] border border-[var(--info)]/20 hover:bg-[var(--info)]/20 transition-colors"
       >
         <Brain className="h-3.5 w-3.5" />
         Retry
@@ -366,7 +366,7 @@ function DecisionSummaryCard({
   // AI verdict
   const verdict = aiAnalysis?.decision?.verdict;
   const confidence = aiAnalysis?.decision?.confidence_score;
-  const verdictColor = verdict === "APPROVE" ? "text-emerald-400" : verdict === "REJECT" ? "text-red-400" : "text-amber-400";
+  const verdictColor = verdict === "APPROVE" ? "text-[var(--long)]" : verdict === "REJECT" ? "text-[var(--short)]" : "text-[var(--caution)]";
 
   // Resistance R1
   const r1 = resistanceData?.levels?.[0];
@@ -410,7 +410,7 @@ function DecisionSummaryCard({
             <div className="flex items-center gap-1.5">
               <button onClick={onViewResistance} className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)]">R1</button>
               <span className="text-xs font-medium tabular-nums text-[var(--text-primary)]">${r1.price.toFixed(2)}</span>
-              <span className={cn("text-xs tabular-nums", r1Pct > 0 ? "text-emerald-400" : "text-red-400")}>
+              <span className={cn("text-xs tabular-nums", r1Pct > 0 ? "text-[var(--long)]" : "text-[var(--short)]")}>
                 ({r1Pct > 0 ? "+" : ""}{r1Pct.toFixed(1)}%)
               </span>
             </div>
@@ -423,12 +423,12 @@ function DecisionSummaryCard({
                 onClick={onViewEarnings}
                 className={cn(
                   "text-xs hover:underline",
-                  earningsDays <= 14 ? "text-amber-400 font-semibold" : "text-[var(--text-muted)]"
+                  earningsDays <= 14 ? "text-[var(--caution)] font-semibold" : "text-[var(--text-muted)]"
                 )}
               >
                 Earnings
               </button>
-              <span className={cn("text-xs tabular-nums", earningsDays <= 14 ? "text-amber-400" : "text-[var(--text-muted)]")}>
+              <span className={cn("text-xs tabular-nums", earningsDays <= 14 ? "text-[var(--caution)]" : "text-[var(--text-muted)]")}>
                 {earningsDays}d
               </span>
             </div>
@@ -455,8 +455,8 @@ function FavoriteButton({ ticker, screener }: { ticker: string; screener?: Scree
       className={cn(
         "p-1.5 rounded-md transition-all duration-200 hover:scale-110 active:scale-90",
         isFav
-          ? "text-rose-500"
-          : "text-[var(--text-muted)]/40 hover:text-rose-400"
+          ? "text-[var(--accent)]"
+          : "text-[var(--text-muted)]/40 hover:text-[var(--accent)]"
       )}
       title={isFav ? "Remove from watchlist" : "Add to watchlist"}
     >
@@ -560,9 +560,9 @@ export default function TickerDetailPage() {
                 else setAiEnabled(true);
               }}
               disabled={analyzeFetching}
-              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-md text-sm bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-colors disabled:opacity-50"
+              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-md text-sm bg-[var(--info)]/10 text-[var(--info)] border border-[var(--info)]/20 hover:bg-[var(--info)]/20 transition-colors disabled:opacity-50"
             >
-              <Brain className={`h-4 w-4 ${analyzeFetching ? "animate-pulse" : ""}`} />
+              <Brain className="h-4 w-4" />
               <span className="hidden sm:inline">
                 {analyzeFetching ? "Analyzing..." : aiAnalysis ? "Re-run AI" : "Run AI"}
               </span>
@@ -618,22 +618,22 @@ export default function TickerDetailPage() {
         const daysUntil = Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000);
         if (daysUntil < 0 || daysUntil > 14) return null;
         return (
-          <div className="flex items-center gap-2.5 mb-4 px-4 py-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
-            <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
-            <p className="text-sm text-amber-300">
+          <div className="flex items-center gap-2.5 mb-4 px-4 py-3 rounded-lg border border-[var(--caution)]/30 bg-[var(--caution)]/5">
+            <AlertTriangle className="h-4 w-4 text-[var(--caution)] shrink-0" />
+            <p className="text-sm text-[var(--caution)]">
               <span className="font-semibold">Earnings in {daysUntil} day{daysUntil !== 1 ? "s" : ""}</span>
               {" "}({dateStr}) — avoid new entries, elevated IV risk.
               {earningsData.next_earnings.eps_estimate != null && (
-                <span className="text-amber-400/80 ml-1">
+                <span className="text-[var(--caution)]/80 ml-1">
                   EPS est: ${earningsData.next_earnings.eps_estimate.toFixed(2)}
                 </span>
               )}
             </p>
             <button
               onClick={() => setActiveTab("earnings")}
-              className="ml-auto shrink-0 text-xs text-amber-400 hover:underline whitespace-nowrap"
+              className="ml-auto shrink-0 inline-flex items-center gap-0.5 text-xs text-[var(--caution)] hover:underline whitespace-nowrap"
             >
-              View Earnings →
+              View earnings<ChevronRight className="h-3 w-3" />
             </button>
           </div>
         );
@@ -644,8 +644,8 @@ export default function TickerDetailPage() {
         <>
           {showSkeleton ? (
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-              <div className="lg:col-span-3 h-96 rounded-lg bg-[var(--bg-card)] animate-pulse" />
-              <div className="lg:col-span-2 h-96 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+              <div className="lg:col-span-3 h-96 rounded-lg bg-[var(--bg-card)]" />
+              <div className="lg:col-span-2 h-96 rounded-lg bg-[var(--bg-card)]" />
             </div>
           ) : chartData || analyzeData ? (
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
@@ -703,7 +703,7 @@ export default function TickerDetailPage() {
           {earningsLoading ? (
             <div className="space-y-2">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-14 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+                <div key={i} className="h-14 rounded-lg bg-[var(--bg-card)]" />
               ))}
             </div>
           ) : earningsData ? (
@@ -725,9 +725,9 @@ export default function TickerDetailPage() {
       {activeTab === "resistance" && (
         <>
           {!isStage2 && screener && (
-            <div className="flex items-center gap-2 mb-4 px-4 py-3 rounded-lg border border-blue-500/20 bg-blue-500/5">
-              <Info className="h-4 w-4 text-blue-400 shrink-0" />
-              <p className="text-sm text-blue-400">
+            <div className="flex items-center gap-2 mb-4 px-4 py-3 rounded-lg border border-[var(--info)]/20 bg-[var(--info)]/5">
+              <Info className="h-4 w-4 text-[var(--info)] shrink-0" />
+              <p className="text-sm text-[var(--info)]">
                 Resistance analysis focuses on Stage 2 uptrend stocks. This stock is currently in{" "}
                 {screener.stage || `Stage ${parseCategory(screener.category)}`}.
               </p>
@@ -736,8 +736,8 @@ export default function TickerDetailPage() {
 
           {resistanceLoading ? (
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-              <div className="lg:col-span-3 h-96 rounded-lg bg-[var(--bg-card)] animate-pulse" />
-              <div className="lg:col-span-2 h-64 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+              <div className="lg:col-span-3 h-96 rounded-lg bg-[var(--bg-card)]" />
+              <div className="lg:col-span-2 h-64 rounded-lg bg-[var(--bg-card)]" />
             </div>
           ) : resistanceData ? (
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">

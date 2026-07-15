@@ -18,6 +18,7 @@ import {
   Target,
   BarChart3,
   ShieldCheck,
+  ChevronRight,
 } from "lucide-react";
 import type { OpenPosition, PortfolioHealthResponse } from "@/lib/types";
 
@@ -28,9 +29,9 @@ function daysSince(iso: string): number {
 }
 
 function riskColor(riskPct: number) {
-  if (riskPct > 0.025) return "text-red-400";
-  if (riskPct > 0.015) return "text-amber-400";
-  return "text-emerald-400";
+  if (riskPct > 0.025) return "text-[var(--short)]";
+  if (riskPct > 0.015) return "text-[var(--caution)]";
+  return "text-[var(--long)]";
 }
 
 function heatBar(pct: number, max: number) {
@@ -41,7 +42,7 @@ function heatBar(pct: number, max: number) {
         <div
           className={cn(
             "h-full rounded-full",
-            ratio > 0.8 ? "bg-red-500" : ratio > 0.5 ? "bg-amber-400" : "bg-emerald-500"
+            ratio > 0.8 ? "bg-[var(--short)]" : ratio > 0.5 ? "bg-[var(--caution)]" : "bg-[var(--long)]"
           )}
           style={{ width: `${ratio * 100}%` }}
         />
@@ -74,9 +75,9 @@ function PortfolioHealthPanel({ health }: { health: PortfolioHealthResponse }) {
           { label: "Heat Remaining", value: `${(capacity.heat_remaining_pct * 100).toFixed(1)}%` },
         ].map(({ label, value, suffix }) => (
           <div key={label} className="p-3 rounded-lg bg-[var(--bg-primary)] border border-[var(--border)]">
-            <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-0.5">{label}</p>
+            <p className="text-xs text-[var(--text-muted)] mb-0.5">{label}</p>
             <p className="text-lg font-bold tabular-nums text-[var(--text-primary)]">{value}</p>
-            {suffix && <p className="text-[10px] text-[var(--text-muted)]">{suffix}</p>}
+            {suffix && <p className="text-xs text-[var(--text-muted)]">{suffix}</p>}
           </div>
         ))}
       </div>
@@ -93,7 +94,7 @@ function PortfolioHealthPanel({ health }: { health: PortfolioHealthResponse }) {
       {/* Sector breakdown */}
       {Object.keys(sector_breakdown).length > 0 && (
         <div>
-          <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-1">
+          <p className="text-xs text-[var(--text-muted)] mb-2 flex items-center gap-1">
             <BarChart3 className="h-3 w-3" /> Sector Concentration
           </p>
           <div className="space-y-2">
@@ -107,7 +108,7 @@ function PortfolioHealthPanel({ health }: { health: PortfolioHealthResponse }) {
                     </Link>
                     <span className={cn(
                       "text-xs tabular-nums font-medium",
-                      pct > capacity.max_per_sector ? "text-red-400" : "text-[var(--text-muted)]"
+                      pct > capacity.max_per_sector ? "text-[var(--short)]" : "text-[var(--text-muted)]"
                     )}>
                       {(pct * 100).toFixed(1)}%
                       {pct > capacity.max_per_sector && " ⚠"}
@@ -156,11 +157,11 @@ function PositionRow({
           >
             {pos.ticker}
           </Link>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-muted)]">
+          <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-muted)]">
             {pos.conviction_tier.replace(/_/g, " ")}
           </span>
-          <span className="text-[10px] text-purple-400">{pos.wave_position}</span>
-          <span className="text-[10px] text-[var(--text-muted)] ml-auto">{days}d held</span>
+          <span className="text-xs text-[var(--info)]">{pos.wave_position}</span>
+          <span className="text-xs text-[var(--text-muted)] ml-auto">{days}d held</span>
         </div>
 
         {/* Metrics grid */}
@@ -173,7 +174,7 @@ function PositionRow({
           </div>
           <div>
             <span className="text-[var(--text-muted)]">Stop </span>
-            <span className="font-mono font-medium text-red-400">
+            <span className="font-mono font-medium text-[var(--short)]">
               ${formatPrice(pos.stop_loss)} <span className="text-[var(--text-muted)]">(-{stopDist.toFixed(1)}%)</span>
             </span>
           </div>
@@ -197,9 +198,9 @@ function PositionRow({
           <div className="flex items-center gap-2 text-xs flex-wrap">
             <Target className="h-3 w-3 text-[var(--text-muted)] shrink-0" />
             {pos.targets.map((t, i) => (
-              <span key={i} className="text-emerald-400 font-mono">
+              <span key={i} className="text-[var(--long)] font-mono">
                 R{i + 1} ${formatPrice(t.price)}{" "}
-                <span className="text-emerald-500/60">(+{t.pct_gain.toFixed(1)}%)</span>
+                <span className="text-[var(--long)]/60">(+{t.pct_gain.toFixed(1)}%)</span>
               </span>
             ))}
           </div>
@@ -211,7 +212,7 @@ function PositionRow({
         <button
           onClick={onClose}
           disabled={isClosing}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors disabled:opacity-40"
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs text-[var(--short)] hover:bg-[var(--short)]/10 border border-transparent hover:border-[var(--short)]/20 transition-colors disabled:opacity-40"
           title="Close position"
         >
           {isClosing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
@@ -257,14 +258,15 @@ export default function PortfolioPage() {
           href="/ideas?tab=recommendations"
           className="text-sm text-[var(--accent)] hover:underline flex items-center gap-1"
         >
-          Recommendations →
+          Recommendations
+          <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       </div>
 
       {isLoading ? (
         <div className="space-y-3">
-          <div className="h-48 rounded-lg bg-[var(--bg-card)] animate-pulse" />
-          <div className="h-64 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+          <div className="h-48 rounded-lg bg-[var(--bg-card)]" />
+          <div className="h-64 rounded-lg bg-[var(--bg-card)]" />
         </div>
       ) : (
         <>
@@ -275,7 +277,7 @@ export default function PortfolioPage() {
           <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-emerald-400" />
+                <TrendingUp className="h-4 w-4 text-[var(--long)]" />
                 <h2 className="text-sm font-semibold text-[var(--text-primary)]">
                   Open Positions
                 </h2>
@@ -291,8 +293,8 @@ export default function PortfolioPage() {
                 <p className="text-sm font-medium text-[var(--text-primary)] mb-1">No open positions</p>
                 <p className="text-xs text-[var(--text-muted)]">
                   Add positions from{" "}
-                  <Link href="/ideas?tab=recommendations" className="text-[var(--accent)] hover:underline">
-                    Recommendations →
+                  <Link href="/ideas?tab=recommendations" className="inline-flex items-center gap-0.5 text-[var(--accent)] hover:underline">
+                    Recommendations<ChevronRight className="h-3 w-3" />
                   </Link>
                 </p>
               </div>
@@ -300,9 +302,9 @@ export default function PortfolioPage() {
               <>
                 {/* Risk warning */}
                 {positions.some(p => p.risk_pct > 0.025) && (
-                  <div className="flex items-center gap-2 px-4 py-2.5 bg-red-500/5 border-b border-red-500/20">
-                    <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
-                    <p className="text-xs text-red-400">
+                  <div className="flex items-center gap-2 px-4 py-2.5 bg-[var(--short)]/5 border-b border-[var(--short)]/20">
+                    <AlertTriangle className="h-4 w-4 text-[var(--short)] shrink-0" />
+                    <p className="text-xs text-[var(--short)]">
                       {positions.filter(p => p.risk_pct > 0.025).length} position
                       {positions.filter(p => p.risk_pct > 0.025).length !== 1 ? "s" : ""}{" "}
                       above 2.5% risk threshold — consider sizing down.

@@ -58,11 +58,11 @@ function VoteLedger({ reasonTrail }: { reasonTrail: string }) {
             <li
               key={v}
               className={cn(
-                "text-xs font-mono px-2 py-0.5 rounded border",
+                "text-xs font-mono px-2 py-0.5 border",
                 negative
-                  ? "text-red-400 border-red-500/25 bg-red-500/5"
+                  ? "text-[var(--short)] border-[var(--short)]/25 bg-[var(--short)]/5"
                   : positive
-                    ? "text-emerald-400 border-emerald-500/25 bg-emerald-500/5"
+                    ? "text-[var(--long)] border-[var(--long)]/25 bg-[var(--long)]/5"
                     : "text-[var(--text-muted)] border-[var(--border)]"
               )}
             >
@@ -96,11 +96,11 @@ function SetupBlock({
         </div>
         <div>
           <dt className="text-xs text-[var(--text-muted)] font-sans">Stop</dt>
-          <dd className="text-red-400">{fmtPrice(setup.stop)}</dd>
+          <dd className="text-[var(--short)]">{fmtPrice(setup.stop)}</dd>
         </div>
         <div>
           <dt className="text-xs text-[var(--text-muted)] font-sans">Target</dt>
-          <dd className="text-emerald-400">{fmtPrice(setup.target_1)}</dd>
+          <dd className="text-[var(--long)]">{fmtPrice(setup.target_1)}</dd>
         </div>
         <div>
           <dt className="text-xs text-[var(--text-muted)] font-sans">
@@ -152,10 +152,8 @@ function LevelLadder({ levels, spot }: { levels: FuturesLevel[]; spot: number })
             className="flex items-center justify-between gap-3 text-xs font-mono py-1 border-b border-[var(--border)]/50 last:border-0"
           >
             <span
-              className={cn(
-                "w-16 shrink-0",
-                lvl.kind === "resistance" ? "text-red-400" : "text-emerald-400"
-              )}
+              className="w-16 shrink-0"
+              style={{ color: lvl.kind === "resistance" ? "var(--short)" : "var(--long)" }}
             >
               {fmtPrice(lvl.price)}
             </span>
@@ -193,7 +191,7 @@ function InstrumentCard({ instrument, plan }: { instrument: string; plan: Future
     plan.bias === "LONG" ? plan.long_setup : plan.bias === "SHORT" ? plan.short_setup : null;
 
   const biasColor =
-    plan.bias === "LONG" ? "text-emerald-400" : plan.bias === "SHORT" ? "text-red-400" : "text-[var(--text-muted)]";
+    plan.bias === "LONG" ? "text-[var(--long)]" : plan.bias === "SHORT" ? "text-[var(--short)]" : "text-[var(--text-muted)]";
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-4">
@@ -218,7 +216,7 @@ function InstrumentCard({ instrument, plan }: { instrument: string; plan: Future
 
       {/* Event suppression — blocking banner, not a footnote */}
       {plan.event_rules.suppress_new_entries && (
-        <div className="flex items-start gap-2 rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+        <div className="flex items-start gap-2 border border-[var(--short)]/30 bg-[var(--short)]/10 px-3 py-2 text-sm text-[var(--short)]">
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
           <span>
             New entries blocked —{" "}
@@ -233,12 +231,12 @@ function InstrumentCard({ instrument, plan }: { instrument: string; plan: Future
       {/* Today's action */}
       <div
         className={cn(
-          "rounded px-3 py-2 text-sm font-semibold",
+          "px-3 py-2 text-sm font-semibold",
           plan.today_action === "STAND_ASIDE"
             ? "bg-[var(--bg-primary)] text-[var(--text-muted)]"
             : plan.today_action === "ENTER_NOW"
-              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25"
-              : "bg-amber-500/10 text-amber-400 border border-amber-500/25"
+              ? "bg-[var(--long)]/10 text-[var(--long)] border border-[var(--long)]/25"
+              : "bg-[var(--caution)]/10 text-[var(--caution)] border border-[var(--caution)]/25"
         )}
       >
         {ACTION_LABEL[plan.today_action] ?? plan.today_action}
@@ -269,10 +267,10 @@ export default function FuturesPage() {
   if (isLoading) {
     return (
       <div className="space-y-4 max-w-4xl">
-        <div className="h-6 w-40 rounded bg-[var(--bg-card)] animate-pulse" />
+        <div className="h-6 w-40 bg-[var(--bg-card)]" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {INSTRUMENT_ORDER.map((i) => (
-            <div key={i} className="h-64 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+            <div key={i} className="h-64 bg-[var(--bg-card)]" />
           ))}
         </div>
       </div>
@@ -301,7 +299,7 @@ export default function FuturesPage() {
       </header>
 
       {!data.is_today && (
-        <p className="rounded border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-400">
+        <p className="border border-[var(--caution)]/30 bg-[var(--caution)]/10 px-3 py-2 text-sm text-[var(--caution)]">
           This is {data.date}&apos;s plan — run <code className="font-mono">--futures-plan</code> on
           the backend to refresh.
         </p>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Waves, TrendingUp, TrendingDown, Play } from "lucide-react";
+import { Waves, TrendingUp, TrendingDown, Play, ChevronRight } from "lucide-react";
 import { useFlowLeaders, useFlowExits, useRunFlowJob } from "@/hooks/use-flow";
 import { MarketGaugeStrip } from "@/components/flow/market-gauge-strip";
 import { FlowCard } from "@/components/flow/flow-card";
@@ -101,7 +101,7 @@ export function CapitalFlowPanel() {
             className={cn(
               "flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
               tab === "exits"
-                ? "border-red-500 text-red-500"
+                ? "border-[var(--short)] text-[var(--short)]"
                 : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             )}
           >
@@ -152,12 +152,12 @@ export function CapitalFlowPanel() {
       {activeQ.isLoading ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-52 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+            <div key={i} className="h-52 rounded-lg bg-[var(--bg-card)]" />
           ))}
         </div>
       ) : activeQ.isError ? (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-6 text-center">
-          <p className="text-sm text-amber-400 mb-1">Flow data not available.</p>
+        <div className="rounded-lg border border-[var(--caution)]/30 bg-[var(--caution)]/5 p-6 text-center">
+          <p className="text-sm text-[var(--caution)] mb-1">Flow data not available.</p>
           <p className="text-xs text-[var(--text-muted)]">
             Run the flow job to compute scores for the current universe.
           </p>
@@ -170,7 +170,7 @@ export function CapitalFlowPanel() {
           <p className="text-xs text-[var(--text-muted)]">
             {rawStocks.length > 0
               ? "Try lowering the minimum score threshold."
-              : <>Run a flow job to populate scores. <Link href="/jobs" className="text-[var(--accent)] hover:underline">Go to Jobs →</Link></>}
+              : <>Run a flow job to populate scores. <Link href="/jobs" className="inline-flex items-center gap-0.5 text-[var(--accent)] hover:underline">Go to jobs<ChevronRight className="h-3 w-3" /></Link></>}
           </p>
         </div>
       ) : (

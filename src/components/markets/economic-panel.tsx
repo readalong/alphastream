@@ -33,16 +33,16 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>
 };
 
 const CATEGORY_COLORS: Record<string, { dot: string; bg: string; text: string; border: string }> = {
-  "Inflation & Pricing Power": { dot: "bg-red-400", bg: "bg-red-500/8", text: "text-red-400", border: "border-red-500/20" },
-  "Labor Market":              { dot: "bg-blue-400", bg: "bg-blue-500/8", text: "text-blue-400", border: "border-blue-500/20" },
-  "Consumer & Economic Growth": { dot: "bg-emerald-400", bg: "bg-emerald-500/8", text: "text-emerald-400", border: "border-emerald-500/20" },
-  "Housing & Real Estate":     { dot: "bg-amber-400", bg: "bg-amber-500/8", text: "text-amber-400", border: "border-amber-500/20" },
-  "Interest Rates & Liquidity": { dot: "bg-purple-400", bg: "bg-purple-500/8", text: "text-purple-400", border: "border-purple-500/20" },
+  "Inflation & Pricing Power": { dot: "bg-[var(--text-faint)]", bg: "bg-[var(--bg-primary)]", text: "text-[var(--text-muted)]", border: "border-[var(--border)]" },
+  "Labor Market":              { dot: "bg-[var(--text-faint)]", bg: "bg-[var(--bg-primary)]", text: "text-[var(--text-muted)]", border: "border-[var(--border)]" },
+  "Consumer & Economic Growth": { dot: "bg-[var(--text-faint)]", bg: "bg-[var(--bg-primary)]", text: "text-[var(--text-muted)]", border: "border-[var(--border)]" },
+  "Housing & Real Estate":     { dot: "bg-[var(--text-faint)]", bg: "bg-[var(--bg-primary)]", text: "text-[var(--text-muted)]", border: "border-[var(--border)]" },
+  "Interest Rates & Liquidity": { dot: "bg-[var(--text-faint)]", bg: "bg-[var(--bg-primary)]", text: "text-[var(--text-muted)]", border: "border-[var(--border)]" },
 };
 
 const SIGNAL_STYLES = {
-  bullish: { bg: "bg-green-500/10", text: "text-green-400", border: "border-green-500/25", icon: ArrowUpRight },
-  bearish: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/25", icon: ArrowDownRight },
+  bullish: { bg: "bg-[var(--long)]/10", text: "text-[var(--long)]", border: "border-[var(--long)]/25", icon: ArrowUpRight },
+  bearish: { bg: "bg-[var(--short)]/10", text: "text-[var(--short)]", border: "border-[var(--short)]/25", icon: ArrowDownRight },
   neutral: { bg: "bg-[var(--bg-primary)]", text: "text-[var(--text-muted)]", border: "border-[var(--border)]", icon: Minus },
 };
 
@@ -162,8 +162,8 @@ function CalendarWidget({ weekStart, byDate, isLoading }: {
           Weekly Economic Calendar
         </h2>
         {isLoading && (
-          <span className="ml-auto flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
+          <span className="ml-auto flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
             Loading releases…
           </span>
         )}
@@ -204,7 +204,7 @@ function CalendarWidget({ weekStart, byDate, isLoading }: {
               {/* Releases */}
               {isLoading ? (
                 <div className="space-y-1.5">
-                  <div className="h-8 rounded bg-[var(--bg-primary)] animate-pulse" />
+                  <div className="h-8 rounded bg-[var(--bg-primary)]" />
                 </div>
               ) : (byDate?.[date] ?? []).length > 0 ? (
                 <div className="space-y-1.5">
@@ -214,7 +214,7 @@ function CalendarWidget({ weekStart, byDate, isLoading }: {
                       <div
                         key={r.release_id}
                         className={cn(
-                          "rounded-md px-2 py-1.5 text-[11px] leading-tight border",
+                          "rounded-md px-2 py-1.5 text-xs leading-tight border",
                           catColor?.bg ?? "bg-[var(--bg-primary)]",
                           catColor?.border ?? "border-[var(--border)]"
                         )}
@@ -223,7 +223,7 @@ function CalendarWidget({ weekStart, byDate, isLoading }: {
                           <div className={cn("w-1.5 h-1.5 rounded-full mt-1 shrink-0", catColor?.dot ?? "bg-[var(--text-muted)]")} />
                           <div>
                             <p className="font-medium text-[var(--text-primary)]">{r.release_name}</p>
-                            <p className={cn("text-[10px] mt-0.5", catColor?.text ?? "text-[var(--text-muted)]")}>
+                            <p className={cn("text-xs mt-0.5", catColor?.text ?? "text-[var(--text-muted)]")}>
                               {r.category}
                             </p>
                           </div>
@@ -233,7 +233,7 @@ function CalendarWidget({ weekStart, byDate, isLoading }: {
                   })}
                 </div>
               ) : byDate ? (
-                <p className="text-[11px] text-[var(--text-muted)] italic">No releases</p>
+                <p className="text-xs text-[var(--text-muted)] italic">No releases</p>
               ) : null}
             </div>
           );
@@ -250,7 +250,7 @@ function SignalBadge({ signal }: { signal: "bullish" | "bearish" | "neutral" }) 
   const Icon = style.icon;
   return (
     <span className={cn(
-      "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold border",
+      "inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold border",
       style.bg, style.text, style.border
     )}>
       <Icon className="h-3 w-3" />
@@ -268,7 +268,7 @@ function ChangeBadge({ change, changePct, direction }: {
 }) {
   if (changePct == null) return <span className="text-xs text-[var(--text-muted)]">--</span>;
 
-  const color = direction === "up" ? "text-green-400" : direction === "down" ? "text-red-400" : "text-[var(--text-muted)]";
+  const color = direction === "up" ? "text-[var(--long)]" : direction === "down" ? "text-[var(--short)]" : "text-[var(--text-muted)]";
   const arrow = direction === "up" ? "+" : "";
 
   return (
@@ -288,8 +288,8 @@ function ReleaseCard({ release }: { release: EconomicRelease }) {
   return (
     <div className={cn(
       "rounded-lg border bg-[var(--bg-card)] p-4 transition-colors hover:border-[var(--accent)]/30",
-      obs?.signal === "bullish" ? "border-green-500/20" :
-      obs?.signal === "bearish" ? "border-red-500/20" :
+      obs?.signal === "bullish" ? "border-[var(--long)]/20" :
+      obs?.signal === "bearish" ? "border-[var(--short)]/20" :
       "border-[var(--border)]"
     )}>
       {/* Header */}
@@ -301,13 +301,13 @@ function ReleaseCard({ release }: { release: EconomicRelease }) {
               {release.release_name}
             </h3>
           </div>
-          <p className={cn("text-[11px] uppercase tracking-wider", catColor?.text ?? "text-[var(--text-muted)]")}>
+          <p className={cn("text-xs uppercase tracking-wider", catColor?.text ?? "text-[var(--text-muted)]")}>
             {release.category}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {isUpcoming && (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-[var(--info)]/10 text-[var(--info)] border border-[var(--info)]/20">
               Upcoming
             </span>
           )}
@@ -321,18 +321,18 @@ function ReleaseCard({ release }: { release: EconomicRelease }) {
           {/* Value row */}
           <div className="flex items-end justify-between">
             <div>
-              <p className="text-[11px] text-[var(--text-muted)] mb-0.5">{obs.series_name}</p>
+              <p className="text-xs text-[var(--text-muted)] mb-0.5">{obs.series_name}</p>
               <p className="text-xl font-bold text-[var(--text-primary)] tabular-nums">
                 {formatValue(obs.latest_value, obs.unit)}
               </p>
-              <p className="text-[11px] text-[var(--text-muted)] tabular-nums mt-0.5">
+              <p className="text-xs text-[var(--text-muted)] tabular-nums mt-0.5">
                 {obs.latest_date}
               </p>
             </div>
             <div className="text-right">
               <ChangeBadge change={obs.change} changePct={obs.change_pct} direction={obs.direction} />
               {obs.previous_value != null && (
-                <p className="text-[11px] text-[var(--text-muted)] mt-0.5 tabular-nums">
+                <p className="text-xs text-[var(--text-muted)] mt-0.5 tabular-nums">
                   prev: {formatValue(obs.previous_value, obs.unit)}
                 </p>
               )}
@@ -345,8 +345,8 @@ function ReleaseCard({ release }: { release: EconomicRelease }) {
               <div
                 className={cn(
                   "h-full rounded-full transition-all duration-500",
-                  obs.signal === "bullish" ? "bg-green-500" :
-                  obs.signal === "bearish" ? "bg-red-500" :
+                  obs.signal === "bullish" ? "bg-[var(--long)]" :
+                  obs.signal === "bearish" ? "bg-[var(--short)]" :
                   "bg-[var(--text-muted)]"
                 )}
                 style={{ width: `${Math.min(Math.abs(obs.change_pct) * 10, 100)}%` }}
@@ -372,18 +372,18 @@ function ReleaseCard({ release }: { release: EconomicRelease }) {
       <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-[var(--border)]">
         {release.current_week_dates.map((d) => (
           <span key={d} className={cn(
-            "text-[10px] px-1.5 py-0.5 rounded tabular-nums",
+            "text-xs px-1.5 py-0.5 rounded tabular-nums",
             isToday(d)
               ? "bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/25"
               : isPast(d)
                 ? "bg-[var(--bg-primary)] text-[var(--text-muted)]"
-                : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                : "bg-[var(--info)]/10 text-[var(--info)] border border-[var(--info)]/20"
           )}>
             {formatDay(d)}
           </span>
         ))}
         {release.previous_week_dates.map((d) => (
-          <span key={d} className="text-[10px] px-1.5 py-0.5 rounded tabular-nums bg-[var(--bg-primary)] text-[var(--text-muted)] line-through">
+          <span key={d} className="text-xs px-1.5 py-0.5 rounded tabular-nums bg-[var(--bg-primary)] text-[var(--text-muted)] line-through">
             {formatDay(d)}
           </span>
         ))}
@@ -413,12 +413,12 @@ function CategorySection({ category, releases }: { category: string; releases: E
           <h3 className="text-sm font-semibold text-[var(--text-primary)]">{category}</h3>
         </div>
         {withData.length > 0 && (
-          <div className="flex items-center gap-2 text-[11px]">
+          <div className="flex items-center gap-2 text-xs">
             {bullish > 0 && (
-              <span className="text-green-400 font-medium">{bullish} bullish</span>
+              <span className="text-[var(--long)] font-medium">{bullish} bullish</span>
             )}
             {bearish > 0 && (
-              <span className="text-red-400 font-medium">{bearish} bearish</span>
+              <span className="text-[var(--short)] font-medium">{bearish} bearish</span>
             )}
           </div>
         )}
@@ -447,7 +447,7 @@ function SummaryBar({ releases }: { releases: EconomicRelease[] }) {
   const bearPct = (bearish / total) * 100;
 
   const netSentiment = bullish > bearish ? "Bullish" : bearish > bullish ? "Bearish" : "Mixed";
-  const sentimentColor = netSentiment === "Bullish" ? "text-green-400" : netSentiment === "Bearish" ? "text-red-400" : "text-amber-400";
+  const sentimentColor = netSentiment === "Bullish" ? "text-[var(--long)]" : netSentiment === "Bearish" ? "text-[var(--short)]" : "text-[var(--caution)]";
 
   return (
     <section className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-5">
@@ -459,25 +459,25 @@ function SummaryBar({ releases }: { releases: EconomicRelease[] }) {
       {/* Sentiment bar */}
       <div className="flex h-3 rounded-full overflow-hidden bg-[var(--bg-primary)] mb-3">
         {bullPct > 0 && (
-          <div className="bg-green-500 transition-all duration-700" style={{ width: `${bullPct}%` }} />
+          <div className="bg-[var(--long)] transition-all duration-700" style={{ width: `${bullPct}%` }} />
         )}
         {bearPct > 0 && (
-          <div className="bg-red-500 transition-all duration-700" style={{ width: `${bearPct}%` }} />
+          <div className="bg-[var(--short)] transition-all duration-700" style={{ width: `${bearPct}%` }} />
         )}
       </div>
 
       <div className="grid grid-cols-3 gap-3 text-center">
         <div>
-          <p className="text-lg font-bold text-green-400 tabular-nums">{bullish}</p>
-          <p className="text-[11px] text-[var(--text-muted)]">Bullish</p>
+          <p className="text-lg font-bold text-[var(--long)] tabular-nums">{bullish}</p>
+          <p className="text-xs text-[var(--text-muted)]">Bullish</p>
         </div>
         <div>
           <p className="text-lg font-bold text-[var(--text-muted)] tabular-nums">{neutral}</p>
-          <p className="text-[11px] text-[var(--text-muted)]">Neutral</p>
+          <p className="text-xs text-[var(--text-muted)]">Neutral</p>
         </div>
         <div>
-          <p className="text-lg font-bold text-red-400 tabular-nums">{bearish}</p>
-          <p className="text-[11px] text-[var(--text-muted)]">Bearish</p>
+          <p className="text-lg font-bold text-[var(--short)] tabular-nums">{bearish}</p>
+          <p className="text-xs text-[var(--text-muted)]">Bearish</p>
         </div>
       </div>
     </section>
@@ -576,7 +576,7 @@ export function EconomicPanel() {
       {!isFutureWeek && !dataLoading && grouped.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {Object.entries(CATEGORY_COLORS).map(([cat, style]) => (
-            <div key={cat} className="flex items-center gap-1.5 text-[11px]">
+            <div key={cat} className="flex items-center gap-1.5 text-xs">
               <div className={cn("w-2 h-2 rounded-full", style.dot)} />
               <span className="text-[var(--text-muted)]">{cat}</span>
             </div>
@@ -589,10 +589,10 @@ export function EconomicPanel() {
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="space-y-2">
-              <div className="h-5 w-48 rounded bg-[var(--bg-card)] animate-pulse" />
+              <div className="h-5 w-48 rounded bg-[var(--bg-card)]" />
               <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {Array.from({ length: 3 }).map((_, j) => (
-                  <div key={j} className="h-40 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+                  <div key={j} className="h-40 rounded-lg bg-[var(--bg-card)]" />
                 ))}
               </div>
             </div>
@@ -605,8 +605,8 @@ export function EconomicPanel() {
           ))}
         </div>
       ) : econData ? (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-6 text-center">
-          <p className="text-sm text-amber-400">No economic data available for this week.</p>
+        <div className="rounded-lg border border-[var(--caution)]/30 bg-[var(--caution)]/5 p-6 text-center">
+          <p className="text-sm text-[var(--caution)]">No economic data available for this week.</p>
           <p className="text-xs text-[var(--text-muted)] mt-1">
             This may mean the FRED API key is not configured on the backend.
           </p>

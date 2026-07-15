@@ -26,7 +26,7 @@ export function InternationalFlowTable({ flows }: InternationalFlowTableProps) {
               <td
                 className={cn(
                   "py-2 text-right tabular-nums font-medium",
-                  f.flow_direction === "inflow" ? "text-emerald-500" : "text-red-500"
+                  f.flow_direction === "inflow" ? "text-[var(--long)]" : "text-[var(--short)]"
                 )}
               >
                 {formatFlow(f.weekly_flow_dollars)}

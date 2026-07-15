@@ -59,13 +59,13 @@ export function SidebarFavorites({ onNavigate }: SidebarFavoritesProps) {
       {/* Section header */}
       <div className="flex items-center justify-between px-3 mb-2">
         <div className="flex items-center gap-1.5">
-          <Heart className="h-3 w-3 text-rose-500/70" fill="currentColor" />
+          <Heart className="h-3 w-3 text-[var(--text-muted)]" fill="currentColor" />
           <p className="text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase">
             Watchlist
           </p>
         </div>
         {favorites.length > 0 && (
-          <span className="flex items-center justify-center h-[18px] min-w-[18px] px-1 rounded-full bg-rose-500/10 text-[10px] font-semibold tabular-nums text-rose-400 border border-rose-500/10">
+          <span className="text-xs font-mono tabular-nums text-[var(--text-muted)]">
             {favorites.length}
           </span>
         )}
@@ -74,10 +74,8 @@ export function SidebarFavorites({ onNavigate }: SidebarFavoritesProps) {
       {/* Empty state */}
       {favorites.length === 0 && (
         <div className="px-3 py-5 text-center">
-          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-card)] border border-[var(--border)] mb-2">
-            <Heart className="h-3.5 w-3.5 text-[var(--text-muted)]" />
-          </div>
-          <p className="text-[11px] text-[var(--text-muted)]/60 leading-relaxed">
+          <Heart className="h-3.5 w-3.5 text-[var(--text-faint)] mx-auto mb-2" />
+          <p className="text-xs text-[var(--text-faint)] leading-relaxed">
             Favorite tickers from their
             <br />
             chart page to build your list
@@ -105,23 +103,23 @@ export function SidebarFavorites({ onNavigate }: SidebarFavoritesProps) {
                       isExpanded && "rotate-90"
                     )}
                   />
-                  <span className="text-[11px] font-medium text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors flex-1 truncate">
+                  <span className="text-xs font-medium text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors flex-1 truncate">
                     {group.sector}
                   </span>
-                  <span className="text-[10px] tabular-nums text-[var(--text-muted)]/40">
+                  <span className="text-xs font-mono tabular-nums text-[var(--text-faint)]">
                     {group.tickers.length}
                   </span>
                 </button>
 
-                {/* Ticker pills */}
+                {/* Ticker links */}
                 {isExpanded && (
-                  <div className="pl-[26px] pr-2 pb-2 flex flex-wrap gap-1">
+                  <div className="pl-[26px] pr-2 pb-2 flex flex-wrap gap-x-3 gap-y-1">
                     {group.tickers.map((fav) => (
                       <Link
                         key={fav.ticker}
                         href={`/ticker/${fav.ticker}`}
                         onClick={onNavigate}
-                        className="px-2 py-[3px] rounded text-[11px] font-mono font-medium bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border)] hover:text-[var(--accent)] hover:border-[var(--accent)]/30 hover:bg-[var(--accent)]/5 transition-colors"
+                        className="text-xs font-mono font-medium text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
                       >
                         {fav.ticker}
                       </Link>

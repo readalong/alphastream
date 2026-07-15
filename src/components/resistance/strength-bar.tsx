@@ -14,7 +14,7 @@ export function StrengthBar({ strength, max = 5 }: StrengthBarProps) {
           className="h-2.5 w-2 rounded-sm"
           style={{
             backgroundColor:
-              i < strength ? "#ef4444" : "var(--border)",
+              i < strength ? "var(--short)" : "var(--border)",
           }}
         />
       ))}

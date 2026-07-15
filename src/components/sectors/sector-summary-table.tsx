@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { useSectors } from "@/hooks/use-sectors";
 import { useSectorTickers } from "@/hooks/use-sector-tickers";
 import { SECTOR_ETF_NAMES, STAGE_COLORS } from "@/lib/constants";
@@ -53,7 +54,7 @@ export function SectorSummaryTable() {
       <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
         <div className="space-y-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-8 rounded bg-[var(--bg-primary)] animate-pulse" />
+            <div key={i} className="h-8 rounded bg-[var(--bg-primary)]" />
           ))}
         </div>
       </div>
@@ -68,13 +69,14 @@ export function SectorSummaryTable() {
         <h2 className="text-sm font-semibold text-[var(--text-primary)]">
           Top Signals by Sector
         </h2>
-        <Link href="/flows?tab=sectors" className="text-xs text-[var(--accent)] hover:underline">
-          View All Sectors &rarr;
+        <Link href="/flows?tab=sectors" className="inline-flex items-center gap-1 text-xs text-[var(--accent)] hover:underline">
+          View all sectors
+          <ChevronRight className="h-3 w-3" />
         </Link>
       </div>
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+          <tr className="text-xs text-[var(--text-muted)]">
             <th className="text-left font-medium px-4 py-2">Sector</th>
             <th className="text-center font-medium px-4 py-2">Sure Shot</th>
             <th className="text-center font-medium px-4 py-2">Action</th>

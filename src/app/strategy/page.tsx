@@ -43,20 +43,20 @@ const REGIME_STYLE: Record<
   RegimeColor,
   { bg: string; border: string; dot: string; text: string; label: string }
 > = {
-  GREEN:  { bg: "bg-emerald-500/10", border: "border-emerald-500/25", dot: "bg-emerald-400", text: "text-emerald-400", label: "RISK ON"  },
-  YELLOW: { bg: "bg-amber-500/10",   border: "border-amber-500/25",   dot: "bg-amber-400",   text: "text-amber-400",   label: "CAUTION"  },
-  RED:    { bg: "bg-red-500/10",     border: "border-red-500/25",     dot: "bg-red-400",     text: "text-red-400",     label: "RISK OFF" },
+  GREEN:  { bg: "bg-[var(--long)]/10", border: "border-[var(--long)]/25", dot: "bg-[var(--long)]", text: "text-[var(--long)]", label: "Risk on"  },
+  YELLOW: { bg: "bg-[var(--caution)]/10", border: "border-[var(--caution)]/25", dot: "bg-[var(--caution)]", text: "text-[var(--caution)]", label: "Caution"  },
+  RED:    { bg: "bg-[var(--short)]/10", border: "border-[var(--short)]/25", dot: "bg-[var(--short)]", text: "text-[var(--short)]", label: "Risk off" },
 };
 
 const MODE_STYLE: Record<
   StrategyMode,
   { text: string; bg: string; border: string; label: string }
 > = {
-  BULL:          { text: "text-emerald-400", bg: "bg-emerald-500/15", border: "border-emerald-500/30", label: "BULL"          },
-  BULL_VOLATILE: { text: "text-amber-400",   bg: "bg-amber-500/15",   border: "border-amber-500/30",   label: "BULL VOLATILE" },
-  CORRECTION:    { text: "text-orange-400",  bg: "bg-orange-500/15",  border: "border-orange-500/30",  label: "CORRECTION"    },
-  BEAR:          { text: "text-red-400",     bg: "bg-red-500/15",     border: "border-red-500/30",     label: "BEAR"          },
-  RECOVERY:      { text: "text-blue-400",    bg: "bg-blue-500/15",    border: "border-blue-500/30",    label: "RECOVERY"      },
+  BULL:          { text: "text-[var(--long)]",    bg: "bg-[var(--long)]/15",    border: "border-[var(--long)]/30",    label: "Bull"          },
+  BULL_VOLATILE: { text: "text-[var(--caution)]",  bg: "bg-[var(--caution)]/15", border: "border-[var(--caution)]/30", label: "Bull volatile" },
+  CORRECTION:    { text: "text-[var(--severe)]",   bg: "bg-[var(--severe)]/15",  border: "border-[var(--severe)]/30",  label: "Correction"    },
+  BEAR:          { text: "text-[var(--short)]",    bg: "bg-[var(--short)]/15",   border: "border-[var(--short)]/30",   label: "Bear"          },
+  RECOVERY:      { text: "text-[var(--info)]",     bg: "bg-[var(--info)]/15",    border: "border-[var(--info)]/30",    label: "Recovery"      },
 };
 
 // Static allocation targets by strategy mode (from trading engine docs)
@@ -69,26 +69,26 @@ const ALLOC_TARGETS: Record<StrategyMode, { long: number; short: number; hedge: 
 };
 
 const SHORT_STYLE: Record<string, { text: string; bg: string; label: string }> = {
-  STRONG_SHORT:      { text: "text-red-300",    bg: "bg-red-500/15",    label: "SS" },
-  SHORT:             { text: "text-orange-300", bg: "bg-orange-500/15", label: "SH" },
-  SPECULATIVE_SHORT: { text: "text-amber-300",  bg: "bg-amber-500/15",  label: "SP" },
+  STRONG_SHORT:      { text: "text-[var(--short)]",   bg: "bg-[var(--short)]/15",   label: "SS" },
+  SHORT:             { text: "text-[var(--severe)]",  bg: "bg-[var(--severe)]/15",  label: "SH" },
+  SPECULATIVE_SHORT: { text: "text-[var(--caution)]", bg: "bg-[var(--caution)]/15", label: "SP" },
 };
 
 const SECTOR_TIER_STYLE: Record<string, { text: string; bg: string }> = {
-  LAGGING: { text: "text-red-400",     bg: "bg-red-500/10"     },
-  WEAK:    { text: "text-orange-400",  bg: "bg-orange-500/10"  },
-  NEUTRAL: { text: "text-slate-400",   bg: "bg-slate-500/10"   },
-  STRONG:  { text: "text-emerald-400", bg: "bg-emerald-500/10" },
-  LEADING: { text: "text-blue-400",    bg: "bg-blue-500/10"    },
+  LAGGING: { text: "text-[var(--short)]",      bg: "bg-[var(--short)]/10"      },
+  WEAK:    { text: "text-[var(--severe)]",     bg: "bg-[var(--severe)]/10"     },
+  NEUTRAL: { text: "text-[var(--text-muted)]", bg: "bg-[var(--bg-primary)]"    },
+  STRONG:  { text: "text-[var(--long)]",       bg: "bg-[var(--long)]/10"       },
+  LEADING: { text: "text-[var(--info)]",       bg: "bg-[var(--info)]/10"       },
 };
 
 const HEDGE_TIER: Record<
   string,
   { icon: LucideIcon; label: string; color: string }
 > = {
-  FUTURES:     { icon: BarChart2,    label: "Index Futures", color: "text-blue-400"   },
-  INVERSE_ETF: { icon: TrendingDown, label: "Inverse ETFs",  color: "text-orange-400" },
-  SAFE_HAVEN:  { icon: Shield,       label: "Safe Havens",   color: "text-amber-400"  },
+  FUTURES:     { icon: BarChart2,    label: "Index Futures", color: "text-[var(--info)]"    },
+  INVERSE_ETF: { icon: TrendingDown, label: "Inverse ETFs",  color: "text-[var(--severe)]"  },
+  SAFE_HAVEN:  { icon: Shield,       label: "Safe Havens",   color: "text-[var(--caution)]" },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ function isNotFound(q: { isError: boolean; error: unknown }) {
 // ─── Atoms ────────────────────────────────────────────────────────────────────
 
 function Skel({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded bg-[var(--border)]", className)} />;
+  return <div className={cn("rounded bg-[var(--border)]", className)} />;
 }
 
 function EmptyState({ message }: { message: string }) {
@@ -139,12 +139,12 @@ function AllocationBar({
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">{label}</span>
+        <span className="text-xs text-[var(--text-muted)]">{label}</span>
         <div className="flex items-center gap-1.5">
           <span className={cn("font-mono text-xs font-semibold", colorClass)}>
             {val.toFixed(0)}%
           </span>
-          <span className="text-[10px] text-[var(--text-muted)]">/ {target}% tgt</span>
+          <span className="text-xs text-[var(--text-muted)]">/ {target}% tgt</span>
         </div>
       </div>
       <div className="relative h-1.5 rounded-full bg-[var(--border)] overflow-visible">
@@ -154,7 +154,7 @@ function AllocationBar({
         />
         {/* Target tick */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 rounded-sm bg-white/30"
+          className="absolute top-1/2 -translate-y-1/2 w-0.5 h-3 rounded-sm bg-[var(--text-primary)]/40"
           style={{ left: `${Math.min(target, 100)}%` }}
         />
       </div>
@@ -174,11 +174,11 @@ function IntermarketCard({
   if (!data) return null;
   const isOut = data.signal === "OUTPERFORMING"; // safe-haven outperforming = risk-off (bad for equities)
   const isUnder = data.signal === "UNDERPERFORMING"; // safe-haven lagging = risk-on (good for equities)
-  const signalColor = isOut ? "text-red-400" : isUnder ? "text-emerald-400" : "text-slate-400";
+  const signalColor = isOut ? "text-[var(--short)]" : isUnder ? "text-[var(--long)]" : "text-[var(--text-muted)]";
   const cardCls = isOut
-    ? "bg-red-500/8 border-red-500/20"
+    ? "bg-[var(--short)]/8 border-[var(--short)]/20"
     : isUnder
-    ? "bg-emerald-500/8 border-emerald-500/20"
+    ? "bg-[var(--long)]/8 border-[var(--long)]/20"
     : "bg-[var(--bg-card)] border-[var(--border)]";
 
   return (
@@ -186,22 +186,22 @@ function IntermarketCard({
       <div className="flex items-center justify-between mb-2 gap-2">
         <div className="min-w-0">
           <span className="text-xs font-semibold text-[var(--text-primary)]">{label}</span>
-          <span className="text-[10px] text-[var(--text-muted)] font-mono ml-1.5">{ticker}</span>
+          <span className="text-xs text-[var(--text-muted)] font-mono ml-1.5">{ticker}</span>
         </div>
-        <span className={cn("text-[10px] font-bold tracking-wider shrink-0", signalColor)}>
+        <span className={cn("text-xs font-bold tracking-wider shrink-0", signalColor)}>
           {data.signal.replace("_", " ")}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <span className="text-[10px] text-[var(--text-muted)] block">20d vs SPY</span>
-          <span className={cn("font-mono text-sm font-semibold", data.vs_spy_20d_pct >= 0 ? "text-red-400" : "text-emerald-400")}>
+          <span className="text-xs text-[var(--text-muted)] block">20d vs SPY</span>
+          <span className={cn("font-mono text-sm font-semibold", data.vs_spy_20d_pct >= 0 ? "text-[var(--short)]" : "text-[var(--long)]")}>
             {fmtPct(data.vs_spy_20d_pct)}
           </span>
         </div>
         <div>
-          <span className="text-[10px] text-[var(--text-muted)] block">50d vs SPY</span>
-          <span className={cn("font-mono text-sm font-semibold", data.vs_spy_50d_pct >= 0 ? "text-red-400" : "text-emerald-400")}>
+          <span className="text-xs text-[var(--text-muted)] block">50d vs SPY</span>
+          <span className={cn("font-mono text-sm font-semibold", data.vs_spy_50d_pct >= 0 ? "text-[var(--short)]" : "text-[var(--long)]")}>
             {fmtPct(data.vs_spy_50d_pct)}
           </span>
         </div>
@@ -217,20 +217,20 @@ function BRRow({ signal }: { signal: BRSignal }) {
       className={cn(
         "flex items-center gap-3 rounded-lg border px-3 py-2.5",
         isShort
-          ? "bg-amber-500/10 border-amber-500/25"
-          : "bg-emerald-500/10 border-emerald-500/25"
+          ? "bg-[var(--caution)]/10 border-[var(--caution)]/25"
+          : "bg-[var(--long)]/10 border-[var(--long)]/25"
       )}
     >
       {isShort ? (
-        <ArrowUpRight className="h-4 w-4 text-amber-400 shrink-0" />
+        <ArrowUpRight className="h-4 w-4 text-[var(--caution)] shrink-0" />
       ) : (
-        <ArrowDownRight className="h-4 w-4 text-emerald-400 shrink-0" />
+        <ArrowDownRight className="h-4 w-4 text-[var(--long)] shrink-0" />
       )}
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <span
           className={cn(
-            "text-[10px] font-bold tracking-wider shrink-0",
-            isShort ? "text-amber-400" : "text-emerald-400"
+            "text-xs font-bold tracking-wider shrink-0",
+            isShort ? "text-[var(--caution)]" : "text-[var(--long)]"
           )}
         >
           {signal.signal_type.replace("_", " ")}
@@ -255,16 +255,16 @@ function BRRow({ signal }: { signal: BRSignal }) {
           className={cn(
             "text-xs font-semibold",
             signal.rsi > 70
-              ? "text-amber-400"
+              ? "text-[var(--caution)]"
               : signal.rsi < 30
-              ? "text-emerald-400"
-              : "text-slate-400"
+              ? "text-[var(--long)]"
+              : "text-[var(--text-muted)]"
           )}
         >
           RSI {signal.rsi.toFixed(1)}
         </span>
         {signal.urgency === "HIGH" && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 font-medium">
+          <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--short)]/20 text-[var(--short)] font-medium">
             HIGH
           </span>
         )}
@@ -279,10 +279,10 @@ function ShortCard({ c }: { c: ShortCandidate }) {
   const target1 = c.targets?.[0];
 
   return (
-    <div className="rounded-lg border border-[var(--border)] p-3 hover:border-red-500/30 transition-colors">
+    <div className="rounded-lg border border-[var(--border)] p-3 hover:border-[var(--short)]/30 transition-colors">
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-center gap-2 min-w-0">
-          <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0", style.bg, style.text)}>
+          <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded shrink-0", style.bg, style.text)}>
             {style.label}
           </span>
           <Link
@@ -295,7 +295,7 @@ function ShortCard({ c }: { c: ShortCandidate }) {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {c.factor_score?.adjusted_total != null && (
-            <span className="text-[10px] font-mono text-[var(--text-muted)]">
+            <span className="text-xs font-mono text-[var(--text-muted)]">
               {c.factor_score.adjusted_total}pts
             </span>
           )}
@@ -310,7 +310,7 @@ function ShortCard({ c }: { c: ShortCandidate }) {
           {signals.slice(0, 4).map((s) => (
             <span
               key={s}
-              className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-300 border border-red-500/20"
+              className="text-xs px-1.5 py-0.5 rounded bg-[var(--short)]/10 text-[var(--short)] border border-[var(--short)]/20"
             >
               {s}
             </span>
@@ -321,37 +321,37 @@ function ShortCard({ c }: { c: ShortCandidate }) {
       <div className="grid grid-cols-3 gap-2 text-center">
         {c.entry_price != null && (
           <div>
-            <span className="text-[10px] text-[var(--text-muted)] block">Entry</span>
+            <span className="text-xs text-[var(--text-muted)] block">Entry</span>
             <span className="font-mono text-xs text-[var(--text-primary)]">{fmtPrice(c.entry_price)}</span>
           </div>
         )}
         {target1?.price != null && (
           <div>
-            <span className="text-[10px] text-[var(--text-muted)] block">Target ↓</span>
-            <span className="font-mono text-xs text-emerald-400">{fmtPrice(target1.price)}</span>
+            <span className="text-xs text-[var(--text-muted)] block">Target ↓</span>
+            <span className="font-mono text-xs text-[var(--long)]">{fmtPrice(target1.price)}</span>
           </div>
         )}
         {c.stop_loss != null && (
           <div>
-            <span className="text-[10px] text-[var(--text-muted)] block">Stop ↑</span>
-            <span className="font-mono text-xs text-red-400">{fmtPrice(c.stop_loss)}</span>
+            <span className="text-xs text-[var(--text-muted)] block">Stop ↑</span>
+            <span className="font-mono text-xs text-[var(--short)]">{fmtPrice(c.stop_loss)}</span>
           </div>
         )}
       </div>
 
       {c.risk_reward_ratio != null && (
         <div className="mt-2 pt-2 border-t border-[var(--border)] flex items-center gap-1.5">
-          <span className="text-[10px] text-[var(--text-muted)]">R/R</span>
+          <span className="text-xs text-[var(--text-muted)]">R/R</span>
           <span
             className={cn(
               "font-mono text-xs font-semibold",
-              c.risk_reward_ratio >= 2 ? "text-emerald-400" : "text-amber-400"
+              c.risk_reward_ratio >= 2 ? "text-[var(--long)]" : "text-[var(--caution)]"
             )}
           >
             1:{c.risk_reward_ratio.toFixed(1)}
           </span>
           {c.conviction?.rationale && (
-            <span className="text-[10px] text-[var(--text-muted)] truncate ml-auto max-w-[160px]">
+            <span className="text-xs text-[var(--text-muted)] truncate ml-auto max-w-[160px]">
               {c.conviction.rationale}
             </span>
           )}
@@ -363,14 +363,14 @@ function ShortCard({ c }: { c: ShortCandidate }) {
 
 function HedgeTierSection({ tier, items }: { tier: string; items: HedgeItem[] }) {
   if (!items.length) return null;
-  const style = HEDGE_TIER[tier] ?? { icon: Package, label: tier, color: "text-slate-400" };
+  const style = HEDGE_TIER[tier] ?? { icon: Package, label: tier, color: "text-[var(--text-muted)]" };
   const Icon = style.icon;
 
   return (
     <div>
       <div className="flex items-center gap-2 mb-2">
         <Icon className={cn("h-3.5 w-3.5", style.color)} />
-        <span className={cn("text-[10px] font-bold uppercase tracking-wider", style.color)}>
+        <span className={cn("text-xs font-bold", style.color)}>
           {style.label}
         </span>
       </div>
@@ -383,12 +383,12 @@ function HedgeTierSection({ tier, items }: { tier: string; items: HedgeItem[] })
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-mono text-sm font-bold text-[var(--text-primary)]">{h.instrument}</span>
-                <span className={cn("text-[10px] font-semibold", h.direction === "SHORT" ? "text-red-400" : "text-emerald-400")}>
+                <span className={cn("text-xs font-semibold", h.direction === "SHORT" ? "text-[var(--short)]" : "text-[var(--long)]")}>
                   {h.direction}
                 </span>
               </div>
               {h.rationale && (
-                <p className="text-[11px] text-[var(--text-muted)] mt-0.5 truncate max-w-[220px]">
+                <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate max-w-[220px]">
                   {h.rationale}
                 </p>
               )}
@@ -398,7 +398,7 @@ function HedgeTierSection({ tier, items }: { tier: string; items: HedgeItem[] })
                 {(h.allocation_pct * 100).toFixed(1)}%
               </span>
               {h.notional_value != null && (
-                <span className="text-[10px] text-[var(--text-muted)] block">
+                <span className="text-xs text-[var(--text-muted)] block">
                   ${h.notional_value.toLocaleString()}
                 </span>
               )}
@@ -502,7 +502,7 @@ export default function StrategyPage() {
           {modeStyle && (
             <span
               className={cn(
-                "text-xs font-bold px-2.5 py-1 rounded-full border",
+                "text-xs font-bold px-2.5 py-1 rounded border",
                 modeStyle.bg,
                 modeStyle.border,
                 modeStyle.text
@@ -535,10 +535,10 @@ export default function StrategyPage() {
 
       {/* ── Strategy-not-run notice ────────────────────────────────────────── */}
       {anyNotRun && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 flex items-start gap-3">
-          <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+        <div className="rounded-lg border border-[var(--caution)]/30 bg-[var(--caution)]/10 p-4 flex items-start gap-3">
+          <AlertTriangle className="h-4 w-4 text-[var(--caution)] shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm text-amber-300 font-medium">Strategy not generated today</p>
+            <p className="text-sm text-[var(--caution)] font-medium">Strategy not generated today</p>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
               Click <strong className="text-[var(--text-primary)]">Run Strategy</strong> to compute
               buy · short · hedge · exit actions. Runs synchronously — takes 60–120 seconds.
@@ -549,13 +549,13 @@ export default function StrategyPage() {
 
       {/* ── Run feedback ──────────────────────────────────────────────────── */}
       {runStrategy.isSuccess && (
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-300 flex items-center gap-2">
+        <div className="rounded-lg border border-[var(--long)]/30 bg-[var(--long)]/10 p-3 text-xs text-[var(--long)] flex items-center gap-2">
           <TrendingUp className="h-4 w-4 shrink-0" />
           Strategy generated successfully — all sections refreshed.
         </div>
       )}
       {runStrategy.isError && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300 flex items-center gap-2">
+        <div className="rounded-lg border border-[var(--short)]/30 bg-[var(--short)]/10 p-3 text-xs text-[var(--short)] flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           {runStrategy.error instanceof Error
             ? runStrategy.error.message
@@ -581,25 +581,25 @@ export default function StrategyPage() {
           {regime.data && regS && (
             <>
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className={cn("h-2 w-2 rounded-full animate-pulse shrink-0", regS.dot)} />
+                <span className={cn("h-2 w-2 rounded-full shrink-0", regS.dot)} />
                 <span className={cn("text-sm font-bold tracking-widest", regS.text)}>
                   {regime.data.regime} — {regS.label}
                 </span>
                 {regime.data.regime_changed && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/80 font-medium">
-                    REGIME CHANGE
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--bg-primary)]/60 text-[var(--text-primary)] font-medium">
+                    Regime change
                   </span>
                 )}
               </div>
               <p className="text-xs text-[var(--text-muted)]">{regime.data.details}</p>
               {regime.data.transition_action && (
-                <p className="mt-2 text-xs text-amber-300 flex items-center gap-1.5">
+                <p className="mt-2 text-xs text-[var(--caution)] flex items-center gap-1.5">
                   <AlertTriangle className="h-3 w-3 shrink-0" />
                   {regime.data.transition_action}
                 </p>
               )}
               {regime.data.breadth && (
-                <div className="mt-3 pt-3 border-t border-white/10 grid grid-cols-3 gap-2">
+                <div className="mt-3 pt-3 border-t border-[var(--border)] grid grid-cols-3 gap-2">
                   {[
                     { label: "Above 200d", v: `${regime.data.breadth.pct_above_200sma.toFixed(1)}%` },
                     { label: "Above 50d",  v: `${regime.data.breadth.pct_above_50sma.toFixed(1)}%`  },
@@ -609,7 +609,7 @@ export default function StrategyPage() {
                     { label: "H/L Ratio",  v: regime.data.breadth.highs_lows_ratio.toFixed(1)        },
                   ].map((i) => (
                     <div key={i.label}>
-                      <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block">
+                      <span className="text-xs text-[var(--text-muted)] block">
                         {i.label}
                       </span>
                       <span className="font-mono text-xs text-[var(--text-primary)]">{i.v}</span>
@@ -623,8 +623,8 @@ export default function StrategyPage() {
 
         {/* Allocation gauges */}
         <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-          <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-3">
-            Portfolio Allocation
+          <p className="text-xs text-[var(--text-muted)] mb-3">
+            Portfolio allocation
           </p>
           {allocation.isPending && (
             <div className="space-y-4">
@@ -637,25 +637,25 @@ export default function StrategyPage() {
                 label="Long"
                 current={current.long_pct}
                 target={targets?.long ?? 0}
-                colorClass="text-emerald-400"
+                colorClass="text-[var(--long)]"
               />
               <AllocationBar
                 label="Short"
                 current={current.short_pct}
                 target={targets?.short ?? 0}
-                colorClass="text-red-400"
+                colorClass="text-[var(--short)]"
               />
               <AllocationBar
                 label="Hedge"
                 current={current.hedge_pct}
                 target={targets?.hedge ?? 0}
-                colorClass="text-amber-400"
+                colorClass="text-[var(--caution)]"
               />
               <AllocationBar
                 label="Cash"
                 current={current.cash_pct}
                 target={targets?.cash ?? 0}
-                colorClass="text-slate-400"
+                colorClass="text-[var(--text-muted)]"
               />
             </div>
           )}
@@ -670,21 +670,21 @@ export default function StrategyPage() {
       {/* ── Intermarket Signals ───────────────────────────────────────────── */}
       <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
-            Intermarket Signals
-            <span className="ml-1.5 text-[var(--text-muted)]/60 normal-case tracking-normal">
+          <p className="text-xs text-[var(--text-muted)]">
+            Intermarket signals
+            <span className="ml-1.5 text-[var(--text-muted)]/60">
               (always live)
             </span>
           </p>
           {intermarket.data && (
             <span
               className={cn(
-                "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                "text-xs font-bold px-2 py-0.5 rounded",
                 intermarket.data.risk_signal === "RISK_ON"
-                  ? "bg-emerald-500/15 text-emerald-400"
+                  ? "bg-[var(--long)]/15 text-[var(--long)]"
                   : intermarket.data.risk_signal === "RISK_OFF"
-                  ? "bg-red-500/15 text-red-400"
-                  : "bg-slate-500/15 text-slate-400"
+                  ? "bg-[var(--short)]/15 text-[var(--short)]"
+                  : "bg-[var(--bg-primary)] text-[var(--text-muted)]"
               )}
             >
               {intermarket.data.risk_signal.replace("_", "-")}
@@ -721,8 +721,8 @@ export default function StrategyPage() {
       {/* ── BR Signals ────────────────────────────────────────────────────── */}
       {(brList.length > 0 || br.isPending || (br.data && brList.length === 0)) && (
         <div>
-          <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-2">
-            Blow-off / Capitulation Signals (Bollinger-RSI)
+          <p className="text-xs text-[var(--text-muted)] mb-2">
+            Blow-off / capitulation signals (Bollinger-RSI)
           </p>
           {br.isPending && <Skel className="h-10 w-full" />}
           {brList.length > 0 && (
@@ -746,16 +746,16 @@ export default function StrategyPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <TrendingDown className="h-4 w-4 text-red-400" />
+            <TrendingDown className="h-4 w-4 text-[var(--short)]" />
             <span className="text-sm font-semibold text-[var(--text-primary)]">Short Candidates</span>
           </div>
           <div className="flex items-center gap-3">
             {shorts.data?.regime && (
               <span className={cn(
-                "text-[10px] font-bold px-2 py-0.5 rounded-full",
-                shorts.data.regime === "RED"    ? "bg-red-500/15 text-red-400" :
-                shorts.data.regime === "YELLOW" ? "bg-amber-500/15 text-amber-400" :
-                                                   "bg-emerald-500/15 text-emerald-400"
+                "text-xs font-bold px-2 py-0.5 rounded",
+                shorts.data.regime === "RED"    ? "bg-[var(--short)]/15 text-[var(--short)]" :
+                shorts.data.regime === "YELLOW" ? "bg-[var(--caution)]/15 text-[var(--caution)]" :
+                                                   "bg-[var(--long)]/15 text-[var(--long)]"
               )}>
                 {shorts.data.regime}
               </span>
@@ -774,7 +774,7 @@ export default function StrategyPage() {
 
             {/* Conviction filter */}
             <div className="flex items-start gap-2 flex-wrap">
-              <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] w-[68px] shrink-0 pt-0.5">
+              <span className="text-xs text-[var(--text-muted)] w-[68px] shrink-0 pt-0.5">
                 Conviction
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -793,14 +793,14 @@ export default function StrategyPage() {
                           setShortConvFilter(next);
                         }}
                         className={cn(
-                          "inline-flex items-center gap-1.5 text-[10px] font-medium px-2 py-0.5 rounded border transition-all duration-150",
+                          "inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded border transition-all duration-150",
                           active
                             ? cn(s.bg, s.text, "border-current/30")
                             : "bg-transparent border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--text-muted)]/60 hover:text-[var(--text-primary)]"
                         )}
                       >
                         {label}
-                        <span className={cn("font-mono text-[9px]", active ? "opacity-70" : "opacity-40")}>
+                        <span className={cn("font-mono text-xs", active ? "opacity-70" : "opacity-40")}>
                           {shortConvCounts[tier]}
                         </span>
                       </button>
@@ -812,7 +812,7 @@ export default function StrategyPage() {
             {/* Sector tier filter */}
             {Object.keys(shortTierCounts).length > 0 && (
               <div className="flex items-start gap-2 flex-wrap">
-                <span className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] w-[68px] shrink-0 pt-0.5">
+                <span className="text-xs text-[var(--text-muted)] w-[68px] shrink-0 pt-0.5">
                   Sector
                 </span>
                 <div className="flex flex-wrap gap-1.5">
@@ -831,14 +831,14 @@ export default function StrategyPage() {
                             setShortTierFilter(next);
                           }}
                           className={cn(
-                            "inline-flex items-center gap-1.5 text-[10px] font-medium px-2 py-0.5 rounded border transition-all duration-150",
+                            "inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded border transition-all duration-150",
                             active
                               ? cn(s.bg, s.text, "border-current/30")
                               : "bg-transparent border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--text-muted)]/60 hover:text-[var(--text-primary)]"
                           )}
                         >
                           {label}
-                          <span className={cn("font-mono text-[9px]", active ? "opacity-70" : "opacity-40")}>
+                          <span className={cn("font-mono text-xs", active ? "opacity-70" : "opacity-40")}>
                             {shortTierCounts[tier]}
                           </span>
                         </button>
@@ -851,13 +851,13 @@ export default function StrategyPage() {
             {/* Active filter summary row */}
             {hasShortFilters && (
               <div className="flex items-center justify-between pt-0.5">
-                <span className="text-[10px] text-[var(--text-muted)]">
+                <span className="text-xs text-[var(--text-muted)]">
                   <span className="text-[var(--text-primary)] font-medium tabular-nums">{filteredShortList.length}</span>
                   {" of "}{shortList.length} showing
                 </span>
                 <button
                   onClick={() => { setShortConvFilter(new Set()); setShortTierFilter(new Set()); }}
-                  className="text-[10px] font-medium text-[var(--accent)] hover:opacity-75 transition-opacity"
+                  className="text-xs font-medium text-[var(--accent)] hover:opacity-75 transition-opacity"
                 >
                   Clear all
                 </button>
@@ -900,15 +900,15 @@ export default function StrategyPage() {
               return (
                 <div key={sector}>
                   <div className="flex items-center gap-2 mb-2 sticky top-0 bg-[var(--bg-card)] py-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                    <span className="text-xs font-bold text-[var(--text-muted)]">
                       {sector}
                     </span>
                     {items[0]?.sector_tier && tierStyle && (
-                      <span className={cn("text-[10px] px-1.5 py-0.5 rounded font-semibold", tierStyle.bg, tierStyle.text)}>
+                      <span className={cn("text-xs px-1.5 py-0.5 rounded font-semibold", tierStyle.bg, tierStyle.text)}>
                         {items[0].sector_tier}
                       </span>
                     )}
-                    <span className="text-[10px] font-mono text-[var(--text-muted)]/60 ml-auto">{items.length}</span>
+                    <span className="text-xs font-mono text-[var(--text-muted)]/60 ml-auto">{items.length}</span>
                   </div>
                   <div className="space-y-2">
                     {items.map((c) => <ShortCard key={c.ticker} c={c} />)}
@@ -924,7 +924,7 @@ export default function StrategyPage() {
       <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <ShieldAlert className="h-4 w-4 text-amber-400" />
+              <ShieldAlert className="h-4 w-4 text-[var(--caution)]" />
               <span className="text-sm font-semibold text-[var(--text-primary)]">Hedge Recommendations</span>
             </div>
             {hedgeList.length > 0 && (

@@ -115,10 +115,8 @@ function ActCard({
             </span>
             {entry.bias && entry.bias !== "NEUTRAL" && (
               <span
-                className={cn(
-                  "text-xs font-semibold",
-                  entry.bias === "LONG" ? "text-emerald-400" : "text-red-400"
-                )}
+                className="text-xs font-semibold"
+                style={{ color: entry.bias === "LONG" ? "var(--long)" : "var(--short)" }}
               >
                 {entry.bias}
               </span>
@@ -164,7 +162,7 @@ function ActCard({
       {prose && <p className="text-sm text-[var(--text-muted)]">{prose}</p>}
 
       {(entry.risks ?? []).map((r) => (
-        <p key={r} className="flex gap-2 text-sm text-amber-400/90">
+        <p key={r} className="flex gap-2 text-sm text-[var(--caution)]">
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
           <span>{r}</span>
         </p>
@@ -262,7 +260,7 @@ function TrackRecordFooter({ digestRisks }: { digestRisks: string[] }) {
       </div>
       {keyRisks.map((r) => (
         <p key={r} className="flex gap-2 text-sm text-[var(--text-muted)]">
-          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-400/80" />
+          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-[var(--caution)]" />
           <span>{r}</span>
         </p>
       ))}
@@ -285,9 +283,9 @@ export default function TodayPage() {
   if (isLoading) {
     return (
       <div className="space-y-4 max-w-3xl">
-        <div className="h-6 w-56 rounded bg-[var(--bg-card)] animate-pulse" />
-        <div className="h-36 rounded-lg bg-[var(--bg-card)] animate-pulse" />
-        <div className="h-24 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+        <div className="h-6 w-56 bg-[var(--bg-card)]" />
+        <div className="h-36 bg-[var(--bg-card)]" />
+        <div className="h-24 bg-[var(--bg-card)]" />
       </div>
     );
   }
@@ -322,7 +320,7 @@ export default function TodayPage() {
           <span className="text-sm text-[var(--text-muted)]">{digest.date}</span>
         </div>
         {!digest.is_today && (
-          <p className="rounded border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-400">
+          <p className="border border-[var(--caution)]/30 bg-[var(--caution)]/10 px-3 py-2 text-sm text-[var(--caution)]">
             This is {digest.date}&apos;s plan — today&apos;s has not been generated yet.
             Run <code className="font-mono">--daily-digest</code> on the backend to refresh.
           </p>

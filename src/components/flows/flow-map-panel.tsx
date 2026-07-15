@@ -21,19 +21,19 @@ function IntermarketSection() {
   const { data, isLoading } = useStrategyIntermarket();
 
   const signalColor: Record<string, string> = {
-    OUTPERFORMING: "text-emerald-500",
-    UNDERPERFORMING: "text-red-500",
+    OUTPERFORMING: "text-[var(--long)]",
+    UNDERPERFORMING: "text-[var(--short)]",
     NEUTRAL: "text-[var(--text-muted)]",
   };
 
   const riskColors: Record<string, string> = {
-    RISK_ON:  "text-emerald-500",
-    RISK_OFF: "text-red-500",
-    NEUTRAL:  "text-amber-500",
+    RISK_ON:  "text-[var(--long)]",
+    RISK_OFF: "text-[var(--short)]",
+    NEUTRAL:  "text-[var(--caution)]",
   };
 
   if (isLoading) {
-    return <div className="h-16 bg-[var(--bg-card)] rounded animate-pulse" />;
+    return <div className="h-16 bg-[var(--bg-card)] rounded" />;
   }
   if (!data) {
     return (
@@ -50,7 +50,7 @@ function IntermarketSection() {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-[var(--text-muted)]">Risk Signal:</span>
+        <span className="text-xs text-[var(--text-muted)]">Risk signal:</span>
         <span className={cn("text-sm font-semibold", riskColors[data.risk_signal] ?? "")}>
           {data.risk_signal.replace("_", " ")}
         </span>
@@ -71,7 +71,7 @@ function IntermarketSection() {
               <td
                 className={cn(
                   "py-2 text-right tabular-nums",
-                  (asset.vs_spy_20d_pct ?? 0) > 0 ? "text-emerald-500" : "text-red-500"
+                  (asset.vs_spy_20d_pct ?? 0) > 0 ? "text-[var(--long)]" : "text-[var(--short)]"
                 )}
               >
                 {asset.vs_spy_20d_pct != null ? `${asset.vs_spy_20d_pct > 0 ? "+" : ""}${asset.vs_spy_20d_pct.toFixed(1)}%` : "—"}
@@ -79,7 +79,7 @@ function IntermarketSection() {
               <td
                 className={cn(
                   "py-2 text-right tabular-nums",
-                  (asset.vs_spy_50d_pct ?? 0) > 0 ? "text-emerald-500" : "text-red-500"
+                  (asset.vs_spy_50d_pct ?? 0) > 0 ? "text-[var(--long)]" : "text-[var(--short)]"
                 )}
               >
                 {asset.vs_spy_50d_pct != null ? `${asset.vs_spy_50d_pct > 0 ? "+" : ""}${asset.vs_spy_50d_pct.toFixed(1)}%` : "—"}
@@ -119,9 +119,9 @@ function FlowSummaryPanel({ data }: { data: FlowMapResponse }) {
   const bearishSignals = convergence.filter(c => c.signal === "BEARISH" || c.signal === "LEANING_SHORT");
 
   const riskColors: Record<string, string> = {
-    RISK_ON:  "text-emerald-400",
-    RISK_OFF: "text-red-400",
-    NEUTRAL:  "text-amber-400",
+    RISK_ON:  "text-[var(--long)]",
+    RISK_OFF: "text-[var(--short)]",
+    NEUTRAL:  "text-[var(--caution)]",
   };
 
   const sectorLeaders = (data.sector_flows ?? []).slice(0, 3);
@@ -142,15 +142,15 @@ function FlowSummaryPanel({ data }: { data: FlowMapResponse }) {
         {/* Inflows */}
         {inflows.length > 0 && (
           <div>
-            <p className="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider mb-2 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3" /> Money Moving Into
+            <p className="text-xs text-[var(--long)] font-semibold mb-2 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" /> Money moving into
             </p>
             <div className="space-y-1.5">
               {inflows.map(f => (
                 <div key={f.asset_class} className="flex items-center justify-between">
                   <span className="text-sm text-[var(--text-primary)]">{f.asset_class}</span>
-                  <span className="text-sm font-medium tabular-nums text-emerald-400">
-                    {formatFlow(f.weekly_flow_dollars)}<span className="text-[10px] text-[var(--text-muted)] ml-1">/wk</span>
+                  <span className="text-sm font-medium tabular-nums text-[var(--long)]">
+                    {formatFlow(f.weekly_flow_dollars)}<span className="text-xs text-[var(--text-muted)] ml-1">/wk</span>
                   </span>
                 </div>
               ))}
@@ -161,15 +161,15 @@ function FlowSummaryPanel({ data }: { data: FlowMapResponse }) {
         {/* Outflows */}
         {outflows.length > 0 && (
           <div>
-            <p className="text-[10px] text-red-400 font-semibold uppercase tracking-wider mb-2 flex items-center gap-1">
-              <TrendingDown className="h-3 w-3" /> Money Moving Out Of
+            <p className="text-xs text-[var(--short)] font-semibold mb-2 flex items-center gap-1">
+              <TrendingDown className="h-3 w-3" /> Money moving out of
             </p>
             <div className="space-y-1.5">
               {outflows.map(f => (
                 <div key={f.asset_class} className="flex items-center justify-between">
                   <span className="text-sm text-[var(--text-primary)]">{f.asset_class}</span>
-                  <span className="text-sm font-medium tabular-nums text-red-400">
-                    {formatFlow(f.weekly_flow_dollars)}<span className="text-[10px] text-[var(--text-muted)] ml-1">/wk</span>
+                  <span className="text-sm font-medium tabular-nums text-[var(--short)]">
+                    {formatFlow(f.weekly_flow_dollars)}<span className="text-xs text-[var(--text-muted)] ml-1">/wk</span>
                   </span>
                 </div>
               ))}
@@ -181,22 +181,22 @@ function FlowSummaryPanel({ data }: { data: FlowMapResponse }) {
       {/* Convergence summary */}
       {convergence.length > 0 && (
         <div>
-          <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider mb-2">
-            ETF + Futures Consensus
+          <p className="text-xs text-[var(--text-muted)] font-semibold mb-2">
+            ETF + futures consensus
           </p>
           <div className="flex flex-wrap gap-2">
             {bullishSignals.map(c => (
-              <span key={c.market} className="px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span key={c.market} className="px-2 py-0.5 rounded text-xs font-medium bg-[var(--long)]/10 text-[var(--long)] border border-[var(--long)]/20">
                 {c.market} ↑
               </span>
             ))}
             {bearishSignals.map(c => (
-              <span key={c.market} className="px-2 py-0.5 rounded text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+              <span key={c.market} className="px-2 py-0.5 rounded text-xs font-medium bg-[var(--short)]/10 text-[var(--short)] border border-[var(--short)]/20">
                 {c.market} ↓
               </span>
             ))}
             {convergence.filter(c => c.signal === "DIVERGENT").map(c => (
-              <span key={c.market} className="px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span key={c.market} className="px-2 py-0.5 rounded text-xs font-medium bg-[var(--caution)]/10 text-[var(--caution)] border border-[var(--caution)]/20">
                 {c.market} ~
               </span>
             ))}
@@ -207,20 +207,20 @@ function FlowSummaryPanel({ data }: { data: FlowMapResponse }) {
       {/* Sector flow leaders */}
       {sectorLeaders.length > 0 && (
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
-            Leading Sectors
+          <p className="text-xs text-[var(--text-muted)] font-semibold">
+            Leading sectors
           </p>
           {sectorLeaders.map(s => (
-            <span key={s.etf} className="text-xs text-emerald-400 font-medium">{s.etf}</span>
+            <span key={s.etf} className="text-xs text-[var(--long)] font-medium">{s.etf}</span>
           ))}
           {sectorLaggards.length > 0 && (
             <>
               <span className="text-[var(--border)]">|</span>
-              <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">
+              <p className="text-xs text-[var(--text-muted)] font-semibold">
                 Lagging
               </p>
               {sectorLaggards.map(s => (
-                <span key={s.etf} className="text-xs text-red-400 font-medium">{s.etf}</span>
+                <span key={s.etf} className="text-xs text-[var(--short)] font-medium">{s.etf}</span>
               ))}
             </>
           )}
@@ -289,7 +289,7 @@ export function FlowMapPanel() {
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+            <div key={i} className="h-20 rounded-lg bg-[var(--bg-card)]" />
           ))}
         </div>
       ) : data?.market_summary ? (
@@ -300,7 +300,7 @@ export function FlowMapPanel() {
       {viewMode === "summary" && (
         <>
           {isLoading ? (
-            <div className="h-48 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+            <div className="h-48 rounded-lg bg-[var(--bg-card)]" />
           ) : data ? (
             <FlowSummaryPanel data={data} />
           ) : (

@@ -100,11 +100,11 @@ function healthScore(bullish: number, total: number): number {
 }
 
 function scoreColor(score: number) {
-  if (score >= 60) return { text: "text-green-400", border: "border-green-500/25", bg: "bg-green-500/8", label: "Bullish" };
-  if (score >= 50) return { text: "text-emerald-400", border: "border-emerald-500/25", bg: "bg-emerald-500/8", label: "Moderately Bullish" };
-  if (score >= 40) return { text: "text-amber-400", border: "border-amber-500/25", bg: "bg-amber-500/8", label: "Mixed" };
-  if (score >= 30) return { text: "text-orange-400", border: "border-orange-500/25", bg: "bg-orange-500/8", label: "Moderately Bearish" };
-  return { text: "text-red-400", border: "border-red-500/25", bg: "bg-red-500/8", label: "Bearish" };
+  if (score >= 60) return { text: "text-[var(--long)]", border: "border-[var(--long)]/25", bg: "bg-[var(--long)]/8", label: "Bullish" };
+  if (score >= 50) return { text: "text-[var(--long)]", border: "border-[var(--long)]/25", bg: "bg-[var(--long)]/8", label: "Moderately bullish" };
+  if (score >= 40) return { text: "text-[var(--caution)]", border: "border-[var(--caution)]/25", bg: "bg-[var(--caution)]/8", label: "Mixed" };
+  if (score >= 30) return { text: "text-[var(--severe)]", border: "border-[var(--severe)]/25", bg: "bg-[var(--severe)]/8", label: "Moderately bearish" };
+  return { text: "text-[var(--short)]", border: "border-[var(--short)]/25", bg: "bg-[var(--short)]/8", label: "Bearish" };
 }
 
 /* ─── Stage Distribution Bar ─────────────────────────────────── */
@@ -128,12 +128,12 @@ function StageDistributionBar({ counts, total }: { counts: Record<string, number
               title={`${STAGE_COLORS[code]?.label}: ${count} (${pct.toFixed(1)}%)`}
             >
               {pct >= 5 && (
-                <span className="text-[10px] font-bold text-white/90 drop-shadow tabular-nums select-none">
+                <span className="text-xs font-bold text-white/90 drop-shadow tabular-nums select-none">
                   {code}
                 </span>
               )}
               {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded text-[11px] font-medium text-[var(--text-primary)] bg-[var(--bg-card)] border border-[var(--border)] shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded text-xs font-medium text-[var(--text-primary)] bg-[var(--bg-card)] border border-[var(--border)] shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
                 <span className="font-semibold" style={{ color }}>{STAGE_COLORS[code]?.label}</span>
                 {" "}&mdash; {count} stocks ({pct.toFixed(1)}%)
               </div>
@@ -151,11 +151,11 @@ function StageDistributionBar({ counts, total }: { counts: Record<string, number
           return (
             <div key={code} className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: color }} />
-              <span className="text-[11px] text-[var(--text-muted)]">{STAGE_COLORS[code]?.label}</span>
+              <span className="text-xs text-[var(--text-muted)]">{STAGE_COLORS[code]?.label}</span>
               <span className="text-xs font-bold tabular-nums" style={{ color }}>
                 {count}
               </span>
-              <span className="text-[10px] text-[var(--text-muted)]">({pct}%)</span>
+              <span className="text-xs text-[var(--text-muted)]">({pct}%)</span>
             </div>
           );
         })}
@@ -170,7 +170,7 @@ function HeatCell({ count, max, stageColor }: { count: number; max: number; stag
   if (count === 0) {
     return (
       <td className="px-2 py-2.5 text-center">
-        <span className="text-[10px] text-[var(--text-muted)]/30">—</span>
+        <span className="text-xs text-[var(--text-muted)]/30">—</span>
       </td>
     );
   }
@@ -211,7 +211,7 @@ function SignalRow({
     <div className="grid gap-3 items-center" style={{ gridTemplateColumns: "200px 1fr 40px" }}>
       <div>
         <p className="text-xs font-semibold text-[var(--text-primary)]">{name}</p>
-        <p className="text-[10px] text-[var(--text-muted)] leading-snug mt-0.5">{description}</p>
+        <p className="text-xs text-[var(--text-muted)] leading-snug mt-0.5">{description}</p>
       </div>
       <div className="h-2 rounded-full bg-[var(--bg-primary)] overflow-hidden">
         <div
@@ -253,7 +253,7 @@ function MetricCard({
   return (
     <div className={cn("rounded-lg border p-5 flex flex-col gap-2", bgColor, borderColor)}>
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
           {label}
         </p>
         <Icon className={cn("h-4 w-4", textColor)} />
@@ -262,7 +262,7 @@ function MetricCard({
       {badge && (
         <span
           className={cn(
-            "self-start px-2 py-0.5 rounded text-[11px] font-semibold border",
+            "self-start px-2 py-0.5 rounded text-xs font-semibold border",
             bgColor,
             textColor,
             borderColor
@@ -271,7 +271,7 @@ function MetricCard({
           {badge}
         </span>
       )}
-      {sub && <p className="text-[11px] text-[var(--text-muted)] leading-snug">{sub}</p>}
+      {sub && <p className="text-xs text-[var(--text-muted)] leading-snug">{sub}</p>}
     </div>
   );
 }
@@ -279,7 +279,7 @@ function MetricCard({
 /* ─── Loading Pulse ──────────────────────────────────────────── */
 
 function Pulse({ className }: { className?: string }) {
-  return <div className={cn("rounded bg-[var(--bg-primary)] animate-pulse", className)} />;
+  return <div className={cn("rounded bg-[var(--bg-primary)]", className)} />;
 }
 
 /* ─── Page ───────────────────────────────────────────────────── */
@@ -341,8 +341,8 @@ export function InternalsPanel() {
     bearishCount > 0 ? (bullishCount / bearishCount).toFixed(1) + "×" : "∞";
   const ratioStyle =
     bullishCount >= bearishCount
-      ? { text: "text-green-400", border: "border-green-500/25", bg: "bg-green-500/8" }
-      : { text: "text-red-400", border: "border-red-500/25", bg: "bg-red-500/8" };
+      ? { text: "text-[var(--long)]", border: "border-[var(--long)]/25", bg: "bg-[var(--long)]/8" }
+      : { text: "text-[var(--short)]", border: "border-[var(--short)]/25", bg: "bg-[var(--short)]/8" };
 
   // Per-column max for heatmap intensity scaling
   const colMaxes = useMemo(() => {
@@ -375,7 +375,7 @@ export function InternalsPanel() {
         </div>
         {isAnyLoading && (
           <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] bg-[var(--bg-card)] border border-[var(--border)] px-3 py-1.5 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
             {loadedCount}/{SECTOR_ETFS.length} sectors
           </div>
         )}
@@ -416,9 +416,9 @@ export function InternalsPanel() {
               value={stage2Count.toString()}
               badge={`${stage2Pct}% of universe`}
               sub={`${globalCounts["S"] || 0} Sure Shot · ${globalCounts["A"] || 0} Action`}
-              textColor="text-green-400"
-              bgColor="bg-green-500/8"
-              borderColor="border-green-500/25"
+              textColor="text-[var(--long)]"
+              bgColor="bg-[var(--long)]/8"
+              borderColor="border-[var(--long)]/25"
               icon={BarChart3}
             />
           </>
@@ -460,7 +460,7 @@ export function InternalsPanel() {
           {/* Stage color legend */}
           <div className="flex items-center gap-3 flex-wrap">
             {HEATMAP_COLS.map((col) => (
-              <div key={col} className="flex items-center gap-1 text-[10px]">
+              <div key={col} className="flex items-center gap-1 text-xs">
                 <div
                   className="w-2 h-2 rounded-sm"
                   style={{ backgroundColor: STAGE_COLORS[col]?.color }}
@@ -475,10 +475,10 @@ export function InternalsPanel() {
           <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="bg-[var(--bg-primary)]">
-                <th className="text-left px-4 py-2.5 text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider w-[160px]">
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider w-[160px]">
                   Sector
                 </th>
-                <th className="text-left px-4 py-2.5 text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider min-w-[140px]">
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider min-w-[140px]">
                   Stage Mix
                 </th>
                 {HEATMAP_COLS.map((col) => (
@@ -490,7 +490,7 @@ export function InternalsPanel() {
                     {col}
                   </th>
                 ))}
-                <th className="px-3 py-2.5 text-right text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider w-14">
+                <th className="px-3 py-2.5 text-right text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider w-14">
                   Total
                 </th>
                 <th className="px-4 py-2.5 w-8" />
@@ -507,7 +507,7 @@ export function InternalsPanel() {
                     <p className="font-mono text-xs font-bold text-[var(--text-primary)]">
                       {sector.etf}
                     </p>
-                    <p className="text-[10px] text-[var(--text-muted)] leading-tight mt-0.5">
+                    <p className="text-xs text-[var(--text-muted)] leading-tight mt-0.5">
                       {sector.name}
                     </p>
                   </td>
@@ -517,7 +517,7 @@ export function InternalsPanel() {
                     {!sector.isFetched ? (
                       <Pulse className="h-2 w-28" />
                     ) : sector.total === 0 ? (
-                      <span className="text-[11px] text-[var(--text-muted)] italic">No data</span>
+                      <span className="text-xs text-[var(--text-muted)] italic">No data</span>
                     ) : (
                       <div className="w-36">
                         <SectorSignalBar results={sector.results} />
@@ -573,7 +573,7 @@ export function InternalsPanel() {
               <tfoot>
                 <tr className="border-t-2 border-[var(--border)] bg-[var(--bg-primary)]">
                   <td
-                    className="px-4 py-2.5 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider"
+                    className="px-4 py-2.5 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider"
                     colSpan={2}
                   >
                     All Sectors

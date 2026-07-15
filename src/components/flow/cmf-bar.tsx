@@ -19,7 +19,7 @@ export function CMFBar({ value }: CMFBarProps) {
         <div
           className={cn(
             "absolute top-0 h-full rounded-full",
-            isPositive ? "bg-emerald-500" : "bg-red-500"
+            isPositive ? "bg-[var(--long)]" : "bg-[var(--short)]"
           )}
           style={
             isPositive
@@ -31,7 +31,7 @@ export function CMFBar({ value }: CMFBarProps) {
       <span
         className={cn(
           "w-12 text-right font-medium tabular-nums shrink-0",
-          isPositive ? "text-emerald-500" : "text-red-500"
+          isPositive ? "text-[var(--long)]" : "text-[var(--short)]"
         )}
       >
         {value > 0 ? "+" : ""}

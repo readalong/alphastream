@@ -11,7 +11,7 @@ interface ResistanceCellProps {
 export function ResistanceCell({ price, pctAbove, isAth }: ResistanceCellProps) {
   if (isAth) {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/25">
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-[var(--long)]/15 text-[var(--long)] border border-[var(--long)]/25">
         ATH
       </span>
     );

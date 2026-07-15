@@ -125,18 +125,18 @@ export function UptrendPanel() {
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-28 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+              <div key={i} className="h-28 rounded-lg bg-[var(--bg-card)]" />
             ))}
           </div>
           <div className="space-y-2">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="h-10 rounded bg-[var(--bg-card)] animate-pulse" />
+              <div key={i} className="h-10 rounded bg-[var(--bg-card)]" />
             ))}
           </div>
         </div>
       ) : isError ? (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-6 text-center">
-          <p className="text-sm text-amber-400 mb-2">No uptrend data available for this session.</p>
+        <div className="rounded-lg border border-[var(--caution)]/30 bg-[var(--caution)]/5 p-6 text-center">
+          <p className="text-sm text-[var(--caution)] mb-2">No uptrend data available for this session.</p>
           <p className="text-xs text-[var(--text-muted)]">
             Run the <code className="bg-[var(--bg-primary)] px-1 rounded">--upside</code> command to generate resistance analysis.
           </p>
@@ -165,9 +165,9 @@ export function UptrendPanel() {
             {(viewFilter !== "all" || sectorFilter || industryFilter) && (
               <button
                 onClick={() => { clearFilters(); setPage(0); }}
-                className="px-2 py-1 rounded text-xs bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
+                className="px-2 py-1 rounded text-xs bg-[var(--short)]/10 text-[var(--short)] border border-[var(--short)]/20 hover:bg-[var(--short)]/20"
               >
-                Clear Filters
+                Clear filters
               </button>
             )}
           </div>
@@ -211,7 +211,7 @@ export function UptrendPanel() {
                         {athDividerIdx === idx && athDividerIdx > 0 && (
                           <tr key={`divider-${idx}`}>
                             <td colSpan={8} className="px-4 py-1">
-                              <div className="border-t border-dashed border-green-500/30" />
+                              <div className="border-t border-dashed border-[var(--long)]/30" />
                             </td>
                           </tr>
                         )}

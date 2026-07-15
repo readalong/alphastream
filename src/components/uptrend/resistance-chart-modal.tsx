@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { X } from "lucide-react";
+import { X, ChevronRight } from "lucide-react";
 import { useResistanceChart } from "@/hooks/use-resistance-chart";
 import Link from "next/link";
 
@@ -38,7 +38,7 @@ export function ResistanceChartModal({ ticker, onClose }: ResistanceChartModalPr
         </div>
         <div className="p-4">
           {isLoading ? (
-            <div className="h-96 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+            <div className="h-96 rounded-lg bg-[var(--bg-card)]" />
           ) : isError ? (
             <div className="h-96 flex items-center justify-center">
               <p className="text-sm text-[var(--text-muted)]">Chart unavailable</p>
@@ -54,9 +54,10 @@ export function ResistanceChartModal({ ticker, onClose }: ResistanceChartModalPr
         <div className="px-4 pb-4 flex justify-end">
           <Link
             href={`/ticker/${ticker}?tab=resistance`}
-            className="text-sm text-[var(--accent)] hover:underline"
+            className="inline-flex items-center gap-1 text-sm text-[var(--accent)] hover:underline"
           >
-            View Details &rarr;
+            View details
+            <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>

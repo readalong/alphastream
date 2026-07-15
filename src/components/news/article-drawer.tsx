@@ -32,7 +32,7 @@ export function ArticleDrawer({ article, onClose }: ArticleDrawerProps) {
 
       {/* Card */}
       <div
-        className="relative z-10 w-full max-w-2xl rounded-xl border border-[var(--border)] bg-[var(--bg-card)] shadow-2xl max-h-[85vh] overflow-y-auto"
+        className="relative z-10 w-full max-w-2xl border border-[var(--border)] bg-[var(--bg-card)] shadow-lg max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -82,7 +82,7 @@ export function ArticleDrawer({ article, onClose }: ArticleDrawerProps) {
               {article.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--bg-primary)] text-[var(--text-muted)] border border-[var(--border)]"
+                  className="text-xs px-2 py-0.5 bg-[var(--bg-primary)] text-[var(--text-muted)] border border-[var(--border)]"
                 >
                   {tag}
                 </span>

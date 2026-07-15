@@ -517,7 +517,7 @@ const SECTIONS: GuideSection[] = [
     tagline: "Configure API connection, LLM key, and display preferences.",
     what: (
       <ul className="space-y-1.5">
-        <li><Bullet />API Base URL: the Trading Engine backend address (default <code className="text-[10px] bg-[var(--border)] px-1 py-0.5 rounded">localhost:8000</code>).</li>
+        <li><Bullet />API Base URL: the Trading Engine backend address (default <code className="text-xs bg-[var(--border)] px-1 py-0.5 rounded">localhost:8000</code>).</li>
         <li><Bullet />LLM API Key: your OpenAI / Anthropic key for AI Analysis, Alpha Lens chat, and AI market reports.</li>
         <li><Bullet />Results per page, default refresh toggle, active session selector.</li>
         <li><Bullet />Theme toggle: Light / Dark / System.</li>
@@ -563,11 +563,11 @@ function Tag({
   return (
     <span
       className={cn(
-        "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold border mx-0.5",
-        green && "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-        red && "bg-red-500/15 text-red-400 border-red-500/30",
-        amber && "bg-amber-500/15 text-amber-400 border-amber-500/30",
-        blue && "bg-blue-500/15 text-blue-400 border-blue-500/30",
+        "inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold border mx-0.5",
+        green && "bg-[var(--long)]/15 text-[var(--long)] border-[var(--long)]/30",
+        red && "bg-[var(--short)]/15 text-[var(--short)] border-[var(--short)]/30",
+        amber && "bg-[var(--caution)]/15 text-[var(--caution)] border-[var(--caution)]/30",
+        blue && "bg-[var(--info)]/15 text-[var(--info)] border-[var(--info)]/30",
         muted && "bg-[var(--border)] text-[var(--text-muted)] border-[var(--border)]"
       )}
     >
@@ -578,20 +578,20 @@ function Tag({
 
 const GROUP_STYLE = {
   discover: {
-    label: "DISCOVER",
+    label: "Discover",
     dot: "bg-[var(--accent)]",
-    header: "text-[var(--accent)]",
-    divider: "border-[var(--accent)]/20",
+    header: "text-[var(--text-muted)]",
+    divider: "border-[var(--border)]",
   },
   analyze: {
-    label: "ANALYZE",
-    dot: "bg-purple-400",
-    header: "text-purple-400",
-    divider: "border-purple-400/20",
+    label: "Analyze",
+    dot: "bg-[var(--accent)]",
+    header: "text-[var(--text-muted)]",
+    divider: "border-[var(--border)]",
   },
   manage: {
-    label: "MANAGE",
-    dot: "bg-[var(--text-muted)]",
+    label: "Manage",
+    dot: "bg-[var(--accent)]",
     header: "text-[var(--text-muted)]",
     divider: "border-[var(--border)]",
   },
@@ -609,7 +609,7 @@ function TableOfContents({ active }: { active: string }) {
         const items = SECTIONS.filter((s) => s.group === g);
         return (
           <div key={g}>
-            <p className={cn("text-[10px] font-bold tracking-wider uppercase mb-1", style.header)}>
+            <p className={cn("text-xs font-bold tracking-wider uppercase mb-1", style.header)}>
               {style.label}
             </p>
             {items.map((s) => (
@@ -655,7 +655,7 @@ function SectionCard({ s }: { s: GuideSection }) {
             <h2 className="text-base font-semibold text-[var(--text-primary)]">{s.label}</h2>
             <a
               href={s.href}
-              className="flex items-center gap-0.5 text-[10px] text-[var(--accent)] hover:underline"
+              className="flex items-center gap-0.5 text-xs text-[var(--accent)] hover:underline"
             >
               {s.href} <ChevronRight className="h-3 w-3" />
             </a>
@@ -668,7 +668,7 @@ function SectionCard({ s }: { s: GuideSection }) {
       <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[var(--border)]">
         {/* What */}
         <div className="px-5 py-4">
-          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)] mb-3">
             <Eye className="h-3 w-3" /> What you see
           </p>
           <div className="text-sm text-[var(--text-primary)] leading-relaxed space-y-1">{s.what}</div>
@@ -676,7 +676,7 @@ function SectionCard({ s }: { s: GuideSection }) {
 
         {/* How */}
         <div className="px-5 py-4">
-          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)] mb-3">
             <BookOpen className="h-3 w-3" /> How to use it
           </p>
           <div className="text-sm text-[var(--text-primary)] leading-relaxed space-y-1">{s.how}</div>
@@ -684,7 +684,7 @@ function SectionCard({ s }: { s: GuideSection }) {
 
         {/* Insight */}
         <div className="px-5 py-4 bg-[var(--accent)]/[0.03]">
-          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--accent)]/70 mb-3">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)]/70 mb-3">
             <Lightbulb className="h-3 w-3" /> Actionable insight
           </p>
           <div className="text-sm text-[var(--text-primary)] leading-relaxed">{s.insight}</div>
@@ -743,7 +743,7 @@ export default function GuidePage() {
 
         {/* Workflow callout */}
         <div className="rounded-lg border border-[var(--accent)]/25 bg-[var(--accent)]/5 px-5 py-4">
-          <p className="text-xs font-semibold text-[var(--accent)] uppercase tracking-wider mb-2">Recommended daily workflow</p>
+          <p className="text-xs font-semibold text-[var(--accent)] mb-2">Recommended daily workflow</p>
           <div className="flex flex-wrap items-center gap-1.5 text-sm text-[var(--text-primary)]">
             {[
               ["Overview", "regime check"],

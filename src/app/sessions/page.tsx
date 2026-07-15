@@ -7,7 +7,7 @@ import { FolderOpen, Download, Eye, CheckCircle, XCircle } from "lucide-react";
 
 function TodayBadge() {
   return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-green-500/15 text-green-400 border border-green-500/25">
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-[var(--long)]/15 text-[var(--long)] border border-[var(--long)]/25">
       Today
     </span>
   );
@@ -25,7 +25,7 @@ export default function SessionsPage() {
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-12 rounded bg-[var(--bg-card)] animate-pulse" />
+            <div key={i} className="h-12 rounded bg-[var(--bg-card)]" />
           ))}
         </div>
       ) : sessions && sessions.length > 0 ? (
@@ -61,14 +61,14 @@ export default function SessionsPage() {
                   </td>
                   <td className="px-4 py-2.5 text-center">
                     {s.has_screener_output ? (
-                      <CheckCircle className="h-4 w-4 text-green-500 mx-auto" />
+                      <CheckCircle className="h-4 w-4 text-[var(--long)] mx-auto" />
                     ) : (
                       <XCircle className="h-4 w-4 text-[var(--text-muted)] mx-auto" />
                     )}
                   </td>
                   <td className="px-4 py-2.5 text-center">
                     {s.has_index_data ? (
-                      <CheckCircle className="h-4 w-4 text-green-500 mx-auto" />
+                      <CheckCircle className="h-4 w-4 text-[var(--long)] mx-auto" />
                     ) : (
                       <XCircle className="h-4 w-4 text-[var(--text-muted)] mx-auto" />
                     )}
@@ -78,7 +78,7 @@ export default function SessionsPage() {
                   </td>
                   <td className="px-4 py-2.5 text-center">
                     {s.has_ai_analysis ? (
-                      <CheckCircle className="h-4 w-4 text-green-500 mx-auto" />
+                      <CheckCircle className="h-4 w-4 text-[var(--long)] mx-auto" />
                     ) : (
                       <XCircle className="h-4 w-4 text-[var(--text-muted)] mx-auto" />
                     )}

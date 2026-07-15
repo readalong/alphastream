@@ -44,10 +44,10 @@ const SOURCE_LABEL: Record<Source, string> = {
 };
 
 const SOURCE_STYLE: Record<Source, string> = {
-  recommendations: "text-amber-400 bg-amber-500/10 border-amber-500/25",
-  filter: "text-blue-400 bg-blue-500/10 border-blue-500/25",
-  screener: "text-purple-400 bg-purple-500/10 border-purple-500/25",
-  uptrend: "text-emerald-400 bg-emerald-500/10 border-emerald-500/25",
+  recommendations: "text-[var(--caution)] bg-[var(--caution)]/10 border-[var(--caution)]/25",
+  filter: "text-[var(--info)] bg-[var(--info)]/10 border-[var(--info)]/25",
+  screener: "text-[var(--severe)] bg-[var(--severe)]/10 border-[var(--severe)]/25",
+  uptrend: "text-[var(--long)] bg-[var(--long)]/10 border-[var(--long)]/25",
 };
 
 // Weinstein-stage category -> a comparable 0-100 score. Only categories
@@ -284,7 +284,7 @@ export function AllIdeasPanel() {
                     {r.sources.map((s) => (
                       <span
                         key={s}
-                        className={cn("text-[10px] px-1.5 py-0.5 rounded border", SOURCE_STYLE[s])}
+                        className={cn("text-xs px-1.5 py-0.5 rounded border", SOURCE_STYLE[s])}
                       >
                         {SOURCE_LABEL[s]}
                       </span>

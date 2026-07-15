@@ -267,7 +267,7 @@ function TrackRecordFooter({ digestRisks }: { digestRisks: string[] }) {
         </p>
       ))}
       <Link
-        href="/futures"
+        href="/track-record"
         className="inline-flex items-center gap-1 text-sm text-[var(--accent)] hover:underline"
       >
         Full record <ChevronRight className="h-3.5 w-3.5" />

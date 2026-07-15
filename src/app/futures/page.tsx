@@ -1,383 +1,323 @@
 "use client";
 
-import {
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  AlertTriangle,
-  ArrowUp,
-  ArrowDown,
-  Gauge,
-} from "lucide-react";
+/**
+ * /futures — rebuilt on the real futures_plan engine (Phase 2,
+ * docs/ALPHASTREAM_UX_REDESIGN.md §3.4). The old page rendered CTA labels
+ * and gamma-wall levels from the /api/market/direction composite with
+ * decorative per-instrument colors; this renders what the engine actually
+ * decided: bias, confidence, tier, today's action, the setup, the signal
+ * votes that produced it, and event suppression as a blocking banner.
+ */
+
+import { AlertTriangle, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { useFuturesPlan } from "@/hooks/use-futures-plan";
+import { GlossaryLink } from "@/components/glossary-link";
 import { cn } from "@/lib/utils";
-import { useMarketDirection } from "@/hooks/use-market-direction";
-import type {
-  CTAInstrumentSignal,
-  CollarSignal,
-  GammaFlipSignal,
-  GammaWallLevel,
-} from "@/lib/types";
+import type { FuturesInstrumentPlan, FuturesLevel } from "@/lib/types";
 
-// ─── Instrument config ────────────────────────────────────────────────────────
-
-type CtaKey = "es" | "nq" | "gc";
-
-interface InstrumentConfig {
-  symbol: string;
-  name: string;
-  ctaKey: CtaKey | null;
-  color: "blue" | "purple" | "amber" | "slate";
-}
-
-const INSTRUMENTS: InstrumentConfig[] = [
-  { symbol: "ES=F", name: "E-mini S&P 500",    ctaKey: "es",   color: "blue"   },
-  { symbol: "NQ=F", name: "E-mini NASDAQ-100", ctaKey: "nq",   color: "purple" },
-  { symbol: "GC=F", name: "Gold",              ctaKey: "gc",   color: "amber"  },
-  { symbol: "SI=F", name: "Silver",            ctaKey: null,   color: "slate"  },
-];
-
-// ─── Style helpers ────────────────────────────────────────────────────────────
-
-type CtaLabel = "MAX_LONG" | "MAX_SHORT" | "LONG" | "SHORT" | "NEUTRAL";
-
-const CTA_LABEL_STYLE: Record<CtaLabel, { text: string; bg: string; border: string }> = {
-  MAX_LONG:  { text: "text-amber-300",   bg: "bg-amber-500/15",   border: "border-amber-500/30"   },
-  MAX_SHORT: { text: "text-amber-300",   bg: "bg-amber-500/15",   border: "border-amber-500/30"   },
-  LONG:      { text: "text-emerald-300", bg: "bg-emerald-500/15", border: "border-emerald-500/30" },
-  SHORT:     { text: "text-red-300",     bg: "bg-red-500/15",     border: "border-red-500/30"     },
-  NEUTRAL:   { text: "text-slate-300",   bg: "bg-slate-500/15",   border: "border-slate-500/30"   },
+const INSTRUMENT_ORDER = ["ES", "NQ", "GC", "SI"] as const;
+const INSTRUMENT_NAMES: Record<string, string> = {
+  ES: "E-mini S&P 500",
+  NQ: "E-mini NASDAQ-100",
+  GC: "Gold",
+  SI: "Silver",
 };
 
-const COLOR_ACCENT: Record<InstrumentConfig["color"], string> = {
-  blue:   "text-blue-400",
-  purple: "text-purple-400",
-  amber:  "text-amber-400",
-  slate:  "text-slate-400",
+const ACTION_LABEL: Record<string, string> = {
+  STAND_ASIDE: "Stand aside",
+  ENTER_NOW: "Enter now",
+  ENTER_ON_PULLBACK: "Enter on pullback",
 };
 
-function fmtLevel(v: number | undefined) {
+function fmtPrice(v: number | null | undefined) {
   if (v == null) return "—";
   return v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function fmtPct(v: number | undefined) {
-  if (v == null) return "—";
-  return `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`;
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-      {children}
-    </p>
-  );
-}
-
-function CtaBadge({ label }: { label: string | undefined }) {
-  const key = label ?? "NEUTRAL";
-  const s = CTA_LABEL_STYLE[key as CtaLabel] ?? CTA_LABEL_STYLE["NEUTRAL"];
-  return (
-    <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded border", s.text, s.bg, s.border)}>
-      {key.replace("_", " ")}
-    </span>
-  );
-}
-
-interface ScoreBarProps {
-  score: number; // -1 to +1
-}
-
-function ScoreBar({ score }: ScoreBarProps) {
-  const clampedScore = Math.max(-1, Math.min(1, score));
-  const isPositive = clampedScore >= 0;
-  const widthPct = Math.abs(clampedScore) * 50;
+/* ── The "why" ledger — reason_trail is a pipe-delimited vote string,
+   e.g. "CTA +1.00 (+30) | front-week GEX - (-8) | charm pin DOWN (-7)".
+   This is the evidence a discretionary trader needs before trusting the
+   bias, not a footnote. ── */
+function VoteLedger({ reasonTrail }: { reasonTrail: string }) {
+  const votes = reasonTrail
+    .split("|")
+    .map((v) => v.trim())
+    .filter(Boolean);
+  if (votes.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-2">
-      <span className={cn("font-mono text-xs w-12 text-right", isPositive ? "text-emerald-400" : "text-red-400")}>
-        {clampedScore >= 0 ? "+" : ""}{clampedScore.toFixed(2)}
-      </span>
-      <div className="relative flex-1 h-2 rounded-full bg-[var(--border)] overflow-hidden">
-        {/* center divider */}
-        <div className="absolute inset-y-0 left-1/2 w-px bg-[var(--text-muted)] z-10" />
-        {isPositive ? (
-          <div
-            className="absolute inset-y-0 bg-emerald-500 rounded-r-full"
-            style={{ left: "50%", width: `${widthPct}%` }}
-          />
-        ) : (
-          <div
-            className="absolute inset-y-0 bg-red-500 rounded-l-full"
-            style={{ right: "50%", width: `${widthPct}%` }}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-      <Activity className="w-8 h-8 text-[var(--text-muted)]" />
-      <p className="text-sm text-[var(--text-muted)] max-w-xs">{message}</p>
-    </div>
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3">
-      <div className="flex justify-between items-start">
-        <div className="space-y-1.5">
-          <div className="animate-pulse rounded bg-[var(--border)] h-6 w-20" />
-          <div className="animate-pulse rounded bg-[var(--border)] h-3 w-32" />
-        </div>
-        <div className="animate-pulse rounded bg-[var(--border)] h-5 w-16" />
-      </div>
-      <div className="animate-pulse rounded bg-[var(--border)] h-2 w-full" />
-      <div className="space-y-1">
-        <div className="animate-pulse rounded bg-[var(--border)] h-3 w-3/4" />
-        <div className="animate-pulse rounded bg-[var(--border)] h-3 w-1/2" />
-      </div>
-    </div>
-  );
-}
-
-interface EsLevelsProps {
-  gammaFlip: GammaFlipSignal;
-  gammaWalls: GammaWallLevel[];
-  collar: CollarSignal | undefined;
-}
-
-function EsLevels({ gammaFlip, gammaWalls, collar }: EsLevelsProps) {
-  const topResistance = gammaWalls.find((w) => w.designation === "resistance");
-  const topSupport = gammaWalls.find((w) => w.designation === "support");
-
-  return (
-    <div className="mt-3">
-      <SectionLabel>Key Levels</SectionLabel>
-      <div className="space-y-1">
-        {gammaFlip.es_equivalent_stop != null && (
-          <div className="flex justify-between text-xs">
-            <span className="text-[var(--text-muted)]">Gamma Flip Stop</span>
-            <span className="font-mono text-orange-400">{fmtLevel(gammaFlip.es_equivalent_stop)}</span>
-          </div>
-        )}
-        {topResistance && (
-          <div className="flex justify-between text-xs">
-            <span className="text-[var(--text-muted)]">Top Gamma Wall (R)</span>
-            <span className="font-mono text-red-400">{fmtLevel(topResistance.strike * 10)}</span>
-          </div>
-        )}
-        {topSupport && (
-          <div className="flex justify-between text-xs">
-            <span className="text-[var(--text-muted)]">Gamma Wall (S)</span>
-            <span className="font-mono text-emerald-400">{fmtLevel(topSupport.strike * 10)}</span>
-          </div>
-        )}
-        {collar?.levels?.long_put && (
-          <div className="flex justify-between text-xs">
-            <span className="text-[var(--text-muted)]">JPM Collar Floor</span>
-            <span className="font-mono text-blue-400">{fmtLevel(collar.levels.long_put.strike)}</span>
-          </div>
-        )}
-        {collar?.levels?.short_call && (
-          <div className="flex justify-between text-xs">
-            <span className="text-[var(--text-muted)]">JPM Collar Cap</span>
-            <span className="font-mono text-blue-400">{fmtLevel(collar.levels.short_call.strike)}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-interface InstrumentCardProps {
-  config: InstrumentConfig;
-  cta: CTAInstrumentSignal | undefined;
-  isEs: boolean;
-  gammaFlip: GammaFlipSignal;
-  gammaWalls: GammaWallLevel[];
-  collar: CollarSignal | undefined;
-}
-
-function InstrumentCard({ config, cta, isEs, gammaFlip, gammaWalls, collar }: InstrumentCardProps) {
-  const accentColor = COLOR_ACCENT[config.color];
-
-  return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <p className={cn("font-mono text-xl font-bold", accentColor)}>{config.symbol}</p>
-          <p className="text-xs text-[var(--text-muted)] mt-0.5">{config.name}</p>
-        </div>
-        {cta ? (
-          <CtaBadge label={cta.label} />
-        ) : (
-          <span className="text-[10px] text-[var(--text-muted)] italic">no CTA data</span>
-        )}
-      </div>
-
-      {/* Positioning score bar */}
-      {cta ? (
-        <div>
-          <SectionLabel>Positioning Score</SectionLabel>
-          <ScoreBar score={cta.score} />
-        </div>
-      ) : (
-        <p className="text-xs text-[var(--text-muted)] italic py-1">awaiting CTA data</p>
-      )}
-
-      {/* Triggers */}
-      {cta && (cta.next_sell_trigger || cta.next_buy_trigger) && (
-        <div>
-          <SectionLabel>Triggers</SectionLabel>
-          <div className="space-y-1">
-            {cta.next_sell_trigger && (
-              <div className="flex justify-between text-xs">
-                <span className="flex items-center gap-1 text-red-400">
-                  <ArrowDown className="w-3 h-3" /> Sell
-                </span>
-                <span className="font-mono">
-                  {fmtLevel(cta.next_sell_trigger.level)}{" "}
-                  <span className="text-[var(--text-muted)]">({fmtPct(cta.next_sell_trigger.distance_pct)})</span>
-                </span>
-              </div>
-            )}
-            {cta.next_buy_trigger && (
-              <div className="flex justify-between text-xs">
-                <span className="flex items-center gap-1 text-emerald-400">
-                  <ArrowUp className="w-3 h-3" /> Buy
-                </span>
-                <span className="font-mono">
-                  {fmtLevel(cta.next_buy_trigger.level)}{" "}
-                  <span className="text-[var(--text-muted)]">({fmtPct(cta.next_buy_trigger.distance_pct)})</span>
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ES-specific key levels */}
-      {isEs && (
-        <EsLevels gammaFlip={gammaFlip} gammaWalls={gammaWalls} collar={collar} />
-      )}
-    </div>
-  );
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
-export default function FuturesPage() {
-  const { data, isPending, isError } = useMarketDirection();
-
-  if (isPending) {
-    return (
-      <div className="p-6 max-w-5xl mx-auto space-y-6">
-        <div className="space-y-1">
-          <div className="animate-pulse rounded bg-[var(--border)] h-7 w-40" />
-          <div className="animate-pulse rounded bg-[var(--border)] h-4 w-64" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {INSTRUMENTS.map((inst) => <SkeletonCard key={inst.symbol} />)}
-        </div>
-      </div>
-    );
-  }
-
-  if (isError || !data) {
-    return (
-      <div className="p-6 max-w-5xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Futures Dashboard</h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">CTA positioning for ES, NQ, GC, SI</p>
-        </div>
-        <EmptyState message="Backend module not deployed — run /api/market/direction first" />
-      </div>
-    );
-  }
-
-  const cta = data.cta;
-
-  return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Futures Dashboard</h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">
-            CTA positioning for ES, NQ, GC, SI
-            {data.as_of && (
-              <span className="ml-2 text-[var(--text-muted)]">· as of {data.as_of}</span>
-            )}
-          </p>
-        </div>
-        {cta && (
-          <div className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-semibold",
-            cta.risk_on_off === "RISK_ON"
-              ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/25"
-              : cta.risk_on_off === "RISK_OFF"
-              ? "text-red-300 bg-red-500/10 border-red-500/25"
-              : "text-slate-300 bg-slate-500/10 border-slate-500/25"
-          )}>
-            {cta.risk_on_off === "RISK_ON" ? (
-              <TrendingUp className="w-4 h-4" />
-            ) : cta.risk_on_off === "RISK_OFF" ? (
-              <TrendingDown className="w-4 h-4" />
-            ) : (
-              <Gauge className="w-4 h-4" />
-            )}
-            {cta.risk_on_off?.replace("_", " ")}
-          </div>
-        )}
-      </div>
-
-      {/* Summary bar if CTA available */}
-      {cta && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-          <SectionLabel>Equity Bias</SectionLabel>
-          <ScoreBar score={cta.aggregate_equity_bias} />
-        </div>
-      )}
-
-      {/* Instrument grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {INSTRUMENTS.map((inst) => {
-          const ctaData = inst.ctaKey ? cta?.[inst.ctaKey] : undefined;
+    <div>
+      <p className="text-xs text-[var(--text-muted)] mb-1.5">Why</p>
+      <ul className="flex flex-wrap gap-1.5">
+        {votes.map((v) => {
+          const negative = /\(-/.test(v);
+          const positive = /\(\+/.test(v);
           return (
-            <InstrumentCard
-              key={inst.symbol}
-              config={inst}
-              cta={ctaData}
-              isEs={inst.ctaKey === "es"}
-              gammaFlip={data.gamma_flip}
-              gammaWalls={data.gamma_walls ?? []}
-              collar={data.jpm_collar}
-            />
+            <li
+              key={v}
+              className={cn(
+                "text-xs font-mono px-2 py-0.5 rounded border",
+                negative
+                  ? "text-red-400 border-red-500/25 bg-red-500/5"
+                  : positive
+                    ? "text-emerald-400 border-emerald-500/25 bg-emerald-500/5"
+                    : "text-[var(--text-muted)] border-[var(--border)]"
+              )}
+            >
+              {v}
+            </li>
           );
         })}
+      </ul>
+    </div>
+  );
+}
+
+function SetupBlock({
+  setup,
+  direction,
+}: {
+  setup: NonNullable<FuturesInstrumentPlan["long_setup"]>;
+  direction: "long" | "short";
+}) {
+  return (
+    <div className="rounded border border-[var(--border)] bg-[var(--bg-primary)] p-3 space-y-2">
+      <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">
+        {direction === "long" ? "Long setup" : "Short setup"}
+      </p>
+      <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 text-sm font-mono tabular-nums">
+        <div>
+          <dt className="text-xs text-[var(--text-muted)] font-sans">Entry</dt>
+          <dd className="text-[var(--text-primary)]">
+            {fmtPrice(setup.entry_zone[0])}–{fmtPrice(setup.entry_zone[1])}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[var(--text-muted)] font-sans">Stop</dt>
+          <dd className="text-red-400">{fmtPrice(setup.stop)}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[var(--text-muted)] font-sans">Target</dt>
+          <dd className="text-emerald-400">{fmtPrice(setup.target_1)}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[var(--text-muted)] font-sans">
+            <GlossaryLink term="R-multiple (avg R)">R:R</GlossaryLink>
+          </dt>
+          <dd className="text-[var(--text-primary)]">
+            {setup.rr_t1 != null ? `${setup.rr_t1.toFixed(1)}x` : "—"}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[var(--text-muted)] font-sans">Hold</dt>
+          <dd className="text-[var(--text-primary)]">
+            {setup.expected_holding_days[0]}–{setup.expected_holding_days[1]}d
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[var(--text-muted)] font-sans">Size (1% risk)</dt>
+          <dd className="text-[var(--text-primary)]">{setup.micro_contracts_1pct_risk} micro</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[var(--text-muted)] font-sans">Margin</dt>
+          <dd className="text-[var(--text-primary)]">
+            ${setup.margin_required_micro.toLocaleString("en-US")}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-[var(--text-muted)] font-sans">Time stop</dt>
+          <dd className="text-[var(--text-primary)] text-xs">{setup.time_stop}</dd>
+        </div>
+      </dl>
+      <p className="text-xs text-[var(--text-muted)]">{setup.condition}</p>
+    </div>
+  );
+}
+
+function LevelLadder({ levels, spot }: { levels: FuturesLevel[]; spot: number }) {
+  if (levels.length === 0) return null;
+  const sorted = [...levels].sort((a, b) => b.price - a.price);
+
+  return (
+    <details className="rounded border border-[var(--border)] bg-[var(--bg-primary)]">
+      <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">
+        Level ladder ({levels.length})
+      </summary>
+      <div className="px-3 pb-3 space-y-1">
+        {sorted.map((lvl) => (
+          <div
+            key={lvl.price}
+            className="flex items-center justify-between gap-3 text-xs font-mono py-1 border-b border-[var(--border)]/50 last:border-0"
+          >
+            <span
+              className={cn(
+                "w-16 shrink-0",
+                lvl.kind === "resistance" ? "text-red-400" : "text-emerald-400"
+              )}
+            >
+              {fmtPrice(lvl.price)}
+            </span>
+            <span className="flex-1 text-[var(--text-muted)] font-sans truncate">
+              {lvl.sources.join(", ")}
+            </span>
+            <span className="text-[var(--text-muted)] tabular-nums shrink-0">
+              {lvl.pct_from_spot >= 0 ? "+" : ""}
+              {lvl.pct_from_spot.toFixed(2)}%
+            </span>
+          </div>
+        ))}
+        <div className="flex items-center gap-2 text-xs font-mono pt-1 text-[var(--accent)]">
+          <span className="w-16 shrink-0">{fmtPrice(spot)}</span>
+          <span className="font-sans">spot</span>
+        </div>
+      </div>
+    </details>
+  );
+}
+
+function InstrumentCard({ instrument, plan }: { instrument: string; plan: FuturesInstrumentPlan | null }) {
+  if (!plan) {
+    return (
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+        <p className="font-mono text-lg font-bold text-[var(--text-primary)]">{instrument}</p>
+        <p className="text-sm text-[var(--text-muted)] mt-1">
+          No plan today — price data hasn&apos;t been downloaded for {INSTRUMENT_NAMES[instrument]}.
+        </p>
+      </div>
+    );
+  }
+
+  const activeSetup =
+    plan.bias === "LONG" ? plan.long_setup : plan.bias === "SHORT" ? plan.short_setup : null;
+
+  const biasColor =
+    plan.bias === "LONG" ? "text-emerald-400" : plan.bias === "SHORT" ? "text-red-400" : "text-[var(--text-muted)]";
+
+  return (
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-4">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-lg font-bold text-[var(--text-primary)]">{instrument}</span>
+            <span className={cn("text-sm font-semibold", biasColor)}>{plan.bias}</span>
+          </div>
+          <p className="text-xs text-[var(--text-muted)]">{INSTRUMENT_NAMES[instrument]}</p>
+        </div>
+        <div className="text-right">
+          <p className="font-mono text-sm tabular-nums text-[var(--text-primary)]">
+            {fmtPrice(plan.spot)}
+          </p>
+          <p className="text-xs text-[var(--text-muted)]">
+            <GlossaryLink term="Confidence / conviction score">{plan.confidence}/100</GlossaryLink>
+          </p>
+        </div>
       </div>
 
-      {/* CTA alerts */}
-      {cta?.alerts && cta.alerts.length > 0 && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-2">
-          <SectionLabel>Alerts</SectionLabel>
-          {cta.alerts.map((alert, i) => (
-            <div key={i} className="flex items-start gap-2 text-sm">
-              <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-              <span className="font-mono text-[var(--text-muted)] text-xs mr-2">{alert.instrument}</span>
-              <span className="text-[var(--text-primary)] flex-1">{alert.message}</span>
-              <span className="font-mono text-xs text-amber-400 shrink-0">{fmtPct(alert.distance_pct)}</span>
-            </div>
-          ))}
+      {/* Event suppression — blocking banner, not a footnote */}
+      {plan.event_rules.suppress_new_entries && (
+        <div className="flex items-start gap-2 rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+          <span>
+            New entries blocked —{" "}
+            <GlossaryLink term="Event suppression" className="underline decoration-dotted">
+              event suppression
+            </GlossaryLink>{" "}
+            active. {plan.event_rules.notes[0]}
+          </span>
         </div>
       )}
+
+      {/* Today's action */}
+      <div
+        className={cn(
+          "rounded px-3 py-2 text-sm font-semibold",
+          plan.today_action === "STAND_ASIDE"
+            ? "bg-[var(--bg-primary)] text-[var(--text-muted)]"
+            : plan.today_action === "ENTER_NOW"
+              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25"
+              : "bg-amber-500/10 text-amber-400 border border-amber-500/25"
+        )}
+      >
+        {ACTION_LABEL[plan.today_action] ?? plan.today_action}
+        <span className="ml-2 font-normal text-xs opacity-80">
+          {plan.tier}
+          {plan.pattern_signal?.tier && ` · pattern ${plan.pattern_signal.tier.toLowerCase()}`}
+        </span>
+      </div>
+
+      {activeSetup && <SetupBlock setup={activeSetup} direction={plan.bias === "LONG" ? "long" : "short"} />}
+
+      {plan.invalidation && (
+        <p className="text-xs text-[var(--text-muted)]">
+          <span className="font-semibold">Invalidation:</span> {plan.invalidation}
+        </p>
+      )}
+
+      <VoteLedger reasonTrail={plan.reason_trail} />
+
+      <LevelLadder levels={plan.level_ladder} spot={plan.spot} />
+    </div>
+  );
+}
+
+export default function FuturesPage() {
+  const { data, isLoading, error } = useFuturesPlan();
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4 max-w-4xl">
+        <div className="h-6 w-40 rounded bg-[var(--bg-card)] animate-pulse" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {INSTRUMENT_ORDER.map((i) => (
+            <div key={i} className="h-64 rounded-lg bg-[var(--bg-card)] animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="max-w-2xl rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-6">
+        <h1 className="text-base font-semibold text-[var(--text-primary)] mb-2">
+          No futures plan generated yet
+        </h1>
+        <p className="text-sm text-[var(--text-muted)]">
+          Run <code className="font-mono text-[var(--text-primary)]">python main.py --futures-plan</code>{" "}
+          on the backend — this page will pick it up automatically.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 max-w-4xl">
+      <header className="flex items-baseline justify-between gap-3 flex-wrap">
+        <h1 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)]">Futures</h1>
+        <span className="text-sm text-[var(--text-muted)]">{data.date}</span>
+      </header>
+
+      {!data.is_today && (
+        <p className="rounded border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-400">
+          This is {data.date}&apos;s plan — run <code className="font-mono">--futures-plan</code> on
+          the backend to refresh.
+        </p>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {INSTRUMENT_ORDER.map((instrument) => (
+          <InstrumentCard key={instrument} instrument={instrument} plan={data.plans[instrument] ?? null} />
+        ))}
+      </div>
+
+      <Link
+        href="/options"
+        className="inline-flex items-center gap-1 text-sm text-[var(--accent)] hover:underline"
+      >
+        See the options market read (GEX) <ChevronRight className="h-3.5 w-3.5" />
+      </Link>
     </div>
   );
 }

@@ -48,6 +48,10 @@ import type {
   FilterParams,
   DailyDigest,
   ScorecardResponse,
+  FuturesPlanResponse,
+  GexAlertsResponse,
+  DealerFlowSnapshot,
+  BacktestReviewsResponse,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -348,4 +352,19 @@ export const api = {
   digest: () => apiFetch<DailyDigest>("/api/digest"),
 
   scorecard: () => apiFetch<ScorecardResponse>("/api/scorecard"),
+
+  // Phase 2 — futures plan, GEX alerts, dealer flow, backtest reviews
+  futuresPlan: () => apiFetch<FuturesPlanResponse>("/api/futures/plan"),
+
+  gexAlerts: (ticker?: string) =>
+    apiFetch<GexAlertsResponse>(
+      ticker ? `/api/gex/alerts?ticker=${ticker}` : "/api/gex/alerts"
+    ),
+
+  gexHeatmapUrl: (ticker: string) => proxyPath(`/api/gex/${ticker}/heatmap.png`),
+
+  dealerFlow: (ticker: string) =>
+    apiFetch<DealerFlowSnapshot>(`/api/dealer-flow/${ticker}`),
+
+  backtestReviews: () => apiFetch<BacktestReviewsResponse>("/api/backtest/reviews"),
 };

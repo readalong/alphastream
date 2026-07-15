@@ -43,7 +43,7 @@ export function useKeyboardShortcuts({ onOpenPalette, onOpenShortcuts }: UseKeyb
           break;
         case "o":
         case "O":
-          if (!e.metaKey && !e.ctrlKey) router.push("/overview");
+          if (!e.metaKey && !e.ctrlKey) router.push("/today");
           break;
         case "s":
         case "S":

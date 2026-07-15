@@ -46,6 +46,8 @@ import type {
   SectorHistoryResponse,
   FilterSetupResponse,
   FilterParams,
+  DailyDigest,
+  ScorecardResponse,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -341,4 +343,9 @@ export const api = {
         min_momentum_score: params?.min_momentum_score ?? 15,
       }),
     }),
+
+  // Phase 1 — daily digest + scorecard (landing page)
+  digest: () => apiFetch<DailyDigest>("/api/digest"),
+
+  scorecard: () => apiFetch<ScorecardResponse>("/api/scorecard"),
 };

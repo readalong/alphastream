@@ -26,6 +26,7 @@ import {
   Filter,
   BookOpen,
   Briefcase,
+  Sun,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarFavorites } from "./sidebar-favorites";
@@ -33,6 +34,12 @@ import { SidebarFavorites } from "./sidebar-favorites";
 const IS_PRODUCTION = process.env.NEXT_PUBLIC_APP_ENV === "production";
 
 const NAV_SECTIONS = [
+  {
+    label: "TODAY",
+    items: [
+      { name: "Today", href: "/today", icon: Sun },
+    ],
+  },
   {
     label: "MARKET PULSE",
     items: [
@@ -115,7 +122,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       >
         {/* Logo */}
         <div className="flex items-center justify-between h-14 px-4 border-b border-[var(--border)]">
-          <Link href="/overview" className="flex items-center gap-2 font-semibold text-[var(--accent)]">
+          <Link href="/today" className="flex items-center gap-2 font-semibold text-[var(--accent)]">
             <TrendingUp className="h-5 w-5" />
             <span>AlphaStream</span>
           </Link>

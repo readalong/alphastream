@@ -8,7 +8,8 @@ import { useFavoritesStore } from "@/stores/favorites-store";
 import { SECTOR_ETF_NAMES } from "@/lib/constants";
 
 const PAGES = [
-  { name: "Overview", href: "/overview", icon: LayoutDashboard, description: "Daily briefing & action items" },
+  { name: "Today", href: "/today", icon: LayoutDashboard, description: "What to do, watch, and avoid today" },
+  { name: "Overview", href: "/overview", icon: LayoutDashboard, description: "Market dashboard & reports" },
   { name: "Screener", href: "/screener", icon: ScanSearch, description: "Full universe scan" },
   { name: "Recommendations", href: "/recommendations", icon: Target, description: "Buy signals & positions" },
   { name: "Setup Filter", href: "/filter", icon: Filter, description: "Ranked shortlist" },

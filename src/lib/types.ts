@@ -1417,3 +1417,245 @@ export interface ScorecardResponse {
   by_direction: Record<string, ScorecardBucket>;
   open_positions: ScorecardOpenPosition[];
 }
+
+/* ── Phase 2: Futures Plan, GEX Alerts, Dealer Flow, Backtest Reviews ──
+   docs/ALPHASTREAM_UX_REDESIGN.md §5.1/§3.3-3.5 */
+
+export interface FuturesExpectedMove {
+  daily: number;
+  weekly: number;
+}
+
+export interface FuturesPatternSignal {
+  breakout_score: number;
+  tier: string;
+  category: string;
+  pattern_points: number;
+  reason: string | null;
+}
+
+export interface FuturesEventRules {
+  suppress_new_entries: boolean;
+  stop_multiplier: number;
+  notes: string[];
+}
+
+export interface FuturesSetup {
+  entry_zone: [number, number];
+  entry_node_sources: string[];
+  stop: number;
+  target_1: number;
+  target_2?: number;
+  rr_t1: number | null;
+  expected_holding_days: [number, number];
+  time_stop: string;
+  condition: string;
+  risk_per_contract_usd: number;
+  micro_risk_usd: number;
+  contracts_1pct_risk: number;
+  micro_contracts_1pct_risk: number;
+  position_notional_full: number;
+  position_notional_micro: number;
+  margin_required_full: number;
+  margin_required_micro: number;
+}
+
+export interface FuturesLevel {
+  price: number;
+  kind: "support" | "resistance";
+  sources: string[];
+  strength: number;
+  weight: number;
+  pct_from_spot: number;
+}
+
+export interface FuturesInstrumentPlan {
+  instrument: string;
+  future: string;
+  proxy: string;
+  date: string;
+  spot: number;
+  atr14: number;
+  proxy_ratio: number;
+  expected_move: FuturesExpectedMove;
+  bias: "LONG" | "SHORT" | "NEUTRAL" | string;
+  confidence: number;
+  bias_score: number;
+  conviction_score: number;
+  tier: string;
+  pattern_signal?: FuturesPatternSignal | null;
+  reason_trail: string;
+  today_action: "STAND_ASIDE" | "ENTER_NOW" | "ENTER_ON_PULLBACK" | string;
+  event_rules: FuturesEventRules;
+  long_setup?: FuturesSetup | null;
+  short_setup?: FuturesSetup | null;
+  invalidation?: string | null;
+  level_ladder: FuturesLevel[];
+}
+
+export interface FuturesPlanResponse {
+  date: string;
+  generated_at: string;
+  is_today: boolean;
+  plans: Record<string, FuturesInstrumentPlan | null>;
+}
+
+/* ── GEX alerts (app/gex_alert.py::build_alert) ── */
+
+export interface GexRegime {
+  regime: "STABLE" | "PINNED" | "VOLATILE" | "SQUEEZE_PRONE" | "UNKNOWN" | string;
+  note: string;
+  net_gex: number | null;
+  flip_strike: number | null;
+  flip_distance_pct: number | null;
+}
+
+export interface GexLevels {
+  nearest_breakout: number | null;
+  ceiling: number | null;
+  magnet: number | null;
+  cascade: number | null;
+}
+
+export interface GexProximityAlert {
+  strike: number;
+  pct_away: number;
+  direction: string;
+  label: "star node" | "breakout" | "ceiling" | "magnet" | "cascade" | string;
+}
+
+export interface GexVanna {
+  regime: string;
+  net_vex_near_spot: number | null;
+}
+
+export interface GexCharmAnchor {
+  strike: number | null;
+  pin_pressure: "DOWN" | "UP" | "AT_PIN" | "NEUTRAL" | string;
+  front_cex: number | null;
+  pct_from_spot: number | null;
+}
+
+export interface GexPinRisk {
+  dominant_strike: number | null;
+  dominant_kind: string | null;
+  pin_risk_dollars: number | null;
+  star_nodes: number[];
+}
+
+export interface GexAlert {
+  ticker: string;
+  date: string;
+  generated_at: string;
+  spot: number;
+  regime: GexRegime;
+  levels: GexLevels;
+  proximity_alerts: GexProximityAlert[];
+  vanna: GexVanna;
+  charm_anchor: GexCharmAnchor;
+  dealer_bias: "selling" | "buying" | "neutral" | string;
+  net_cex_front: number | null;
+  pin_risk: GexPinRisk;
+  conditional: string | null;
+  summary: string;
+}
+
+export interface GexAlertsResponse {
+  date: string;
+  alerts: Record<string, GexAlert | null>;
+  note: string | null;
+}
+
+/* ── Raw dealer-flow snapshot (app/dealer_flow.py) ── */
+
+export interface DealerFlowNode {
+  price: number;
+  kind: "support" | "resistance";
+  character: "magnet_wall" | "accelerant" | string;
+  share: number;
+  strength: number;
+  gex: number;
+  cex: number;
+  pct_from_spot: number;
+}
+
+export interface DealerFlowTotals {
+  net_gex: number | null;
+  front_week_gex: number | null;
+  net_vex_near_spot: number | null;
+  net_cex_front: number | null;
+  gamma_flip_strike?: number | null;
+}
+
+export interface DealerFlowSnapshot {
+  ticker: string;
+  date: string;
+  retrieved_at?: string;
+  spot: number;
+  expiries: string[];
+  dtes: number[];
+  strikes: number[];
+  gex: number[][];
+  vex: number[][];
+  cex: number[][];
+  oi?: number[][];
+  strike_totals: Record<string, { gex: number; vex: number; cex: number; oi?: number }>;
+  totals: DealerFlowTotals;
+  signals: {
+    node_ladder: DealerFlowNode[];
+    charm_anchor: GexCharmAnchor;
+    vanna_regime: { regime: string; net_vex_near_spot: number | null };
+    conditional_statement: string | null;
+  };
+}
+
+/* ── Backtest reviews (app/backtest_review.py) ── */
+
+export interface BacktestFinding {
+  id: string;
+  severity: "CRITICAL" | "WARN" | "INFO";
+  summary: string;
+  recommendation: string;
+  plan_section?: string;
+  metrics?: Record<string, unknown>;
+}
+
+export interface BacktestBucket {
+  n: number;
+  avg_r: number | null;
+  total_r?: number | null;
+}
+
+export interface BacktestReportSummary {
+  instruments: string[];
+  total_setups_generated: number;
+  resolved: number;
+  still_open_at_data_end: number;
+  not_filled: number;
+  win_rate: number | null;
+  avg_r: number | null;
+  total_r: number | null;
+  max_drawdown_r: number | null;
+  sharpe_like_r: number | null;
+  by_instrument: Record<string, BacktestBucket>;
+  by_direction: Record<string, BacktestBucket>;
+  years_covered: string[];
+  best_year?: { year: string; n: number; avg_r: number } | null;
+  worst_year?: { year: string; n: number; avg_r: number } | null;
+}
+
+export interface BacktestReview {
+  reviewed_at: string;
+  report_window: { start: string | null; end: string | null };
+  verdict: string;
+  finding_counts: { CRITICAL: number; WARN: number; INFO: number };
+  report_summary: BacktestReportSummary;
+  findings: BacktestFinding[];
+}
+
+export interface BacktestReviewsResponse {
+  reviews: {
+    futures: BacktestReview | null;
+    breakout: BacktestReview | null;
+  };
+}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Search, X, LayoutDashboard, ScanSearch, Target, Filter, BarChart3, Map, Waves, Swords, TrendingUp } from "lucide-react";
+import { Search, X, LayoutDashboard, ScanSearch, Target, Filter, BarChart3, Map, Waves, Swords, TrendingUp, Zap, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { SECTOR_ETF_NAMES } from "@/lib/constants";
@@ -17,6 +17,9 @@ const PAGES = [
   { name: "Flow Map", href: "/flow-map", icon: Map, description: "Capital allocation" },
   { name: "Capital Flow", href: "/flow", icon: Waves, description: "Flow leaders & exits" },
   { name: "Strategy", href: "/strategy", icon: Swords, description: "Regime & allocation" },
+  { name: "Futures", href: "/futures", icon: TrendingUp, description: "Bias, tier, today's action, setups" },
+  { name: "Options (GEX)", href: "/options", icon: Zap, description: "Gamma exposure, regime, level ladder" },
+  { name: "Track Record", href: "/track-record", icon: Check, description: "Live scorecard & backtest findings" },
   { name: "Charts", href: "/charts", icon: TrendingUp, description: "Technical analysis" },
 ];
 

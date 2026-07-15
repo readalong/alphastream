@@ -27,6 +27,7 @@ import {
   BookOpen,
   Briefcase,
   Sun,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarFavorites } from "./sidebar-favorites";
@@ -72,6 +73,7 @@ const NAV_SECTIONS = [
       { name: "Strategy", href: "/strategy", icon: Swords },
       { name: "JPM Collar", href: "/collar", icon: Shield },
       { name: "Futures", href: "/futures", icon: Gauge },
+      { name: "Options (GEX)", href: "/options", icon: Zap },
       { name: "CTA Positioning", href: "/cta", icon: TrendingDown },
     ],
   },
@@ -80,6 +82,7 @@ const NAV_SECTIONS = [
     items: [
       { name: "Charts", href: "/charts", icon: BarChart2 },
       { name: "Ticker Lookup", href: "/ticker", icon: Search },
+      { name: "Track Record", href: "/track-record", icon: Check },
       ...(!IS_PRODUCTION ? [{ name: "Sessions", href: "/sessions", icon: FolderOpen }] : []),
     ],
   },

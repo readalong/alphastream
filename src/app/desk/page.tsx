@@ -321,17 +321,34 @@ function PlumbingPanel({ s }: { s: DeskState }) {
               className={signClass(p.tga_chg20_bn == null ? null : -p.tga_chg20_bn)}
             />
             <Stat
-              label="SOFR − IORB (5d)"
-              value={p.sofr_spread_5d_bp == null ? "—" : `${fmtSigned(p.sofr_spread_5d_bp, 1)} bp`}
-              className={signClass(p.sofr_spread_5d_bp == null ? null : -p.sofr_spread_5d_bp)}
+              label="SOFR − IORB (vs its norm)"
+              value={
+                p.sofr_spread_bp == null
+                  ? "—"
+                  : `${fmtSigned(p.sofr_spread_bp, 1)} bp (${fmtSigned(p.sofr_jump_bp, 1)})`
+              }
+              className={signClass(p.sofr_jump_bp == null ? null : -p.sofr_jump_bp)}
             />
-            <Stat label="EFFR − IORB" value={p.effr_spread_bp == null ? "—" : `${fmtSigned(p.effr_spread_bp, 1)} bp`} />
+            <Stat
+              label="EFFR − IORB (vs its norm)"
+              value={
+                p.effr_spread_bp == null
+                  ? "—"
+                  : `${fmtSigned(p.effr_spread_bp, 1)} bp (${fmtSigned(p.effr_jump_bp, 1)})`
+              }
+              className={signClass(p.effr_jump_bp == null ? null : -p.effr_jump_bp)}
+            />
             <Stat label="Reverse repo" value={p.rrp_bn == null ? "—" : `$${fmtNum(p.rrp_bn, 1)}B`} />
             <Stat label="Fed repo, 5d max" value={p.repo_5d_max_bn == null ? "—" : `$${fmtNum(p.repo_5d_max_bn, 1)}B`} />
           </dl>
+          {p.missing && p.missing.length > 0 && (
+            <p className="text-xs text-[var(--caution)]">
+              Degraded reading: no data tonight for {p.missing.join(", ")}.
+            </p>
+          )}
           <p className="text-xs text-[var(--text-muted)]">
-            A rising TGA drains reserves (shown red); SOFR above IORB means overnight funding is tight. Each value is
-            as of its publication. TGA source: {p.tga_source ?? "—"}
+            A rising TGA drains reserves (shown red). In brackets: how far each overnight spread sits above its own
+            60-session norm; that jump, not the level, is what flags stress. Each value is as of its publication. TGA source: {p.tga_source ?? "—"}
             {p.tga_crosscheck?.median_abs_pct != null && ` (${p.tga_crosscheck.median_abs_pct}% median gap to FRED's weekly series)`}.
           </p>
         </div>

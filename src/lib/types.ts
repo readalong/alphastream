@@ -2065,22 +2065,30 @@ export interface DeskPlumbing {
   sessions_in_state: number;
   reserves_bn: number | null;
   reserves_chg13w_pct: number | null;
+  reserves_vs_52w_pct: number | null;
   tga_bn: number | null;
   tga_chg20_bn: number | null;
   rrp_bn: number | null;
   repo_5d_max_bn: number | null;
   sofr_spread_bp: number | null;
-  sofr_spread_5d_bp: number | null;
+  /** 3-day mean minus its 60-session median: what rule v2 thresholds. */
+  sofr_jump_bp: number | null;
   effr_spread_bp: number | null;
+  effr_jump_bp: number | null;
   policy_rate_pct: number | null;
   flags: Partial<Record<"sofr_stress" | "effr_stress" | "repo_usage" | "reserves_drain" | "tga_drain", boolean>>;
   tga_source: string | null;
   tga_crosscheck: { dates: number; median_abs_pct: number | null; ok: boolean } | null;
+  /** Inputs that were unavailable tonight: the reading is degraded. */
+  missing?: string[];
   history: { date: string; state: PlumbingState; sofr_spread_bp: number | null; reserves_bn: number | null; tga_bn: number | null }[];
 }
 
 export interface LiquidityEpisode {
   peak: string;
+  /** Highest close in the 60 sessions before the -7% close: the slide's top. */
+  local_peak?: string;
+  on_during_decline?: boolean;
   hit: string;
   trough: string;
   depth_pct: number;
@@ -2100,6 +2108,7 @@ export interface LiquidityCrashTest {
   episodes: LiquidityEpisode[];
   episodes_n: number;
   episodes_warned: number;
+  episodes_on_during_decline?: number;
   warning_onsets: number;
   onsets_per_year: number;
   false_alarm_share: number | null;
@@ -2119,6 +2128,7 @@ export interface LiquidityReport {
   bars: Record<string, number | string>;
   data: { tga_source?: string; tga_crosscheck?: { dates: number; median_abs_pct: number | null; ok: boolean } };
   state_share: Partial<Record<PlumbingState, number>>;
+  state_share_by_year?: Record<string, Partial<Record<PlumbingState, number>>>;
   crash_warning: LiquidityCrashTest;
   risk_dial: {
     sessions: number;

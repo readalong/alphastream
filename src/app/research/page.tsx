@@ -328,7 +328,7 @@ function LiquiditySection({ q }: { q: LiquidityReport }) {
             <table className="w-full text-xs font-mono tabular-nums">
               <thead className="text-[var(--text-muted)] font-sans">
                 <tr className="text-left">
-                  <th className="py-1 pr-3 font-normal">Peak</th>
+                  <th className="py-1 pr-3 font-normal">Slide top</th>
                   <th className="py-1 pr-3 font-normal">−7% hit</th>
                   <th className="py-1 pr-3 font-normal">Depth</th>
                   <th className="py-1 font-normal">Warning lead</th>
@@ -337,7 +337,7 @@ function LiquiditySection({ q }: { q: LiquidityReport }) {
               <tbody>
                 {cw.episodes.map((e) => (
                   <tr key={e.hit} className="border-t border-[var(--border)]/50">
-                    <td className="py-1 pr-3">{e.peak}</td>
+                    <td className="py-1 pr-3">{e.local_peak ?? e.peak}</td>
                     <td className="py-1 pr-3">{e.hit}</td>
                     <td className="py-1 pr-3 text-[var(--short)]">{fmtNum(e.depth_pct, 1)}%</td>
                     <td className={cn("py-1", e.warned ? "text-[var(--long)]" : "text-[var(--text-faint)]")}>
@@ -348,8 +348,10 @@ function LiquiditySection({ q }: { q: LiquidityReport }) {
               </tbody>
             </table>
             <p className="mt-1 text-xs text-[var(--text-muted)]">
-              Warned before {cw.episodes_warned} of {cw.episodes_n} drawdowns (warning on within the 20 sessions before
-              the −7% close).
+              Warned before {cw.episodes_warned} of {cw.episodes_n} drawdowns: the warning was on within the 20 sessions
+              up to the slide&apos;s top (highest close in the 60 sessions before the −7% close).
+              {cw.episodes_on_during_decline != null &&
+                ` On at some point during the decline: ${cw.episodes_on_during_decline}, which is description, not warning.`}
             </p>
           </div>
         </div>

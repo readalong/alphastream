@@ -2018,7 +2018,9 @@ export interface RankerReport {
   /** Fill-conditioning check: top quintile chosen among ALL setups. */
   sensitivity_all_setups?: {
     setups: number;
+    /** Filled AND resolved (open fills count as unlabelled). */
     filled: number;
+    folds?: number;
     models: Record<"gbm" | "ridge" | "breakout_score", { gap_r: number | null; top_filled_n: number; ci: BootstrapCI | null }>;
   } | null;
 }

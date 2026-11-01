@@ -141,7 +141,7 @@ function RankerSection({ r }: { r: RankerReport }) {
               <p className="mt-1 text-xs text-[var(--text-muted)]">
                 The live picker ranks all {r.sensitivity_all_setups.setups.toLocaleString()} setups before any fill is
                 known; this ranks them the same way and scores the {r.sensitivity_all_setups.filled.toLocaleString()} that
-                filled. A check on the verdict, not a second test.
+                filled and resolved. A check on the verdict, not a second test.
               </p>
             </div>
           )}

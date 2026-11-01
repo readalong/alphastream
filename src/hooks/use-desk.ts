@@ -38,3 +38,8 @@ export function useLeansReport() {
   return useQuery({ queryKey: ["leans-report"], queryFn: () => api.leansReport(),
     staleTime: 60 * 60 * 1000, retry: false });
 }
+
+export function useLiquidityReport() {
+  return useQuery({ queryKey: ["liquidity-report"], queryFn: () => api.liquidityReport(),
+    staleTime: 60 * 60 * 1000, retry: false });
+}

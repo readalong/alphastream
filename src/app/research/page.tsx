@@ -13,10 +13,10 @@
  */
 
 import { FlaskConical } from "lucide-react";
-import { useLeansReport, useRankerReport } from "@/hooks/use-desk";
+import { useLeansReport, useLiquidityReport, useRankerReport } from "@/hooks/use-desk";
 import { cn } from "@/lib/utils";
 import { Chip, Panel, fmtNum, fmtSigned, isNotFound, signClass } from "@/components/desk/primitives";
-import type { BootstrapCI, LeanKey, LeansReport, RankerReport } from "@/lib/types";
+import type { BootstrapCI, LeanKey, LeansReport, LiquidityReport, RankerReport } from "@/lib/types";
 
 const MODEL_LABEL: Record<string, string> = {
   gbm: "Gradient boosting (primary)",
@@ -260,6 +260,169 @@ function LeansSection({ l }: { l: LeansReport }) {
   );
 }
 
+const STRATEGY_LABEL: Record<string, string> = {
+  buy_hold: "Buy and hold SPY",
+  rule_200d: "200-day rule",
+  layer_only: "Out when plumbing warns",
+  rule_200d_and_layer: "200-day rule, out when plumbing warns",
+};
+
+function verdictTone(v: string): "long" | "short" | "muted" {
+  return v === "PASS" ? "long" : v === "FAIL" ? "short" : "muted";
+}
+
+function pts(x: number | null | undefined) {
+  return x == null ? "—" : `${fmtSigned(x * 100, 1)} pts`;
+}
+
+function LiquiditySection({ q }: { q: LiquidityReport }) {
+  const cw = q.crash_warning;
+  const rd = q.risk_dial;
+  const sd = rd.sharpe_diff_vs_200d;
+  return (
+    <Panel
+      title="Liquidity layer 1 · US plumbing"
+      subtitle={`Rule v${q.rule.version} registered ${q.rule.registered} · ${rd.start ?? "—"} to ${rd.end ?? "—"} · ${q.generated_at.slice(0, 10)}`}
+    >
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 text-sm">
+        <span className="flex items-center gap-2">
+          Crash warning <Chip tone={verdictTone(q.verdict.crash_warning)}>{q.verdict.crash_warning.replaceAll("_", " ")}</Chip>
+        </span>
+        <span className="flex items-center gap-2">
+          Risk dial <Chip tone={verdictTone(q.verdict.risk_dial)}>{q.verdict.risk_dial.replaceAll("_", " ")}</Chip>
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">Crash warning</p>
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+            <div>
+              <dt className="text-xs text-[var(--text-muted)]">Base rate</dt>
+              <dd className="font-mono tabular-nums">{cw.base_rate == null ? "—" : `${fmtNum(cw.base_rate * 100, 1)}%`}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-[var(--text-muted)]">When warning</dt>
+              <dd className="font-mono tabular-nums">
+                {cw.hit_rate_when_warning == null ? "—" : `${fmtNum(cw.hit_rate_when_warning * 100, 1)}%`}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-[var(--text-muted)]">Excess (CI)</dt>
+              <dd className={cn("font-mono tabular-nums", signClass(cw.excess))}>
+                {pts(cw.excess)}{" "}
+                <span className="text-[var(--text-muted)]">
+                  [{pts(cw.excess_ci?.ci_low)}, {pts(cw.excess_ci?.ci_high)}]
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-[var(--text-muted)]">Warning on / onsets a year</dt>
+              <dd className="font-mono tabular-nums">
+                {cw.share_warning == null ? "—" : `${fmtNum(cw.share_warning * 100, 0)}%`} / {cw.onsets_per_year}
+              </dd>
+            </div>
+          </dl>
+          <p className="text-xs text-[var(--text-muted)]">Label: {cw.label}.</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs font-mono tabular-nums">
+              <thead className="text-[var(--text-muted)] font-sans">
+                <tr className="text-left">
+                  <th className="py-1 pr-3 font-normal">Peak</th>
+                  <th className="py-1 pr-3 font-normal">−7% hit</th>
+                  <th className="py-1 pr-3 font-normal">Depth</th>
+                  <th className="py-1 font-normal">Warning lead</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cw.episodes.map((e) => (
+                  <tr key={e.hit} className="border-t border-[var(--border)]/50">
+                    <td className="py-1 pr-3">{e.peak}</td>
+                    <td className="py-1 pr-3">{e.hit}</td>
+                    <td className="py-1 pr-3 text-[var(--short)]">{fmtNum(e.depth_pct, 1)}%</td>
+                    <td className={cn("py-1", e.warned ? "text-[var(--long)]" : "text-[var(--text-faint)]")}>
+                      {e.warned ? `${e.lead_sessions} sessions` : "none"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
+              Warned before {cw.episodes_warned} of {cw.episodes_n} drawdowns (warning on within the 20 sessions before
+              the −7% close).
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">Risk dial</p>
+          <table className="w-full text-xs font-mono tabular-nums">
+            <thead className="text-[var(--text-muted)] font-sans">
+              <tr className="text-left">
+                <th className="py-1 pr-3 font-normal">Rule</th>
+                <th className="py-1 pr-3 font-normal">Sharpe</th>
+                <th className="py-1 pr-3 font-normal">CAGR</th>
+                <th className="py-1 pr-3 font-normal">Max DD</th>
+                <th className="py-1 font-normal">Invested</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(rd.strategies).map(([k, v]) => (
+                <tr key={k} className="border-t border-[var(--border)]/50">
+                  <td className="py-1 pr-3 font-sans">{STRATEGY_LABEL[k] ?? k}</td>
+                  <td className="py-1 pr-3">{fmtNum(v.sharpe, 2)}</td>
+                  <td className="py-1 pr-3">{fmtNum(v.cagr_pct, 1)}%</td>
+                  <td className="py-1 pr-3 text-[var(--short)]">{fmtNum(v.max_dd_pct, 1)}%</td>
+                  <td className="py-1">{v.time_invested == null ? "100%" : `${fmtNum(v.time_invested * 100, 0)}%`}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="text-xs text-[var(--text-muted)]">
+            Sharpe gain over the 200-day rule:{" "}
+            <span className={cn("font-mono", signClass(sd?.diff))}>{fmtSigned(sd?.diff, 3)}</span>, CI{" "}
+            <span className="font-mono">
+              [{fmtSigned(sd?.ci_low, 3)}, {fmtSigned(sd?.ci_high, 3)}]
+            </span>
+            . Price returns; cash earns nothing in every rule.
+          </p>
+
+          <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide pt-2">
+            Components (diagnostic, not scored)
+          </p>
+          <table className="w-full text-xs font-mono tabular-nums">
+            <tbody>
+              {Object.entries(q.components).map(([k, c]) => (
+                <tr key={k} className="border-t border-[var(--border)]/50">
+                  <td className="py-1 pr-3 font-sans">{FLAG_TEXT[k] ?? k}</td>
+                  <td className="py-1 pr-3">{c.share_warning == null ? "—" : `${fmtNum(c.share_warning * 100, 0)}% on`}</td>
+                  <td className={cn("py-1 pr-3", signClass(c.excess))}>{pts(c.excess)}</td>
+                  <td className="py-1">
+                    {c.episodes_warned}/{c.episodes_n}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <ul className="mt-3 text-xs text-[var(--text-muted)] list-disc pl-4 space-y-0.5">
+        {q.caveats.map((c) => (
+          <li key={c}>{c}</li>
+        ))}
+      </ul>
+    </Panel>
+  );
+}
+
+const FLAG_TEXT: Record<string, string> = {
+  sofr_stress: "SOFR above IORB",
+  effr_stress: "EFFR above IORB",
+  repo_usage: "Fed repo usage",
+  reserves_drain: "Reserves falling",
+  tga_drain: "TGA rebuild, no RRP buffer",
+};
+
 function Missing({ title, command, error }: { title: string; command: string; error: unknown }) {
   const real = error && !isNotFound(error);
   return (
@@ -280,6 +443,7 @@ function Missing({ title, command, error }: { title: string; command: string; er
 export default function ResearchPage() {
   const ranker = useRankerReport();
   const leans = useLeansReport();
+  const liquidity = useLiquidityReport();
   return (
     <div className="space-y-4 max-w-6xl">
       <header className="flex items-center gap-2">
@@ -303,6 +467,13 @@ export default function ResearchPage() {
         <LeansSection l={leans.data} />
       ) : (
         <Missing title="Basket leans" command="--leans" error={leans.error} />
+      )}
+      {liquidity.isLoading ? (
+        <div className="h-40 bg-[var(--bg-card)]" />
+      ) : liquidity.data ? (
+        <LiquiditySection q={liquidity.data} />
+      ) : (
+        <Missing title="Liquidity layer 1 · US plumbing" command="--liquidity-test" error={liquidity.error} />
       )}
     </div>
   );

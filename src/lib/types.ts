@@ -1942,6 +1942,7 @@ export interface DeskState {
   dollar_rates: DeskDollarRates | null;
   leans: DeskLeans | null;
   theses: ThesisBook | null;
+  plumbing?: DeskPlumbing | null;
 }
 
 export interface DeskSeriesRow {
@@ -2047,4 +2048,93 @@ export interface LeansReport {
   crash_drop_pct: number;
   first_test_year: number;
   validation: Record<LeanKey, LeansValidation>;
+}
+
+// ---------------------------------------------------------------------------
+// Liquidity layer 1 — US plumbing (trading-discovery-engine app/plumbing.py,
+// tested by app/liquidity_test.py)
+// ---------------------------------------------------------------------------
+
+export type PlumbingState = "STRESS" | "DRAINING" | "EASING" | "NEUTRAL";
+
+export interface DeskPlumbing {
+  as_of: string;
+  rule_version: number;
+  state: PlumbingState;
+  warning: boolean;
+  sessions_in_state: number;
+  reserves_bn: number | null;
+  reserves_chg13w_pct: number | null;
+  tga_bn: number | null;
+  tga_chg20_bn: number | null;
+  rrp_bn: number | null;
+  repo_5d_max_bn: number | null;
+  sofr_spread_bp: number | null;
+  sofr_spread_5d_bp: number | null;
+  effr_spread_bp: number | null;
+  policy_rate_pct: number | null;
+  flags: Partial<Record<"sofr_stress" | "effr_stress" | "repo_usage" | "reserves_drain" | "tga_drain", boolean>>;
+  tga_source: string | null;
+  tga_crosscheck: { dates: number; median_abs_pct: number | null; ok: boolean } | null;
+  history: { date: string; state: PlumbingState; sofr_spread_bp: number | null; reserves_bn: number | null; tga_bn: number | null }[];
+}
+
+export interface LiquidityEpisode {
+  peak: string;
+  hit: string;
+  trough: string;
+  depth_pct: number;
+  recovered: string | null;
+  warned: boolean;
+  lead_sessions: number | null;
+}
+
+export interface LiquidityCrashTest {
+  sessions: number;
+  share_warning: number | null;
+  label: string;
+  base_rate: number | null;
+  hit_rate_when_warning: number | null;
+  excess: number | null;
+  excess_ci: BootstrapCI | null;
+  episodes: LiquidityEpisode[];
+  episodes_n: number;
+  episodes_warned: number;
+  warning_onsets: number;
+  onsets_per_year: number;
+  false_alarm_share: number | null;
+}
+
+export interface LiquidityStrategy {
+  sharpe: number | null;
+  cagr_pct: number | null;
+  max_dd_pct: number;
+  time_invested?: number;
+}
+
+export interface LiquidityReport {
+  generated_at: string;
+  layer: string;
+  rule: { version: number; registered: string } & Record<string, number | string>;
+  bars: Record<string, number | string>;
+  data: { tga_source?: string; tga_crosscheck?: { dates: number; median_abs_pct: number | null; ok: boolean } };
+  state_share: Partial<Record<PlumbingState, number>>;
+  crash_warning: LiquidityCrashTest;
+  risk_dial: {
+    sessions: number;
+    start: string | null;
+    end: string | null;
+    strategies: Record<"buy_hold" | "rule_200d" | "layer_only" | "rule_200d_and_layer", LiquidityStrategy>;
+    sharpe_diff_vs_200d: { diff: number; ci_low: number; ci_high: number; n_blocks: number } | null;
+  };
+  components: Record<string, {
+    share_warning: number | null;
+    hit_rate_when_warning: number | null;
+    excess: number | null;
+    excess_ci: BootstrapCI | null;
+    episodes_warned: number;
+    episodes_n: number;
+  }>;
+  verdict: { crash_warning: "PASS" | "FAIL" | "INSUFFICIENT_DATA"; risk_dial: "PASS" | "FAIL" | "INSUFFICIENT_DATA"; warned_share: number };
+  caveats: string[];
 }

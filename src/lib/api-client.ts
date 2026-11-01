@@ -58,6 +58,7 @@ import type {
   ThesisHistoryReport,
   RankerReport,
   LeansReport,
+  LiquidityReport,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -387,4 +388,5 @@ export const api = {
   rankerReport: () => apiFetch<RankerReport>("/api/research/ranker"),
 
   leansReport: () => apiFetch<LeansReport>("/api/research/leans"),
+  liquidityReport: () => apiFetch<LiquidityReport>("/api/research/liquidity"),
 };

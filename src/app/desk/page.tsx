@@ -263,6 +263,83 @@ function MacroPanel({ s }: { s: DeskState }) {
   );
 }
 
+const PLUMBING_TONE: Record<string, "long" | "short" | "caution" | "muted"> = {
+  STRESS: "short",
+  DRAINING: "caution",
+  EASING: "long",
+  NEUTRAL: "muted",
+};
+
+const FLAG_LABEL: Record<string, string> = {
+  sofr_stress: "SOFR above IORB",
+  effr_stress: "EFFR above IORB",
+  repo_usage: "Fed repo usage",
+  reserves_drain: "Reserves falling",
+  tga_drain: "TGA rebuild, no RRP buffer",
+};
+
+function PlumbingPanel({ s }: { s: DeskState }) {
+  const p = s.plumbing;
+  return (
+    <Panel
+      title="US plumbing"
+      subtitle={p ? `Liquidity layer 1 · rule v${p.rule_version} · as of ${p.as_of}` : undefined}
+      right={
+        <Link href="/research" className="inline-flex items-center gap-1 text-xs text-[var(--accent)] hover:underline">
+          Tested how? <ChevronRight className="h-3 w-3" />
+        </Link>
+      }
+    >
+      {!p ? (
+        <NotRun what="US plumbing" />
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Chip tone={PLUMBING_TONE[p.state] ?? "muted"}>{p.state.toLowerCase()}</Chip>
+            <span className="text-xs text-[var(--text-muted)]">
+              {p.sessions_in_state} session{p.sessions_in_state === 1 ? "" : "s"} in state
+            </span>
+            {Object.entries(p.flags ?? {})
+              .filter(([, on]) => on)
+              .map(([k]) => (
+                <Chip key={k} tone="caution">
+                  {FLAG_LABEL[k] ?? k}
+                </Chip>
+              ))}
+          </div>
+          <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2">
+            <Stat label="Bank reserves" value={p.reserves_bn == null ? "—" : `$${fmtNum(p.reserves_bn, 0)}B`} />
+            <Stat
+              label="Reserves, 13 weeks"
+              value={fmtSigned(p.reserves_chg13w_pct, 1, "%")}
+              className={signClass(p.reserves_chg13w_pct)}
+            />
+            <Stat label="Treasury cash (TGA)" value={p.tga_bn == null ? "—" : `$${fmtNum(p.tga_bn, 0)}B`} />
+            <Stat
+              label="TGA, 20 sessions"
+              value={fmtSigned(p.tga_chg20_bn, 0, "B")}
+              className={signClass(p.tga_chg20_bn == null ? null : -p.tga_chg20_bn)}
+            />
+            <Stat
+              label="SOFR − IORB (5d)"
+              value={p.sofr_spread_5d_bp == null ? "—" : `${fmtSigned(p.sofr_spread_5d_bp, 1)} bp`}
+              className={signClass(p.sofr_spread_5d_bp == null ? null : -p.sofr_spread_5d_bp)}
+            />
+            <Stat label="EFFR − IORB" value={p.effr_spread_bp == null ? "—" : `${fmtSigned(p.effr_spread_bp, 1)} bp`} />
+            <Stat label="Reverse repo" value={p.rrp_bn == null ? "—" : `$${fmtNum(p.rrp_bn, 1)}B`} />
+            <Stat label="Fed repo, 5d max" value={p.repo_5d_max_bn == null ? "—" : `$${fmtNum(p.repo_5d_max_bn, 1)}B`} />
+          </dl>
+          <p className="text-xs text-[var(--text-muted)]">
+            A rising TGA drains reserves (shown red); SOFR above IORB means overnight funding is tight. Each value is
+            as of its publication. TGA source: {p.tga_source ?? "—"}
+            {p.tga_crosscheck?.median_abs_pct != null && ` (${p.tga_crosscheck.median_abs_pct}% median gap to FRED's weekly series)`}.
+          </p>
+        </div>
+      )}
+    </Panel>
+  );
+}
+
 function WashoutPanel({ s }: { s: DeskState }) {
   const w = s.washout;
   return (
@@ -500,6 +577,8 @@ export default function DeskPage() {
         <IndexLayer s={data} />
         <MacroPanel s={data} />
       </div>
+
+      <PlumbingPanel s={data} />
 
       <BasketAtlas s={data} />
 

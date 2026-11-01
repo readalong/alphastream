@@ -1662,3 +1662,380 @@ export interface BacktestReviewsResponse {
     breakout: BacktestReview | null;
   };
 }
+
+// ---------------------------------------------------------------------------
+// Desk brief — nightly desk state, thesis book, research reports
+// (trading-discovery-engine app/desk_state.py, app/thesis_book.py,
+//  app/ranker.py, app/leans.py; served by app/routers/desk.py)
+// ---------------------------------------------------------------------------
+
+export interface DeskNode {
+  price: number;
+  kind: "support" | "resistance";
+  character: "magnet_wall" | "accelerant";
+  share: number;
+  strength: number;
+  gex: number;
+  cex: number;
+  pct_from_spot: number;
+}
+
+export interface DeskDealer {
+  date: string | null;
+  spot: number | null;
+  net_gex: number | null;
+  front_week_gex: number | null;
+  gamma_flip: number | null;
+  charm_anchor: number | null;
+  pin_pressure: string | null;
+  vanna_regime: string | null;
+  conditional: string | null;
+  max_dte: number | null;
+  expiries: number;
+  node_ladder: DeskNode[];
+  quality: "full" | "partial";
+  repaired: boolean;
+  net_gex_chg_1: number | null;
+  net_gex_vs_1: string | null;
+  net_gex_chg_5: number | null;
+  net_gex_vs_5: string | null;
+}
+
+export interface DeskBreadth {
+  date: string;
+  universe_size: number;
+  latest: {
+    pct_above_10: number | null;
+    pct_above_20: number;
+    pct_above_50: number;
+    pct_above_100: number | null;
+    pct_above_200: number;
+    advances: number;
+    declines: number;
+    ad_ratio: number;
+    up_down_vol_ratio: number | null;
+    net_new_highs: number;
+  };
+  mcclellan: number | null;
+  hindenburg: {
+    fired_today: boolean;
+    fires_in_window: number;
+    last_fire: string | null;
+    confirmed: boolean;
+    index_check: boolean | null;
+  } | null;
+  zweig_thrust: { active: boolean; trigger_date: string | null; days_ago: number | null } | null;
+  divergence: { flag: boolean } | null;
+}
+
+export interface DeskBasket {
+  members_used: number;
+  members_total: number;
+  missing: string[];
+  ret_5d: number | null;
+  ret_20d: number | null;
+  pct_above_20: number | null;
+  pct_above_50: number | null;
+  pct_above_200: number | null;
+  damage_pct: number | null;
+  oversold: number | null;
+  stress: number | null;
+  stress_chg_5: number | null;
+  score: number | null;
+  score_chg_5: number | null;
+  rank: number | null;
+  rank_chg_5: number | null;
+  rank_chg_10: number | null;
+  rank_chg_20: number | null;
+}
+
+export interface DeskIndexSplit {
+  members: number;
+  weighted_members: number;
+  ew_ret_5d: number | null;
+  cw_ret_5d: number | null;
+  ew_ret_20d: number | null;
+  cw_ret_20d: number | null;
+  ew_minus_cw_20d?: number;
+  ew_pct_above_50: number | null;
+  cw_pct_above_50: number | null;
+  ew_pct_above_200: number | null;
+  cw_pct_above_200: number | null;
+  weights_as_of: string | null;
+}
+
+export interface DeskBaskets {
+  date: string;
+  baskets: Record<string, DeskBasket>;
+  leaderboard: string[];
+  indexes: Record<string, DeskIndexSplit>;
+}
+
+export interface DeskMacroRule {
+  name: string;
+  rule: string;
+  state: "RISK-ON" | "RISK-OFF" | null;
+  ratio?: number;
+  average?: number;
+  vs_average_pct?: number;
+  sessions_in_state?: number;
+  as_of?: string;
+}
+
+export interface DeskMacroRegime {
+  rules: DeskMacroRule[];
+  risk_on_count: number;
+  rules_scored: number;
+  composite_pct: number | null;
+  regime: "RISK-ON" | "RISK-OFF" | null;
+}
+
+export interface DeskNetLiquidity {
+  as_of: string;
+  definition: string;
+  level_bn: number;
+  chg_1w_bn: number;
+  chg_4w_bn: number;
+  state: "SUPPORTIVE" | "UNSUPPORTIVE" | "MIXED";
+  components_bn: { fed_assets: number; tga: number; reverse_repo: number };
+  history: { date: string; net_bn: number }[];
+}
+
+export interface DeskWashoutSession {
+  date: string;
+  names: number;
+  bb_count: number;
+  bb_share_pct: number;
+  bb_percentile: number;
+  rsi_count: number;
+  rsi_share_pct: number | null;
+  rsi_percentile: number | null;
+}
+
+export interface DeskWashout {
+  date: string;
+  rules: { bb: string; rsi: string };
+  sessions: DeskWashoutSession[];
+  bb_names_today: string[];
+}
+
+export interface DeskGate {
+  metal: string;
+  verdict: "TAILWIND" | "NEUTRAL" | "HEADWIND";
+  drift_estimate_pct: number | null;
+  real_yield_chg_20d_bps: number | null;
+  dxy_chg_20d_pct: number | null;
+}
+
+export interface DeskDollarRates {
+  dxy: { level: number | null; stack: string | null; chg_20d_pct: number | null } | null;
+  real_yield: { level_pct: number | null; chg_20d_bps: number | null } | null;
+  equity_headwind: boolean | null;
+  gold_gate: DeskGate | null;
+  silver_gate: DeskGate | null;
+}
+
+export type LeanKey = "d3" | "d10" | "d20" | "crash20";
+
+export interface DeskLeans {
+  date: string;
+  leans: Record<string, Partial<Record<LeanKey, number>>>;
+  printable: Partial<Record<LeanKey, boolean>>;
+  validation: Partial<Record<LeanKey, {
+    within_date_auc: number | null;
+    brier_skill: number | null;
+    pooled_auc: number | null;
+    printable: boolean;
+    folds: number;
+  }>>;
+  trained_through: string;
+  note: string;
+}
+
+export interface ThesisRuleResult {
+  met: boolean | null;
+  observed: unknown;
+  text: string;
+  target?: unknown;
+}
+
+export type ThesisStatus = "CONFIRMED" | "BUILDING" | "DORMANT" | "INVALIDATED";
+
+export interface ThesisEpisode {
+  trigger_date: string;
+  instrument: string | null;
+  conviction: number;
+  invalidated_on: string | null;
+  outcome: number | null;
+  base_rate?: number;
+}
+
+export interface ThesisRow {
+  id: string;
+  version: number;
+  key: string;
+  title: string;
+  direction: string;
+  horizon: number;
+  instrument: string | null;
+  why: string;
+  registered: string;
+  status: ThesisStatus;
+  conviction: number;
+  support_met: number;
+  support_n: number;
+  confirm_met: number;
+  confirm_n: number;
+  rules: {
+    support: ThesisRuleResult[];
+    confirm: ThesisRuleResult[];
+    invalidate: ThesisRuleResult[];
+  };
+  open_episode: ThesisEpisode | null;
+}
+
+export interface BootstrapCI {
+  mean: number;
+  ci_low: number;
+  ci_high: number;
+  n_blocks: number;
+  n_boot: number;
+  includes_zero: boolean;
+}
+
+export interface ThesisScore {
+  key: string;
+  episodes: number;
+  scored: number;
+  hit_rate?: number;
+  base_rate?: number;
+  excess_ci: BootstrapCI | null;
+  verdict: "INSUFFICIENT_DATA" | "EDGE" | "NO_EDGE";
+}
+
+export interface ThesisBook {
+  date: string;
+  generated_at: string;
+  theses: ThesisRow[];
+  scorecard: ThesisScore[];
+  note: string;
+  file_date?: string;
+  is_today?: boolean;
+}
+
+export interface DeskState {
+  date: string;
+  generated_at: string;
+  brief_date: string | null;
+  file_date: string;
+  is_today: boolean;
+  inputs: Record<string, boolean>;
+  header: Record<string, unknown> | null;
+  header_changes: Record<string, { now: number | null; chg_1: number | null; chg_5: number | null }>;
+  dealer: Record<string, DeskDealer | null>;
+  breadth: DeskBreadth | null;
+  baskets: DeskBaskets | null;
+  macro_regime: DeskMacroRegime | null;
+  net_liquidity: DeskNetLiquidity | null;
+  washout: DeskWashout | null;
+  dollar_rates: DeskDollarRates | null;
+  leans: DeskLeans | null;
+  theses: ThesisBook | null;
+}
+
+export interface DeskSeriesRow {
+  date: string;
+  spy_net_gex: number | null;
+  qqq_net_gex: number | null;
+  spy_quality: string | null;
+  pct_above_50: number | null;
+  mcclellan: number | null;
+  macro_risk_on: number | null;
+  net_liquidity_bn: number | null;
+  top_basket: string | null;
+  spx_ew_minus_cw_20d: number | null;
+}
+
+export interface ThesisHistoryResult {
+  key: string;
+  title: string;
+  verdict: "INSUFFICIENT_DATA" | "EDGE" | "NO_EDGE" | "NOT_RECONSTRUCTABLE";
+  rules_used?: string[];
+  rules_dropped?: string[];
+  episodes?: number;
+  hit_rate?: number | null;
+  base_rate?: number | null;
+  excess_ci?: BootstrapCI | null;
+  first_date?: string | null;
+  last_date?: string | null;
+  recent_triggers?: string[];
+}
+
+export interface ThesisHistoryReport {
+  generated_at: string;
+  universe_size: number;
+  sessions: number;
+  caveats: string[];
+  results: ThesisHistoryResult[];
+}
+
+export interface RankerOverall {
+  gap_r: number | null;
+  top_n: number;
+  ci: BootstrapCI | null;
+  deciles: { decile: number; mean_r: number; n: number }[];
+}
+
+export interface RankerReport {
+  run_id: string;
+  generated_at: string;
+  labelled_trades: number;
+  oos_n: number;
+  oos_pool_mean_r: number | null;
+  features: string[];
+  feature_coverage: Record<string, number>;
+  settings: Record<string, number>;
+  per_fold: {
+    year: number;
+    train_n: number;
+    test_n: number;
+    gap_gbm: number | null;
+    gap_ridge: number | null;
+    gap_breakout_score: number | null;
+  }[];
+  overall: Record<"gbm" | "ridge" | "breakout_score", RankerOverall>;
+  verdict: {
+    status: "PASS" | "FAIL" | "INSUFFICIENT_DATA";
+    model: string;
+    gap_r: number | null;
+    folds: number;
+    ci_lo: number | null;
+    ci_hi: number | null;
+    bar: { min_gap_r: number; min_folds: number; ci_lo_above: number };
+  };
+  ridge_coefficients: { feature: string; coef: number }[];
+}
+
+export interface LeansValidation {
+  horizon: number;
+  folds: number;
+  oos_rows: number;
+  pooled_auc?: number;
+  within_date_auc?: number | null;
+  within_date_auc_ci?: BootstrapCI | null;
+  brier_skill?: number | null;
+  brier_improvement_ci?: BootstrapCI | null;
+  base_rate?: number;
+  printable: boolean;
+}
+
+export interface LeansReport {
+  generated_at: string;
+  trained_through: string;
+  rows: number;
+  baskets: number;
+  features: string[];
+  crash_drop_pct: number;
+  first_test_year: number;
+  validation: Record<LeanKey, LeansValidation>;
+}

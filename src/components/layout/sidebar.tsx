@@ -18,6 +18,9 @@ import {
   Briefcase,
   Sun,
   Check,
+  Newspaper,
+  ScrollText,
+  FlaskConical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarFavorites } from "./sidebar-favorites";
@@ -37,6 +40,7 @@ const NAV_SECTIONS = [
   {
     label: "MARKETS",
     items: [
+      { name: "Desk", href: "/desk", icon: Newspaper },
       { name: "Markets", href: "/markets", icon: Globe },
       { name: "Options (GEX)", href: "/options", icon: Zap },
       { name: "Futures", href: "/futures", icon: Gauge },
@@ -49,7 +53,9 @@ const NAV_SECTIONS = [
     items: [
       { name: "Ideas", href: "/ideas", icon: Target },
       { name: "Ticker Lookup", href: "/ticker", icon: Search },
+      { name: "Thesis Book", href: "/theses", icon: ScrollText },
       { name: "Track Record", href: "/track-record", icon: Check },
+      { name: "Research", href: "/research", icon: FlaskConical },
     ],
   },
   {

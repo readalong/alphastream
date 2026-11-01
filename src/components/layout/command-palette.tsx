@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Search, X, LayoutDashboard, ScanSearch, Target, Filter, BarChart3, Globe, Waves, Swords, TrendingUp, Zap, Check } from "lucide-react";
+import { Search, X, LayoutDashboard, ScanSearch, Target, Filter, BarChart3, Globe, Waves, Swords, TrendingUp, Zap, Check, Newspaper, ScrollText, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { SECTOR_ETF_NAMES } from "@/lib/constants";
 
 const PAGES = [
   { name: "Today", href: "/today", icon: LayoutDashboard, description: "What to do, watch, and avoid today" },
+  { name: "Desk", href: "/desk", icon: Newspaper, description: "Nightly desk state: dealer levels, breadth, baskets, macro" },
   { name: "Markets", href: "/markets", icon: Globe, description: "Overview, global markets, internals, economic, CTA" },
   { name: "Futures", href: "/futures", icon: TrendingUp, description: "Bias, tier, today's action, setups" },
   { name: "Options (GEX)", href: "/options", icon: Zap, description: "Gamma exposure, regime, level ladder" },
@@ -18,6 +19,8 @@ const PAGES = [
   { name: "Setup Filter", href: "/ideas?tab=filter", icon: Filter, description: "Ranked shortlist" },
   { name: "Screener", href: "/ideas?tab=screener", icon: ScanSearch, description: "Full universe scan" },
   { name: "Track Record", href: "/track-record", icon: Check, description: "Live scorecard & backtest findings" },
+  { name: "Thesis Book", href: "/theses", icon: ScrollText, description: "Pre-registered theses, rule checks, scorecard" },
+  { name: "Research", href: "/research", icon: FlaskConical, description: "Ranker and leans validation reports" },
   { name: "Ticker Lookup", href: "/ticker", icon: Search, description: "Technical analysis & Chart Studio" },
 ];
 

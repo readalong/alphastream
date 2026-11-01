@@ -418,8 +418,8 @@ function LiquiditySection({ q }: { q: LiquidityReport }) {
 }
 
 const FLAG_TEXT: Record<string, string> = {
-  sofr_stress: "SOFR above IORB",
-  effr_stress: "EFFR above IORB",
+  sofr_stress: "SOFR jump",
+  effr_stress: "EFFR jump",
   repo_usage: "Fed repo usage",
   reserves_drain: "Reserves falling",
   tga_drain: "TGA rebuild, no RRP buffer",

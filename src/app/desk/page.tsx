@@ -271,8 +271,8 @@ const PLUMBING_TONE: Record<string, "long" | "short" | "caution" | "muted"> = {
 };
 
 const FLAG_LABEL: Record<string, string> = {
-  sofr_stress: "SOFR above IORB",
-  effr_stress: "EFFR above IORB",
+  sofr_stress: "SOFR jumped",
+  effr_stress: "EFFR jumped",
   repo_usage: "Fed repo usage",
   reserves_drain: "Reserves falling",
   tga_drain: "TGA rebuild, no RRP buffer",
@@ -321,7 +321,7 @@ function PlumbingPanel({ s }: { s: DeskState }) {
               className={signClass(p.tga_chg20_bn == null ? null : -p.tga_chg20_bn)}
             />
             <Stat
-              label="SOFR − IORB (vs its norm)"
+              label="SOFR − range floor (vs recent range)"
               value={
                 p.sofr_spread_bp == null
                   ? "—"
@@ -330,7 +330,7 @@ function PlumbingPanel({ s }: { s: DeskState }) {
               className={signClass(p.sofr_jump_bp == null ? null : -p.sofr_jump_bp)}
             />
             <Stat
-              label="EFFR − IORB (vs its norm)"
+              label="EFFR − range floor (vs recent range)"
               value={
                 p.effr_spread_bp == null
                   ? "—"
@@ -339,7 +339,7 @@ function PlumbingPanel({ s }: { s: DeskState }) {
               className={signClass(p.effr_jump_bp == null ? null : -p.effr_jump_bp)}
             />
             <Stat label="Reverse repo" value={p.rrp_bn == null ? "—" : `$${fmtNum(p.rrp_bn, 1)}B`} />
-            <Stat label="Fed repo, 5d max" value={p.repo_5d_max_bn == null ? "—" : `$${fmtNum(p.repo_5d_max_bn, 1)}B`} />
+            <Stat label="Fed repo, 5d mean" value={p.repo_5d_mean_bn == null ? "—" : `$${fmtNum(p.repo_5d_mean_bn, 1)}B`} />
           </dl>
           {p.missing && p.missing.length > 0 && (
             <p className="text-xs text-[var(--caution)]">
@@ -347,8 +347,9 @@ function PlumbingPanel({ s }: { s: DeskState }) {
             </p>
           )}
           <p className="text-xs text-[var(--text-muted)]">
-            A rising TGA drains reserves (shown red). In brackets: how far each overnight spread sits above its own
-            60-session norm; that jump, not the level, is what flags stress. Each value is as of its publication. TGA source: {p.tga_source ?? "—"}
+            A rising TGA drains reserves (shown red). Overnight rates are measured against the floor of the fed funds
+            target range; in brackets, how far each sits above the top of its own last 60 sessions. That jump, not the
+            level, is what flags stress. Each value is as of its publication. TGA source: {p.tga_source ?? "—"}
             {p.tga_crosscheck?.median_abs_pct != null && ` (${p.tga_crosscheck.median_abs_pct}% median gap to FRED's weekly series)`}.
           </p>
         </div>

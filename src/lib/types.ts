@@ -2069,13 +2069,14 @@ export interface DeskPlumbing {
   tga_bn: number | null;
   tga_chg20_bn: number | null;
   rrp_bn: number | null;
-  repo_5d_max_bn: number | null;
+  repo_5d_mean_bn: number | null;
   sofr_spread_bp: number | null;
-  /** 3-day mean minus its 60-session median: what rule v2 thresholds. */
+  /** 3-day mean minus the top (90th pct) of its prior 60 sessions: what rule v3 thresholds. */
   sofr_jump_bp: number | null;
   effr_spread_bp: number | null;
   effr_jump_bp: number | null;
-  policy_rate_pct: number | null;
+  /** Fed funds target range, lower limit: what the spreads are measured against. */
+  range_floor_pct: number | null;
   flags: Partial<Record<"sofr_stress" | "effr_stress" | "repo_usage" | "reserves_drain" | "tga_drain", boolean>>;
   tga_source: string | null;
   tga_crosscheck: { dates: number; median_abs_pct: number | null; ok: boolean } | null;

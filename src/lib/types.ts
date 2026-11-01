@@ -1723,6 +1723,7 @@ export interface DeskBreadth {
     last_fire: string | null;
     confirmed: boolean;
     index_check: boolean | null;
+    error?: string;
   } | null;
   zweig_thrust: { active: boolean; trigger_date: string | null; days_ago: number | null } | null;
   divergence: { flag: boolean } | null;
@@ -1821,7 +1822,7 @@ export interface DeskWashout {
 
 export interface DeskGate {
   metal: string;
-  verdict: "TAILWIND" | "NEUTRAL" | "HEADWIND";
+  verdict: "TAILWIND" | "NEUTRAL" | "HEADWIND" | "UNKNOWN";
   drift_estimate_pct: number | null;
   real_yield_chg_20d_bps: number | null;
   dxy_chg_20d_pct: number | null;
@@ -2014,6 +2015,12 @@ export interface RankerReport {
     bar: { min_gap_r: number; min_folds: number; ci_lo_above: number };
   };
   ridge_coefficients: { feature: string; coef: number }[];
+  /** Fill-conditioning check: top quintile chosen among ALL setups. */
+  sensitivity_all_setups?: {
+    setups: number;
+    filled: number;
+    models: Record<"gbm" | "ridge" | "breakout_score", { gap_r: number | null; top_filled_n: number; ci: BootstrapCI | null }>;
+  } | null;
 }
 
 export interface LeansValidation {

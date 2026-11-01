@@ -15,7 +15,7 @@
 import { FlaskConical } from "lucide-react";
 import { useLeansReport, useRankerReport } from "@/hooks/use-desk";
 import { cn } from "@/lib/utils";
-import { Chip, Panel, fmtNum, fmtSigned, signClass } from "@/components/desk/primitives";
+import { Chip, Panel, fmtNum, fmtSigned, isNotFound, signClass } from "@/components/desk/primitives";
 import type { BootstrapCI, LeanKey, LeansReport, RankerReport } from "@/lib/types";
 
 const MODEL_LABEL: Record<string, string> = {
@@ -112,6 +112,39 @@ function RankerSection({ r }: { r: RankerReport }) {
               </tbody>
             </table>
           </div>
+
+          {r.sensitivity_all_setups && (
+            <div className="overflow-x-auto">
+              <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1">
+                Sensitivity: ranked among all setups
+              </p>
+              <table className="w-full text-xs font-mono tabular-nums">
+                <thead className="text-[var(--text-muted)] font-sans">
+                  <tr className="text-left">
+                    <th className="py-1 pr-3 font-normal">Model</th>
+                    <th className="py-1 pr-3 font-normal">Gap</th>
+                    <th className="py-1 pr-3 font-normal">CI</th>
+                    <th className="py-1 font-normal">Filled picks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(r.sensitivity_all_setups.models).map(([k, o]) => (
+                    <tr key={k} className="border-t border-[var(--border)]/50">
+                      <td className="py-1 pr-3 font-sans">{MODEL_LABEL[k] ?? k}</td>
+                      <td className={cn("py-1 pr-3", signClass(o.gap_r))}>{fmtSigned(o.gap_r, 3, "R")}</td>
+                      <td className={cn("py-1 pr-3", o.ci?.includes_zero && "text-[var(--text-muted)]")}>{ciText(o.ci)}</td>
+                      <td className="py-1">{o.top_filled_n.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="mt-1 text-xs text-[var(--text-muted)]">
+                The live picker ranks all {r.sensitivity_all_setups.setups.toLocaleString()} setups before any fill is
+                known; this ranks them the same way and scores the {r.sensitivity_all_setups.filled.toLocaleString()} that
+                filled. A check on the verdict, not a second test.
+              </p>
+            </div>
+          )}
 
           <div className="overflow-x-auto">
             <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1">By test year</p>
@@ -227,12 +260,19 @@ function LeansSection({ l }: { l: LeansReport }) {
   );
 }
 
-function Missing({ title, command }: { title: string; command: string }) {
+function Missing({ title, command, error }: { title: string; command: string; error: unknown }) {
+  const real = error && !isNotFound(error);
   return (
     <Panel title={title}>
-      <p className="text-sm text-[var(--text-muted)]">
-        No report yet. Run <code className="font-mono">python main.py {command}</code>.
-      </p>
+      {real ? (
+        <p className="text-sm text-[var(--short)] font-mono break-words">
+          {error instanceof Error ? error.message : String(error)}
+        </p>
+      ) : (
+        <p className="text-sm text-[var(--text-muted)]">
+          No report yet. Run <code className="font-mono">python main.py {command}</code>.
+        </p>
+      )}
     </Panel>
   );
 }
@@ -255,14 +295,14 @@ export default function ResearchPage() {
       ) : ranker.data ? (
         <RankerSection r={ranker.data} />
       ) : (
-        <Missing title="Phase 3 ranker" command="--ranker-experiment" />
+        <Missing title="Phase 3 ranker" command="--ranker-experiment" error={ranker.error} />
       )}
       {leans.isLoading ? (
         <div className="h-40 bg-[var(--bg-card)]" />
       ) : leans.data ? (
         <LeansSection l={leans.data} />
       ) : (
-        <Missing title="Basket leans" command="--leans" />
+        <Missing title="Basket leans" command="--leans" error={leans.error} />
       )}
     </div>
   );

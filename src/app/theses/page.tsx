@@ -5,7 +5,8 @@
  *
  * Each thesis is a pre-registered rule set on the desk state. Tonight's
  * status and conviction are mechanical: conviction = 25 + 50 × support share
- * + 25 × confirm share, and any invalidation rule zeroes it. The scorecard
+ * + 25 × confirm share, and any invalidation rule zeroes it (backend
+ * evaluate_thesis). The scorecard
  * counts independent episodes against the instrument's base rate; nothing
  * is called an edge before 30 episodes and a bootstrap CI that clears zero.
  */
@@ -14,7 +15,7 @@ import { useState } from "react";
 import { Check, CircleDashed, X } from "lucide-react";
 import { useTheses, useThesisHistory } from "@/hooks/use-desk";
 import { cn } from "@/lib/utils";
-import { Chip, EmptyState, Panel, StaleBanner, fmtNum, fmtSigned } from "@/components/desk/primitives";
+import { Chip, EmptyState, LoadError, Panel, StaleBanner, fmtNum, fmtSigned, isNotFound } from "@/components/desk/primitives";
 import type { ThesisHistoryReport, ThesisRow, ThesisRuleResult, ThesisScore, ThesisStatus } from "@/lib/types";
 
 const STATUS_TONE: Record<ThesisStatus, "long" | "short" | "caution" | "muted"> = {
@@ -164,7 +165,14 @@ function Scorecard({ rows, minEpisodes }: { rows: ThesisScore[]; minEpisodes: nu
   );
 }
 
-function HistoryCheck({ h }: { h: ThesisHistoryReport | undefined }) {
+function HistoryCheck({ h, error }: { h: ThesisHistoryReport | undefined; error: unknown }) {
+  if (error && !isNotFound(error)) {
+    return (
+      <Panel title="History check">
+        <p className="text-sm text-[var(--short)] font-mono">{error instanceof Error ? error.message : String(error)}</p>
+      </Panel>
+    );
+  }
   if (!h) {
     return (
       <Panel title="History check">
@@ -238,7 +246,8 @@ export default function ThesesPage() {
       </div>
     );
   }
-  if (error || !data) return <EmptyState title="No thesis book yet" command="--desk-state" />;
+  if (error && !isNotFound(error)) return <LoadError error={error} />;
+  if (!data) return <EmptyState title="No thesis book yet" command="--desk-state" />;
 
   const scores = new Map(data.scorecard.map((s) => [s.key, s]));
   const shown = filter === "ALL" ? data.theses : data.theses.filter((t) => t.status === filter);
@@ -284,7 +293,7 @@ export default function ThesesPage() {
       </div>
 
       <Scorecard rows={data.scorecard} minEpisodes={30} />
-      <HistoryCheck h={history.data} />
+      <HistoryCheck h={history.data} error={history.error} />
     </div>
   );
 }

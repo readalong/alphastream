@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 import {
   Chip,
   EmptyState,
+  LoadError,
+  isNotFound,
   NotRun,
   Panel,
   PctBar,
@@ -29,6 +31,12 @@ import {
   signClass,
 } from "@/components/desk/primitives";
 import type { DeskBasket, DeskDealer, DeskLeans, DeskState, LeanKey } from "@/lib/types";
+
+/** A thrust older than this is history, not a live signal. */
+const ZWEIG_RECENT_SESSIONS = 20;
+
+/** inputs keys that are flags about the inputs, not engines that ran. */
+const NOT_ENGINES = new Set(["morning_brief_is_tonight"]);
 
 const LEAN_KEYS: { key: LeanKey; label: string }[] = [
   { key: "d3", label: "3D" },
@@ -119,21 +127,31 @@ function IndexLayer({ s }: { s: DeskState }) {
             <Stat
               label="Hindenburg"
               value={
-                b.hindenburg?.confirmed ? (
+                !b.hindenburg || b.hindenburg.error ? (
+                  <span className="text-[var(--text-muted)]">n/a</span>
+                ) : b.hindenburg.confirmed ? (
                   <Chip tone="short">confirmed</Chip>
-                ) : b.hindenburg?.fired_today ? (
+                ) : b.hindenburg.fired_today ? (
                   <Chip tone="caution">fired today</Chip>
                 ) : (
-                  <span className="text-[var(--text-muted)]">clear ({b.hindenburg?.fires_in_window ?? 0} in window)</span>
+                  <span className="text-[var(--text-muted)]">clear ({b.hindenburg.fires_in_window} in window)</span>
                 )
               }
             />
             <Stat
               label="Zweig thrust"
-              value={b.zweig_thrust?.days_ago != null ? <Chip tone="long">{b.zweig_thrust.days_ago}d ago</Chip> : "none"}
+              value={
+                b.zweig_thrust?.days_ago == null ? (
+                  "none on record"
+                ) : b.zweig_thrust.days_ago <= ZWEIG_RECENT_SESSIONS ? (
+                  <Chip tone="long">{b.zweig_thrust.days_ago} sessions ago</Chip>
+                ) : (
+                  <span className="text-[var(--text-muted)]">last {b.zweig_thrust.days_ago} sessions ago</span>
+                )
+              }
             />
             <Stat label="Adv / dec" value={`${b.latest.advances} / ${b.latest.declines}`} />
-            <Stat label="A/D ratio" value={fmtNum(b.latest.ad_ratio, 3)} />
+            <Stat label="Advancing share" value={`${fmtNum(b.latest.ad_ratio * 100, 1)}%`} />
           </dl>
         </div>
       )}
@@ -439,13 +457,15 @@ export default function DeskPage() {
       </div>
     );
   }
-  if (error || !data) {
+  if (error && !isNotFound(error)) return <LoadError error={error} />;
+  if (!data) {
     return <EmptyState title="No desk state generated yet" command="--desk-state" />;
   }
 
   const missing = Object.entries(data.inputs ?? {})
-    .filter(([, v]) => !v)
+    .filter(([k, v]) => !v && !NOT_ENGINES.has(k))
     .map(([k]) => k.replaceAll("_", " "));
+  const briefStale = data.inputs?.morning_brief && data.inputs?.morning_brief_is_tonight === false;
 
   return (
     <div className="space-y-4 max-w-6xl">
@@ -460,6 +480,11 @@ export default function DeskPage() {
       {!data.is_today && <StaleBanner date={data.file_date} command="--desk-state" />}
       {missing.length > 0 && (
         <p className="text-xs text-[var(--text-muted)]">Not run tonight: {missing.join(", ")}.</p>
+      )}
+      {briefStale && (
+        <p className="text-xs text-[var(--caution)]">
+          The morning brief behind the header is from {data.brief_date ?? "an earlier day"}, not tonight.
+        </p>
       )}
 
       <Panel title="Dealer positioning" subtitle="Net gamma changes skip partial nights (an expiry missing from the chain would read as a move).">

@@ -73,6 +73,23 @@ export function EmptyState({ title, command }: { title: string; command: string 
   );
 }
 
+/** The hooks surface a 404 as "API Error 404: ..." — the only error that
+    means "not generated yet". Anything else is a real failure. */
+export function isNotFound(error: unknown): boolean {
+  return error instanceof Error && error.message.startsWith("API Error 404");
+}
+
+export function LoadError({ error }: { error: unknown }) {
+  return (
+    <div className="max-w-2xl rounded-lg border border-[var(--short)]/30 bg-[var(--bg-card)] p-6">
+      <h1 className="text-base font-semibold text-[var(--text-primary)] mb-2">Could not load this page</h1>
+      <p className="text-sm text-[var(--text-muted)] font-mono break-words">
+        {error instanceof Error ? error.message : String(error)}
+      </p>
+    </div>
+  );
+}
+
 export function StaleBanner({ date, command }: { date: string; command: string }) {
   return (
     <p className="flex items-start gap-2 border border-[var(--caution)]/30 bg-[var(--caution)]/10 px-3 py-2 text-sm text-[var(--caution)]">

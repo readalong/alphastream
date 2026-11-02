@@ -1,8 +1,9 @@
 name: Deploy to Cloud Run
 
+# Local-only (owner, 2026-11-01): AlphaStream runs on the owner's machine and
+# nothing is deployed to GCP, so a push to main no longer deploys. Kept as a
+# manual workflow for reference; pr-check.yml type-checks and builds every PR.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 env:

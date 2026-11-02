@@ -52,7 +52,6 @@ import type {
   GexAlertsResponse,
   DealerFlowSnapshot,
   BacktestReviewsResponse,
-<<<<<<< Updated upstream
   DeskState,
   DeskSeriesRow,
   ThesisBook,
@@ -60,10 +59,9 @@ import type {
   RankerReport,
   LeansReport,
   LiquidityReport,
-=======
+  BookReport,
   OpportunitiesBothResponse,
   OpportunitiesUniverse,
->>>>>>> Stashed changes
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -380,7 +378,6 @@ export const api = {
 
   backtestReviews: () => apiFetch<BacktestReviewsResponse>("/api/backtest/reviews"),
 
-<<<<<<< Updated upstream
   // Desk brief — nightly desk state, thesis book, research reports
   deskState: () => apiFetch<DeskState>("/api/desk/state"),
 
@@ -394,8 +391,10 @@ export const api = {
   rankerReport: () => apiFetch<RankerReport>("/api/research/ranker"),
 
   leansReport: () => apiFetch<LeansReport>("/api/research/leans"),
-  liquidityReport: () => apiFetch<LiquidityReport>("/api/research/liquidity"),
-=======
+  liquidityReport: (layer: "plumbing" | "positioning" = "plumbing") =>
+    apiFetch<LiquidityReport>(`/api/research/liquidity?layer=${layer}`),
+
+  bookReport: () => apiFetch<BookReport>("/api/research/book"),
   // Phase 5 — /opportunities (sector rotation + long/short opportunity
   // scans). A cache-miss full sp500 scan takes a few minutes server-side —
   // long timeout, and refresh must only ever come from an explicit user
@@ -405,5 +404,4 @@ export const api = {
       `/api/opportunities/both?universe=${universe}&top=${top}&refresh=${refresh ? 1 : 0}`,
       { timeout: 300_000 }
     ),
->>>>>>> Stashed changes
 };

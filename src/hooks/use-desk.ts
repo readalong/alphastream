@@ -39,7 +39,12 @@ export function useLeansReport() {
     staleTime: 60 * 60 * 1000, retry: false });
 }
 
-export function useLiquidityReport() {
-  return useQuery({ queryKey: ["liquidity-report"], queryFn: () => api.liquidityReport(),
+export function useLiquidityReport(layer: "plumbing" | "positioning" = "plumbing") {
+  return useQuery({ queryKey: ["liquidity-report", layer], queryFn: () => api.liquidityReport(layer),
+    staleTime: 60 * 60 * 1000, retry: false });
+}
+
+export function useBookReport() {
+  return useQuery({ queryKey: ["book-report"], queryFn: () => api.bookReport(),
     staleTime: 60 * 60 * 1000, retry: false });
 }

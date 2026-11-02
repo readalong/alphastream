@@ -10,13 +10,25 @@
  *  - Basket leans (app/leans.py): within-date AUC and Brier improvement,
  *    each with a CI. A horizon prints in colour on /desk only once both
  *    floors clear; until then leans are grey, observation-only.
+ *  - Liquidity layers 1 (US plumbing) and 4 (positioning), same harness and
+ *    bars (app/liquidity_test.py, app/positioning.py).
+ *  - Stock book (app/stock_book.py, `--book-sim`): the live 10-position cap
+ *    replayed on the validated run. CAGR and drawdown always shown together.
  */
 
 import { FlaskConical } from "lucide-react";
-import { useLeansReport, useLiquidityReport, useRankerReport } from "@/hooks/use-desk";
+import { useBookReport, useLeansReport, useLiquidityReport, useRankerReport } from "@/hooks/use-desk";
 import { cn } from "@/lib/utils";
 import { Chip, Panel, fmtNum, fmtSigned, isNotFound, signClass } from "@/components/desk/primitives";
-import type { BootstrapCI, LeanKey, LeansReport, LiquidityReport, RankerReport } from "@/lib/types";
+import type {
+  BookReport,
+  BookSimRow,
+  BootstrapCI,
+  LeanKey,
+  LeansReport,
+  LiquidityReport,
+  RankerReport,
+} from "@/lib/types";
 
 const MODEL_LABEL: Record<string, string> = {
   gbm: "Gradient boosting (primary)",
@@ -260,12 +272,15 @@ function LeansSection({ l }: { l: LeansReport }) {
   );
 }
 
-const STRATEGY_LABEL: Record<string, string> = {
-  buy_hold: "Buy and hold SPY",
-  rule_200d: "200-day rule",
-  layer_only: "Out when plumbing warns",
-  rule_200d_and_layer: "200-day rule, out when plumbing warns",
-};
+function strategyLabel(k: string, layerName: string) {
+  const labels: Record<string, string> = {
+    buy_hold: "Buy and hold SPY",
+    rule_200d: "200-day rule",
+    layer_only: `Out when ${layerName} warns`,
+    rule_200d_and_layer: `200-day rule, out when ${layerName} warns`,
+  };
+  return labels[k] ?? k;
+}
 
 function verdictTone(v: string): "long" | "short" | "muted" {
   return v === "PASS" ? "long" : v === "FAIL" ? "short" : "muted";
@@ -275,13 +290,21 @@ function pts(x: number | null | undefined) {
   return x == null ? "—" : `${fmtSigned(x * 100, 1)} pts`;
 }
 
-function LiquiditySection({ q }: { q: LiquidityReport }) {
+function LiquiditySection({
+  q,
+  title,
+  layerName,
+}: {
+  q: LiquidityReport;
+  title: string;
+  layerName: string;
+}) {
   const cw = q.crash_warning;
   const rd = q.risk_dial;
   const sd = rd.sharpe_diff_vs_200d;
   return (
     <Panel
-      title="Liquidity layer 1 · US plumbing"
+      title={title}
       subtitle={`Rule v${q.rule.version} registered ${q.rule.registered} · ${rd.start ?? "—"} to ${rd.end ?? "—"} · ${q.generated_at.slice(0, 10)}`}
     >
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 text-sm">
@@ -293,6 +316,16 @@ function LiquiditySection({ q }: { q: LiquidityReport }) {
         </span>
       </div>
 
+      {q.latest && (
+        <p className="mb-4 text-xs text-[var(--text-muted)]">
+          Latest reading {q.latest.date}:{" "}
+          <span className="font-mono text-[var(--text-primary)]">{q.latest.state}</span>
+          {" · "}yen net {q.latest.yen_net_oi == null ? "—" : `${fmtSigned(q.latest.yen_net_oi * 100, 1)}% of OI`}
+          {" · "}USD/JPY 10d {q.latest.usdjpy_chg_10d == null ? "—" : `${fmtSigned(q.latest.usdjpy_chg_10d * 100, 1)}%`}
+          {" · "}vol-control exposure {fmtNum(q.latest.vol_control_exposure, 2)}x
+          {" · "}CTA signal {fmtSigned(q.latest.cta_signal, 2)}
+        </p>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">Crash warning</p>
@@ -371,7 +404,7 @@ function LiquiditySection({ q }: { q: LiquidityReport }) {
             <tbody>
               {Object.entries(rd.strategies).map(([k, v]) => (
                 <tr key={k} className="border-t border-[var(--border)]/50">
-                  <td className="py-1 pr-3 font-sans">{STRATEGY_LABEL[k] ?? k}</td>
+                  <td className="py-1 pr-3 font-sans">{strategyLabel(k, layerName)}</td>
                   <td className="py-1 pr-3">{fmtNum(v.sharpe, 2)}</td>
                   <td className="py-1 pr-3">{fmtNum(v.cagr_pct, 1)}%</td>
                   <td className="py-1 pr-3 text-[var(--short)]">{fmtNum(v.max_dd_pct, 1)}%</td>
@@ -423,7 +456,109 @@ const FLAG_TEXT: Record<string, string> = {
   repo_usage: "Fed repo usage",
   reserves_drain: "Reserves falling",
   tga_drain: "TGA rebuild, no RRP buffer",
+  carry_unwind: "Yen carry unwind",
+  vol_control: "Vol-control de-risking",
+  cta_flip: "CTA trend flip",
 };
+
+function pct1(x: number | null | undefined) {
+  return x == null ? "—" : `${fmtNum(x * 100, 1)}%`;
+}
+
+function BookTable({ rows, live }: { rows: BookSimRow[]; live?: number }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs font-mono tabular-nums">
+        <thead className="text-[var(--text-muted)] font-sans">
+          <tr className="text-left">
+            <th className="py-1 pr-3 font-normal">Max open</th>
+            <th className="py-1 pr-3 font-normal">Trades</th>
+            <th className="py-1 pr-3 font-normal">Total R</th>
+            <th className="py-1 pr-3 font-normal">Avg R</th>
+            <th className="py-1 pr-3 font-normal">Max DD</th>
+            <th className="py-1 pr-3 font-normal">Days under</th>
+            <th className="py-1 pr-3 font-normal">CAGR</th>
+            <th className="py-1 font-normal">Sharpe</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr
+              key={String(r.cap)}
+              className={cn(
+                "border-t border-[var(--border)]/50",
+                live != null && r.cap === live && "text-[var(--text-primary)] font-semibold",
+              )}
+            >
+              <td className="py-1 pr-3">{r.cap ?? "none"}</td>
+              <td className="py-1 pr-3">{r.trades_taken.toLocaleString()}</td>
+              <td className="py-1 pr-3">{fmtNum(r.total_r, 0)}</td>
+              <td className="py-1 pr-3">{fmtNum(r.avg_r, 3)}</td>
+              <td className="py-1 pr-3 text-[var(--short)]">{fmtNum(r.max_drawdown_pct_of_account, 1)}%</td>
+              <td className="py-1 pr-3">{r.max_drawdown_days}</td>
+              <td className="py-1 pr-3">{pct1(r.cagr)}</td>
+              <td className="py-1">{fmtNum(r.sharpe_like, 2)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function BookSection({ b }: { b: BookReport }) {
+  const p = b.primary;
+  const ci = b.primary_ci;
+  const pick = (rows: BookSimRow[]) => rows.find((r) => r.cap === b.rule.max_concurrent);
+  const hind = pick(b.compare_hindsight_fills);
+  const atFill = pick(b.compare_cap_at_fill);
+  return (
+    <Panel
+      title="Stock book · capped at 10 open"
+      subtitle={`${b.source_report} · ${b.window.start} to ${b.window.end} · ${b.generated_at.slice(0, 10)}`}
+    >
+      <p className="text-sm text-[var(--text-muted)] mb-3 max-w-3xl">
+        At most {b.rule.max_concurrent} open stock rows, filled and pending alike, one per ticker; same-day setups
+        take free slots by {b.rule.slot_priority.replaceAll("_", " ")}; a stop-buy that never fills holds its slot{" "}
+        {b.rule.hold_unfilled_sessions} sessions. {fmtNum(b.rule.risk_pct_per_trade * 100, 0)}% risk per trade on $
+        {b.rule.account_value.toLocaleString()}, fixed size, net of costs.
+      </p>
+      <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 text-sm">
+        <span>
+          CAGR <span className="font-mono">{pct1(p.cagr)}</span>
+        </span>
+        <span>
+          Max drawdown <span className="font-mono text-[var(--short)]">{fmtNum(p.max_drawdown_pct_of_account, 1)}%</span>
+        </span>
+        <span>
+          Longest under water <span className="font-mono">{p.max_drawdown_days} days</span>
+        </span>
+        {ci && (
+          <span>
+            Per position <span className={cn("font-mono", signClass(ci.mean))}>{fmtSigned(ci.mean, 3)}R</span>{" "}
+            <span className="font-mono text-[var(--text-muted)]">{ciText(ci)}</span>
+          </span>
+        )}
+      </div>
+      <BookTable rows={b.sweep_live_rule} live={b.rule.max_concurrent} />
+      <ul className="mt-3 text-xs text-[var(--text-muted)] list-disc pl-4 space-y-0.5">
+        {hind && (
+          <li>
+            If pending setups took no slot: {pct1(hind.cagr)} CAGR at {fmtNum(hind.max_drawdown_pct_of_account, 1)}% max
+            drawdown. That uses hindsight, because nobody knows on the day a setup is logged that it will never fill.
+          </li>
+        )}
+        {atFill && (
+          <li>
+            Cap enforced at fill instead: {pct1(atFill.cagr)} CAGR at {fmtNum(atFill.max_drawdown_pct_of_account, 1)}%
+            max drawdown. More trades and twice the drawdown, so it was rejected.
+          </li>
+        )}
+        <li>The replay scans weekly; the live slate scans daily and refills a freed slot sooner.</li>
+      </ul>
+    </Panel>
+  );
+}
 
 function Missing({ title, command, error }: { title: string; command: string; error: unknown }) {
   const real = error && !isNotFound(error);
@@ -445,7 +580,9 @@ function Missing({ title, command, error }: { title: string; command: string; er
 export default function ResearchPage() {
   const ranker = useRankerReport();
   const leans = useLeansReport();
-  const liquidity = useLiquidityReport();
+  const liquidity = useLiquidityReport("plumbing");
+  const positioning = useLiquidityReport("positioning");
+  const book = useBookReport();
   return (
     <div className="space-y-4 max-w-6xl">
       <header className="flex items-center gap-2">
@@ -470,12 +607,34 @@ export default function ResearchPage() {
       ) : (
         <Missing title="Basket leans" command="--leans" error={leans.error} />
       )}
+      {book.isLoading ? (
+        <div className="h-40 bg-[var(--bg-card)]" />
+      ) : book.data ? (
+        <BookSection b={book.data} />
+      ) : (
+        <Missing title="Stock book · capped at 10 open" command="--book-sim" error={book.error} />
+      )}
       {liquidity.isLoading ? (
         <div className="h-40 bg-[var(--bg-card)]" />
       ) : liquidity.data ? (
-        <LiquiditySection q={liquidity.data} />
+        <LiquiditySection q={liquidity.data} title="Liquidity layer 1 · US plumbing" layerName="plumbing" />
       ) : (
         <Missing title="Liquidity layer 1 · US plumbing" command="--liquidity-test" error={liquidity.error} />
+      )}
+      {positioning.isLoading ? (
+        <div className="h-40 bg-[var(--bg-card)]" />
+      ) : positioning.data ? (
+        <LiquiditySection
+          q={positioning.data}
+          title="Liquidity layer 4 · positioning"
+          layerName="positioning"
+        />
+      ) : (
+        <Missing
+          title="Liquidity layer 4 · positioning"
+          command="--positioning-test (via scripts/local_research.sh --push)"
+          error={positioning.error}
+        />
       )}
     </div>
   );

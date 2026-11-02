@@ -1455,6 +1455,9 @@ export interface ScorecardResponse {
   by_direction: Record<string, ScorecardBucket>;
   open_positions: ScorecardOpenPosition[];
   closed_positions: ScorecardClosedPosition[];
+  /** P3: the stock book against its cap. Filled positions AND pending
+   *  stop-buys count; slots_free 0 = no new stock entries today. */
+  stock_book?: { cap: number; open: number; slots_free: number };
 }
 
 /* ── Phase 2: Futures Plan, GEX Alerts, Dealer Flow, Backtest Reviews ──
@@ -1699,7 +1702,6 @@ export interface BacktestReviewsResponse {
   };
 }
 
-<<<<<<< Updated upstream
 // ---------------------------------------------------------------------------
 // Desk brief — nightly desk state, thesis book, research reports
 // (trading-discovery-engine app/desk_state.py, app/thesis_book.py,
@@ -2185,7 +2187,53 @@ export interface LiquidityReport {
   }>;
   verdict: { crash_warning: "PASS" | "FAIL" | "INSUFFICIENT_DATA"; risk_dial: "PASS" | "FAIL" | "INSUFFICIENT_DATA"; warned_share: number };
   caveats: string[];
-=======
+  /** Layer 4 (positioning) only: the last session with a state. */
+  latest?: {
+    date: string;
+    state: "UNWIND" | "CROWDED" | "NEUTRAL";
+    flags: Record<string, boolean>;
+    yen_net_oi: number | null;
+    yen_pct_rank: number | null;
+    usdjpy_chg_10d: number | null;
+    rv20: number | null;
+    vol_control_exposure: number | null;
+    cta_signal: number | null;
+  } | null;
+}
+
+/** One row of the stock-book replay (app/stock_book.py, `--book-sim`). */
+export interface BookSimRow {
+  cap: number | null;
+  trades_taken: number;
+  total_r: number;
+  avg_r: number | null;
+  win_rate: number | null;
+  max_drawdown_pct_of_account: number;
+  max_drawdown_days: number;
+  cagr: number | null;
+  sharpe_like: number | null;
+}
+
+export interface BookReport {
+  generated_at: string;
+  source_report: string;
+  run_id: string;
+  window: { start: string; end: string };
+  rule: {
+    max_concurrent: number;
+    slot_priority: string;
+    hold_unfilled_sessions: number;
+    account_value: number;
+    risk_pct_per_trade: number;
+    cost_basis: string;
+  };
+  primary: BookSimRow;
+  primary_ci: BootstrapCI | null;
+  sweep_live_rule: BookSimRow[];
+  compare_hindsight_fills: BookSimRow[];
+  compare_cap_at_fill: BookSimRow[];
+}
+
 /* ── Opportunities / /opportunities page (docs/ALPHASTREAM_OPPORTUNITIES_UI.md) ── */
 
 export type OpportunitiesUniverse = "sp500" | "nasdaq100" | "full" | "smoke";
@@ -2275,5 +2323,4 @@ export interface OpportunitiesBothResponse {
   sector_rotation_full: OpportunitySectorRow[];
   long: OpportunitySideResponse;
   short: OpportunitySideResponse;
->>>>>>> Stashed changes
 }

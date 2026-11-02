@@ -212,7 +212,7 @@ function ScorecardSection() {
         <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 text-sm flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="text-xs text-[var(--text-muted)] uppercase tracking-wide">Stock book</span>
           <span className="font-mono tabular-nums text-[var(--text-primary)]">
-            {data.stock_book.open}/{data.stock_book.cap} open
+            {data.stock_book.unreadable ? "ledger unreadable" : `${data.stock_book.open}/${data.stock_book.cap} open`}
           </span>
           <span className="text-xs text-[var(--text-muted)]">filled positions and pending stop-buys both count</span>
           <span

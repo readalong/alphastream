@@ -1457,7 +1457,7 @@ export interface ScorecardResponse {
   closed_positions: ScorecardClosedPosition[];
   /** P3: the stock book against its cap. Filled positions AND pending
    *  stop-buys count; slots_free 0 = no new stock entries today. */
-  stock_book?: { cap: number; open: number; slots_free: number };
+  stock_book?: { cap: number; open: number | null; slots_free: number; unreadable?: string };
 }
 
 /* ── Phase 2: Futures Plan, GEX Alerts, Dealer Flow, Backtest Reviews ──
@@ -2232,6 +2232,13 @@ export interface BookReport {
   sweep_live_rule: BookSimRow[];
   compare_hindsight_fills: BookSimRow[];
   compare_cap_at_fill: BookSimRow[];
+  /** The live rule under random same-score tie orders: quote this range. */
+  tie_break_sensitivity?: {
+    seeds: number;
+    max_drawdown_pct_of_account: { min: number; median: number; max: number } | null;
+    cagr: { min: number; median: number; max: number } | null;
+  };
+  occupancy?: { avg_slots_held: number; avg_filled_positions: number; avg_pending_orders: number };
 }
 
 /* ── Opportunities / /opportunities page (docs/ALPHASTREAM_OPPORTUNITIES_UI.md) ── */

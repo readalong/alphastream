@@ -510,6 +510,8 @@ function BookSection({ b }: { b: BookReport }) {
   const p = b.primary;
   const ci = b.primary_ci;
   const pick = (rows: BookSimRow[]) => rows.find((r) => r.cap === b.rule.max_concurrent);
+  const tb = b.tie_break_sensitivity;
+  const oc = b.occupancy;
   const hind = pick(b.compare_hindsight_fills);
   const atFill = pick(b.compare_cap_at_fill);
   return (
@@ -524,12 +526,40 @@ function BookSection({ b }: { b: BookReport }) {
         {b.rule.account_value.toLocaleString()}, fixed size, net of costs.
       </p>
       <div className="flex flex-wrap gap-x-6 gap-y-2 mb-4 text-sm">
-        <span>
-          CAGR <span className="font-mono">{pct1(p.cagr)}</span>
-        </span>
-        <span>
-          Max drawdown <span className="font-mono text-[var(--short)]">{fmtNum(p.max_drawdown_pct_of_account, 1)}%</span>
-        </span>
+        {tb?.cagr && tb.max_drawdown_pct_of_account ? (
+          <>
+            <span>
+              CAGR <span className="font-mono">{pct1(tb.cagr.median)}</span>{" "}
+              <span className="font-mono text-xs text-[var(--text-muted)]">
+                ({pct1(tb.cagr.min)}–{pct1(tb.cagr.max)})
+              </span>
+            </span>
+            <span>
+              Max drawdown{" "}
+              <span className="font-mono text-[var(--short)]">{fmtNum(tb.max_drawdown_pct_of_account.median, 1)}%</span>{" "}
+              <span className="font-mono text-xs text-[var(--text-muted)]">
+                ({fmtNum(tb.max_drawdown_pct_of_account.min, 1)}–{fmtNum(tb.max_drawdown_pct_of_account.max, 1)}%)
+              </span>
+            </span>
+          </>
+        ) : (
+          <>
+            <span>
+              CAGR <span className="font-mono">{pct1(p.cagr)}</span>
+            </span>
+            <span>
+              Max drawdown <span className="font-mono text-[var(--short)]">{fmtNum(p.max_drawdown_pct_of_account, 1)}%</span>
+            </span>
+          </>
+        )}
+        {oc && (
+          <span>
+            Held on average{" "}
+            <span className="font-mono">
+              {fmtNum(oc.avg_filled_positions, 1)} filled + {fmtNum(oc.avg_pending_orders, 1)} pending
+            </span>
+          </span>
+        )}
         <span>
           Longest under water <span className="font-mono">{p.max_drawdown_days} days</span>
         </span>
@@ -552,6 +582,12 @@ function BookSection({ b }: { b: BookReport }) {
           <li>
             Cap enforced at fill instead: {pct1(atFill.cagr)} CAGR at {fmtNum(atFill.max_drawdown_pct_of_account, 1)}%
             max drawdown. More trades and twice the drawdown, so it was rejected.
+          </li>
+        )}
+        {tb && (
+          <li>
+            Headline CAGR and drawdown are the median (and range) over {tb.seeds} random orders of same-score ties;
+            the table uses the alphabetical tie-break both the replay and the live slate apply.
           </li>
         )}
         <li>The replay scans weekly; the live slate scans daily and refills a freed slot sooner.</li>

@@ -9,16 +9,125 @@
  * detail view behind /today's permanent track-record footer.
  */
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useScorecard } from "@/hooks/use-digest";
 import { useBacktestReviews } from "@/hooks/use-backtest-reviews";
 import { GlossaryLink } from "@/components/glossary-link";
-import { cn } from "@/lib/utils";
-import type { BacktestFinding, BacktestReview, ScorecardBucket } from "@/lib/types";
+import { cn, formatPrice } from "@/lib/utils";
+import type {
+  BacktestFinding,
+  BacktestReview,
+  ScorecardBucket,
+  ScorecardClosedPosition,
+  ScorecardOpenPosition,
+  ScorecardResult,
+} from "@/lib/types";
 
 function fmtR(v: number | null | undefined) {
   if (v == null) return "—";
   return `${v > 0 ? "+" : ""}${v.toFixed(2)}R`;
+}
+
+const RESULT_LABEL: Record<ScorecardResult, string> = {
+  hit_t1: "Target hit",
+  stopped: "Stopped",
+  expired: "Expired",
+};
+
+/** Plain dates ("2026-07-31"), not timestamps — no hour/minute noise. */
+function fmtDate(d: string | null | undefined) {
+  if (!d) return "—";
+  const dt = new Date(`${d}T00:00:00`);
+  if (Number.isNaN(dt.getTime())) return d;
+  return dt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+/** Price-and-date pair for the Opened/Closed columns — price on top,
+ *  the date it happened on underneath in muted text. */
+function PriceDateCell({ price, date }: { price: number | null; date: string | null | undefined }) {
+  return (
+    <td className="px-3 py-2 text-right">
+      <div className="font-mono tabular-nums text-[var(--text-primary)]">
+        {price != null ? formatPrice(price) : "—"}
+      </div>
+      <div className="text-xs text-[var(--text-muted)]">{fmtDate(date)}</div>
+    </td>
+  );
+}
+
+interface PlanDetailProps {
+  /** Only passed where T1 isn't already its own column (closed positions —
+   *  open positions show it as the "Target" column instead). T1 is the
+   *  level actually graded (evaluate_setup only ever checks target_1);
+   *  target_2 is a further, ungraded stretch level — shown clearly
+   *  secondary so the two are never confused for one "the" target. */
+  target_1?: number | null;
+  target_2?: number | null;
+  rr_t1?: number | null;
+  max_hold_days?: number | null;
+  fill_date?: string | null;
+  entry_price?: number | null;
+}
+
+function hasPlanDetail(p: PlanDetailProps, includeFill = false) {
+  return (
+    p.target_1 != null ||
+    p.target_2 != null ||
+    p.rr_t1 != null ||
+    p.max_hold_days != null ||
+    Boolean(includeFill && p.fill_date)
+  );
+}
+
+/** Plan detail shared by open + closed rows, kept out of the main row so
+ *  the table stays scannable. T1 (the graded target) renders primary;
+ *  everything else — including T2, the ungraded stretch target — renders
+ *  muted so they read as secondary context, not "the" target. */
+function PlanDetail({ p, includeFill = false }: { p: PlanDetailProps; includeFill?: boolean }) {
+  const rest: string[] = [];
+  if (includeFill && p.fill_date) {
+    rest.push(`Filled ${fmtDate(p.fill_date)}${p.entry_price != null ? ` @ ${formatPrice(p.entry_price)}` : ""}`);
+  }
+  if (p.target_2 != null) rest.push(`T2 ${p.target_2} (stretch, ungraded)`);
+  if (p.rr_t1 != null) rest.push(`R:R ${p.rr_t1}`);
+  if (p.max_hold_days != null) rest.push(`max hold ${p.max_hold_days}d`);
+
+  return (
+    <>
+      {p.target_1 != null && (
+        <span className="text-[var(--text-primary)] font-semibold">Target {formatPrice(p.target_1)}</span>
+      )}
+      {p.target_1 != null && rest.length > 0 && <span> · </span>}
+      {rest.length > 0 && <span>{rest.join(" · ")}</span>}
+    </>
+  );
+}
+
+/** The "why" sub-row — plan detail + the conviction-vote reasoning trail,
+ *  rendered under a position's main row instead of cramming it into a
+ *  column. Renders nothing when there's genuinely nothing to show. */
+function ReasonRow({
+  colSpan,
+  plan,
+  includeFill = false,
+  reasons,
+}: {
+  colSpan: number;
+  plan: PlanDetailProps;
+  includeFill?: boolean;
+  reasons: string[];
+}) {
+  const hasDetail = hasPlanDetail(plan, includeFill);
+  if (!hasDetail && reasons.length === 0) return null;
+  return (
+    <tr className="border-b border-[var(--border)] last:border-0">
+      <td colSpan={colSpan} className="px-3 pb-2 pt-0 text-xs text-[var(--text-muted)]">
+        {hasDetail && <PlanDetail p={plan} includeFill={includeFill} />}
+        {hasDetail && reasons.length > 0 && <span> · </span>}
+        {reasons.length > 0 && <span>Why: {reasons.join(", ")}</span>}
+      </td>
+    </tr>
+  );
 }
 
 const SEVERITY_STYLE: Record<string, string> = {
@@ -105,26 +214,111 @@ function ScorecardSection() {
             Open positions ({data.open_positions.length})
           </p>
           <table className="w-full text-sm">
+            <thead>
+              <tr className="text-xs text-[var(--text-muted)] border-b border-[var(--border)]">
+                <th className="text-left font-normal px-3 py-2">Ticker</th>
+                <th className="text-left font-normal px-3 py-2">Direction</th>
+                <th className="text-right font-normal px-3 py-2">Entry zone</th>
+                <th className="text-right font-normal px-3 py-2">Target</th>
+              </tr>
+            </thead>
             <tbody>
-              {data.open_positions.map((p, i) => (
-                <tr key={`${p.id}-${i}`} className="border-b border-[var(--border)] last:border-0">
-                  <td className="px-3 py-2 font-mono font-semibold text-[var(--text-primary)]">
-                    {p.id}
-                  </td>
-                  <td className="px-3 py-2 text-[var(--text-muted)]">{p.direction}</td>
-                  <td className="px-3 py-2 text-right font-mono tabular-nums text-[var(--text-primary)]">
-                    {p.entry_zone ? `${p.entry_zone[0]}–${p.entry_zone[1]}` : "—"}
-                  </td>
-                  <td className="px-3 py-2 text-right text-xs text-[var(--text-muted)]">
-                    {p.tier ?? "—"}
-                  </td>
-                </tr>
-              ))}
+              {data.open_positions.map((p: ScorecardOpenPosition, i) => {
+                const hasDetail = hasPlanDetail(p, true);
+                return (
+                  <Fragment key={`${p.id}-${i}`}>
+                    <tr className={cn(!hasDetail && "border-b border-[var(--border)] last:border-0")}>
+                      <td className="px-3 py-2 font-mono font-semibold text-[var(--text-primary)]">
+                        {p.id}
+                      </td>
+                      <td className="px-3 py-2 text-[var(--text-muted)]">{p.direction}</td>
+                      <td className="px-3 py-2 text-right font-mono tabular-nums text-[var(--text-primary)]">
+                        {p.entry_zone ? `${p.entry_zone[0]}–${p.entry_zone[1]}` : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono tabular-nums text-[var(--text-primary)]">
+                        {p.target_1 != null ? formatPrice(p.target_1) : "—"}
+                      </td>
+                    </tr>
+                    <ReasonRow
+                      colSpan={4}
+                      plan={{ target_2: p.target_2, rr_t1: p.rr_t1, max_hold_days: p.max_hold_days,
+                             fill_date: p.fill_date, entry_price: p.entry_price }}
+                      includeFill
+                      reasons={p.reasons}
+                    />
+                  </Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
       )}
+
+      <ClosedPositionsTable positions={data.closed_positions} />
     </section>
+  );
+}
+
+function ClosedPositionsTable({ positions }: { positions: ScorecardClosedPosition[] }) {
+  if (positions.length === 0) return null;
+
+  return (
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
+      <p className="px-3 py-2 text-xs text-[var(--text-muted)] border-b border-[var(--border)]">
+        Closed positions ({positions.length})
+      </p>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-xs text-[var(--text-muted)] border-b border-[var(--border)]">
+            <th className="text-left font-normal px-3 py-2">Ticker</th>
+            <th className="text-left font-normal px-3 py-2 hidden sm:table-cell">Direction</th>
+            <th className="text-left font-normal px-3 py-2">Result</th>
+            <th className="text-right font-normal px-3 py-2">Opened</th>
+            <th className="text-right font-normal px-3 py-2">Closed</th>
+            <th className="text-right font-normal px-3 py-2">
+              <GlossaryLink term="R-multiple (avg R)" className="hover:text-[var(--accent)]">
+                R
+              </GlossaryLink>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {positions.map((p, i) => {
+            const hasDetail = hasPlanDetail(p);
+            return (
+              <Fragment key={`${p.id}-${p.resolve_date}-${i}`}>
+                <tr className={cn(!hasDetail && "border-b border-[var(--border)] last:border-0")}>
+                  <td className="px-3 py-2 font-mono font-semibold text-[var(--text-primary)]">{p.id}</td>
+                  <td className="px-3 py-2 text-[var(--text-muted)] hidden sm:table-cell">{p.direction}</td>
+                  <td className="px-3 py-2 text-[var(--text-muted)]">{RESULT_LABEL[p.result] ?? p.result}</td>
+                  <PriceDateCell price={p.entry_price} date={p.fill_date} />
+                  <PriceDateCell price={p.exit_price} date={p.resolve_date} />
+                  <td
+                    className={cn(
+                      "px-3 py-2 text-right font-mono tabular-nums font-semibold",
+                      p.r_multiple == null
+                        ? "text-[var(--text-muted)]"
+                        : p.r_multiple > 0
+                          ? "text-[var(--long)]"
+                          : p.r_multiple < 0
+                            ? "text-[var(--short)]"
+                            : "text-[var(--text-muted)]"
+                    )}
+                  >
+                    {fmtR(p.r_multiple)}
+                  </td>
+                </tr>
+                <ReasonRow
+                  colSpan={6}
+                  plan={{ target_1: p.target_1, target_2: p.target_2, rr_t1: p.rr_t1 }}
+                  reasons={p.reasons}
+                />
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

@@ -52,6 +52,7 @@ import type {
   GexAlertsResponse,
   DealerFlowSnapshot,
   BacktestReviewsResponse,
+<<<<<<< Updated upstream
   DeskState,
   DeskSeriesRow,
   ThesisBook,
@@ -59,6 +60,10 @@ import type {
   RankerReport,
   LeansReport,
   LiquidityReport,
+=======
+  OpportunitiesBothResponse,
+  OpportunitiesUniverse,
+>>>>>>> Stashed changes
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -375,6 +380,7 @@ export const api = {
 
   backtestReviews: () => apiFetch<BacktestReviewsResponse>("/api/backtest/reviews"),
 
+<<<<<<< Updated upstream
   // Desk brief — nightly desk state, thesis book, research reports
   deskState: () => apiFetch<DeskState>("/api/desk/state"),
 
@@ -389,4 +395,15 @@ export const api = {
 
   leansReport: () => apiFetch<LeansReport>("/api/research/leans"),
   liquidityReport: () => apiFetch<LiquidityReport>("/api/research/liquidity"),
+=======
+  // Phase 5 — /opportunities (sector rotation + long/short opportunity
+  // scans). A cache-miss full sp500 scan takes a few minutes server-side —
+  // long timeout, and refresh must only ever come from an explicit user
+  // action (never a page-load default), per docs/ALPHASTREAM_OPPORTUNITIES_UI.md.
+  opportunities: (universe: OpportunitiesUniverse = "sp500", top = 15, refresh = false) =>
+    apiFetch<OpportunitiesBothResponse>(
+      `/api/opportunities/both?universe=${universe}&top=${top}&refresh=${refresh ? 1 : 0}`,
+      { timeout: 300_000 }
+    ),
+>>>>>>> Stashed changes
 };

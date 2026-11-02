@@ -50,7 +50,7 @@ export function ChartStudioPanel({ symbol }: { symbol: string }) {
     candleSeries: ISeriesApi<"Candlestick"> | null;
   }>({ chart: null, candleSeries: null });
 
-  const { data, isLoading, error } = useOHLCV(symbol, period);
+  const { data, isLoading, isFetching, error } = useOHLCV(symbol, period);
 
   const handleChartReady = useCallback(
     (handle: { chart: IChartApi | null; candleSeries: ISeriesApi<"Candlestick"> | null }) => {
@@ -119,7 +119,8 @@ export function ChartStudioPanel({ symbol }: { symbol: string }) {
     <div className="flex flex-col h-[75vh] rounded-lg border border-[var(--border)] overflow-hidden">
       {/* Bar count (the ticker/tab header above already shows the symbol) */}
       {data && (
-        <div className="flex items-center justify-end px-4 py-1.5 border-b border-[var(--border)] bg-[var(--bg-page)]">
+        <div className="flex items-center justify-end gap-2 px-4 py-1.5 border-b border-[var(--border)] bg-[var(--bg-page)]">
+          {isFetching && <Loader2 className="h-3 w-3 animate-spin text-[var(--text-muted)]" />}
           <span className="text-xs text-[var(--text-muted)]">
             {data.bars} bars · {data.period}
           </span>
@@ -147,7 +148,7 @@ export function ChartStudioPanel({ symbol }: { symbol: string }) {
         }}
         indicators={indicators}
         onIndicatorChange={handleIndicatorChange}
-        isLoading={isLoading}
+        isLoading={isFetching}
       />
 
       {/* Elliott wave disclaimer */}

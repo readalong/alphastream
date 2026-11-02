@@ -18,11 +18,17 @@ import {
   Briefcase,
   Sun,
   Check,
+<<<<<<< Updated upstream
   Newspaper,
   ScrollText,
   FlaskConical,
+=======
+  Waypoints,
+>>>>>>> Stashed changes
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTriageCounts } from "@/hooks/use-triage";
+import { NavBadge } from "./nav-badge";
 import { SidebarFavorites } from "./sidebar-favorites";
 
 const IS_PRODUCTION = process.env.NEXT_PUBLIC_APP_ENV === "production";
@@ -47,6 +53,10 @@ const NAV_SECTIONS = [
       { name: "Flows", href: "/flows", icon: Waves },
       { name: "Strategy", href: "/strategy", icon: Swords },
     ],
+  },
+  {
+    label: "OPPORTUNITIES",
+    items: [{ name: "Opportunities", href: "/opportunities", icon: Waypoints }],
   },
   {
     label: "IDEAS",
@@ -75,8 +85,14 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+const BADGE_COUNTS: Record<string, "actOpenCount" | "portfolioActOpenCount"> = {
+  "/today": "actOpenCount",
+  "/portfolio": "portfolioActOpenCount",
+};
+
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const counts = useTriageCounts();
 
   return (
     <>
@@ -117,6 +133,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               {section.items.map((item) => {
                 const isActive =
                   pathname === item.href || pathname.startsWith(item.href + "/");
+                const countKey = BADGE_COUNTS[item.href];
                 return (
                   <Link
                     key={item.href}
@@ -130,7 +147,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                     )}
                   >
                     <item.icon className="h-4 w-4" />
-                    {item.name}
+                    <span className="flex-1">{item.name}</span>
+                    {countKey && <NavBadge count={counts[countKey]} />}
                   </Link>
                 );
               })}

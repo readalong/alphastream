@@ -416,7 +416,7 @@ export interface PortfolioHealthResponse {
   sector_breakdown: Record<string, number>;
   highest_concentration: string;
   days_since_regime_change: number;
-  capacity: PortfolioCapacity;
+  capacity?: PortfolioCapacity;
 }
 
 export interface OpenPosition {
@@ -1405,9 +1405,44 @@ export interface ScorecardOpenPosition {
   entry_zone?: [number, number] | number[] | null;
   stop?: number | null;
   target_1?: number | null;
+  target_2?: number | null;
+  rr_t1?: number | null;
+  max_hold_days?: number | null;
   tier?: string | null;
   confidence?: number | null;
   fill_date?: string | null;
+  /** Entry-zone midpoint — the assumed fill price, known as soon as the
+   *  setup is logged (fills won't have happened yet if fill_date is null). */
+  entry_price: number | null;
+  exit_price: number | null;
+  /** Plain-English reasons the system voted for this setup — empty if the
+   *  underlying reason_trail was unavailable. */
+  reasons: string[];
+}
+
+export type ScorecardResult = "hit_t1" | "stopped" | "expired";
+
+export interface ScorecardClosedPosition {
+  id: string;
+  kind: string;
+  direction: "long" | "short" | string;
+  date: string;
+  entry_zone?: [number, number] | number[] | null;
+  stop?: number | null;
+  target_1?: number | null;
+  target_2?: number | null;
+  rr_t1?: number | null;
+  result: ScorecardResult;
+  r_multiple: number | null;
+  /** Price/date the position actually filled at. */
+  fill_date?: string | null;
+  entry_price: number | null;
+  /** Price/date the position closed at. exit_price is exact for hit_t1
+   *  (=target_1) and stopped (=stop); for expired it's reconstructed from
+   *  the stored r_multiple and is a close approximation, not the exact fill. */
+  resolve_date?: string | null;
+  exit_price: number | null;
+  reasons: string[];
 }
 
 export interface ScorecardResponse {
@@ -1419,6 +1454,7 @@ export interface ScorecardResponse {
   by_instrument: Record<string, ScorecardBucket>;
   by_direction: Record<string, ScorecardBucket>;
   open_positions: ScorecardOpenPosition[];
+  closed_positions: ScorecardClosedPosition[];
 }
 
 /* ── Phase 2: Futures Plan, GEX Alerts, Dealer Flow, Backtest Reviews ──
@@ -1663,6 +1699,7 @@ export interface BacktestReviewsResponse {
   };
 }
 
+<<<<<<< Updated upstream
 // ---------------------------------------------------------------------------
 // Desk brief — nightly desk state, thesis book, research reports
 // (trading-discovery-engine app/desk_state.py, app/thesis_book.py,
@@ -2148,4 +2185,95 @@ export interface LiquidityReport {
   }>;
   verdict: { crash_warning: "PASS" | "FAIL" | "INSUFFICIENT_DATA"; risk_dial: "PASS" | "FAIL" | "INSUFFICIENT_DATA"; warned_share: number };
   caveats: string[];
+=======
+/* ── Opportunities / /opportunities page (docs/ALPHASTREAM_OPPORTUNITIES_UI.md) ── */
+
+export type OpportunitiesUniverse = "sp500" | "nasdaq100" | "full" | "smoke";
+export type OpportunitySide = "long" | "short";
+export type SectorFlowState = "inflow" | "outflow" | "neutral";
+
+export interface OpportunitySectorRow {
+  etf: string;
+  name: string;
+  score: number | null;
+  tier: "LEADING" | "NEUTRAL" | "LAGGING" | string;
+}
+
+export interface OpportunitySectorFocusRow extends OpportunitySectorRow {
+  summary: string;
+}
+
+export interface OpportunitySectorRotation {
+  /** Present on the long side only. */
+  money_flowing_into?: OpportunitySectorFocusRow[];
+  /** Present on the short side only. */
+  money_flowing_out_of?: OpportunitySectorFocusRow[];
+  full_ranking: OpportunitySectorRow[];
+}
+
+export interface OpportunitySetups {
+  // long-side fields
+  breakout?: string | null;
+  breakout_score?: number | null;
+  tier?: string | null;
+  pullback_resume?: boolean;
+  // shared
+  screener_category?: string | null;
+  // short-side field
+  stage?: string | null;
+}
+
+export interface OpportunityPlan {
+  entry: number;
+  /** Verbatim, do not paraphrase — see doc §5. Null when no pivot-cross
+   *  applies (pure screener-category/pullback-resume candidates). */
+  entry_note: string | null;
+  pivot_price?: number | null;
+  stop: number;
+  /** Always null on the short side (no measured-move target yet). */
+  target_1: number | null;
+  rr_t1?: number | null;
+  shares: number;
+  position_value: number;
+  position_pct_of_portfolio: number;
+  risk_per_share: number;
+  dollar_risk: number;
+  risk_pct_of_portfolio: number;
+  capped_by_max_position: boolean;
+  sizing_note: string;
+}
+
+export interface OpportunityCandidate {
+  ticker: string;
+  close: number;
+  conviction: number;
+  sector_etf: string | null;
+  sector_state: SectorFlowState;
+  setups: OpportunitySetups;
+  /** Pipe-delimited segments; a "CAUTION:" prefixed segment is a sector
+   *  misalignment warning — render in the semantic warning color. */
+  why: string;
+  plan: OpportunityPlan;
+}
+
+export interface OpportunitySideResponse {
+  side: OpportunitySide;
+  date: string;
+  universe: OpportunitiesUniverse | string;
+  n_scanned: number;
+  portfolio_value: number;
+  risk_pct_per_trade: number;
+  sector_rotation: OpportunitySectorRotation;
+  candidates: OpportunityCandidate[];
+}
+
+export interface OpportunitiesBothResponse {
+  date: string;
+  universe: OpportunitiesUniverse | string;
+  portfolio_value: number;
+  risk_pct_per_trade: number;
+  sector_rotation_full: OpportunitySectorRow[];
+  long: OpportunitySideResponse;
+  short: OpportunitySideResponse;
+>>>>>>> Stashed changes
 }

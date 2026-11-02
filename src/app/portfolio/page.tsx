@@ -58,6 +58,7 @@ function heatBar(pct: number, max: number) {
 
 function PortfolioHealthPanel({ health }: { health: PortfolioHealthResponse }) {
   const { capacity, sector_breakdown, total_heat_pct, total_positions } = health;
+  const maxHeatPct = capacity?.max_heat_pct ?? 0.1;
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-5 space-y-5">
@@ -69,10 +70,21 @@ function PortfolioHealthPanel({ health }: { health: PortfolioHealthResponse }) {
       {/* Summary stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Open Positions", value: total_positions, suffix: `/ ${capacity.positions_remaining + total_positions}` },
-          { label: "Total Heat", value: `${(total_heat_pct * 100).toFixed(1)}%`, suffix: `of ${(capacity.max_heat_pct * 100).toFixed(0)}% max` },
-          { label: "Slots Remaining", value: capacity.positions_remaining },
-          { label: "Heat Remaining", value: `${(capacity.heat_remaining_pct * 100).toFixed(1)}%` },
+          {
+            label: "Open Positions",
+            value: total_positions,
+            suffix: capacity ? `/ ${capacity.positions_remaining + total_positions}` : undefined,
+          },
+          {
+            label: "Total Heat",
+            value: `${(total_heat_pct * 100).toFixed(1)}%`,
+            suffix: `of ${(maxHeatPct * 100).toFixed(0)}% max`,
+          },
+          { label: "Slots Remaining", value: capacity?.positions_remaining ?? "—" },
+          {
+            label: "Heat Remaining",
+            value: capacity ? `${(capacity.heat_remaining_pct * 100).toFixed(1)}%` : "—",
+          },
         ].map(({ label, value, suffix }) => (
           <div key={label} className="p-3 rounded-lg bg-[var(--bg-primary)] border border-[var(--border)]">
             <p className="text-xs text-[var(--text-muted)] mb-0.5">{label}</p>
@@ -86,9 +98,9 @@ function PortfolioHealthPanel({ health }: { health: PortfolioHealthResponse }) {
       <div>
         <div className="flex justify-between items-center mb-1.5">
           <span className="text-xs text-[var(--text-muted)]">Portfolio heat</span>
-          <span className="text-xs text-[var(--text-muted)]">max {(capacity.max_heat_pct * 100).toFixed(0)}%</span>
+          <span className="text-xs text-[var(--text-muted)]">max {(maxHeatPct * 100).toFixed(0)}%</span>
         </div>
-        {heatBar(total_heat_pct, capacity.max_heat_pct)}
+        {heatBar(total_heat_pct, maxHeatPct)}
       </div>
 
       {/* Sector breakdown */}
@@ -100,23 +112,26 @@ function PortfolioHealthPanel({ health }: { health: PortfolioHealthResponse }) {
           <div className="space-y-2">
             {Object.entries(sector_breakdown)
               .sort(([, a], [, b]) => b - a)
-              .map(([sector, pct]) => (
-                <div key={sector}>
-                  <div className="flex justify-between items-center mb-0.5">
-                    <Link href={`/sectors/${sector}`} className="text-xs text-[var(--accent)] hover:underline">
-                      {sector}
-                    </Link>
-                    <span className={cn(
-                      "text-xs tabular-nums font-medium",
-                      pct > capacity.max_per_sector ? "text-[var(--short)]" : "text-[var(--text-muted)]"
-                    )}>
-                      {(pct * 100).toFixed(1)}%
-                      {pct > capacity.max_per_sector && " ⚠"}
-                    </span>
+              .map(([sector, pct]) => {
+                const maxPerSector = capacity?.max_per_sector ?? 1;
+                return (
+                  <div key={sector}>
+                    <div className="flex justify-between items-center mb-0.5">
+                      <Link href={`/sectors/${sector}`} className="text-xs text-[var(--accent)] hover:underline">
+                        {sector}
+                      </Link>
+                      <span className={cn(
+                        "text-xs tabular-nums font-medium",
+                        pct > maxPerSector ? "text-[var(--short)]" : "text-[var(--text-muted)]"
+                      )}>
+                        {(pct * 100).toFixed(1)}%
+                        {pct > maxPerSector && " ⚠"}
+                      </span>
+                    </div>
+                    {heatBar(pct, maxPerSector)}
                   </div>
-                  {heatBar(pct, capacity.max_per_sector)}
-                </div>
-              ))}
+                );
+              })}
           </div>
         </div>
       )}

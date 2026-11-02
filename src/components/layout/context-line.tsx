@@ -8,9 +8,30 @@
  */
 
 import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 import { useMarketDirection } from "@/hooks/use-market-direction";
 import { useSectorRankings } from "@/hooks/use-recommendations";
 import { cn } from "@/lib/utils";
+import type { MarketWarning } from "@/lib/types";
+
+const SEVERITY_RANK: Record<MarketWarning["severity"], number> = {
+  CRITICAL: 0,
+  HIGH: 1,
+  MEDIUM: 2,
+  LOW: 3,
+};
+
+const SEVERITY_COLOR: Record<MarketWarning["severity"], string> = {
+  CRITICAL: "text-[var(--severe)]",
+  HIGH: "text-[var(--severe)]",
+  MEDIUM: "text-[var(--caution)]",
+  LOW: "text-[var(--info)]",
+};
+
+function formatWarning(w: MarketWarning): string {
+  const label = w.type.replace(/_/g, " ").toLowerCase();
+  return `${label} (${w.source.replace(/_/g, " ").toLowerCase()})`;
+}
 
 export function ContextLine() {
   const { data: market } = useMarketDirection();
@@ -22,6 +43,10 @@ export function ContextLine() {
   const mode = market?.strategy_mode?.effective ?? market?.strategy_mode?.base;
   const vix = market?.vix;
   const gexRegime = market?.gex?.regime;
+
+  const topWarning = [...(market?.warnings ?? [])].sort(
+    (a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]
+  )[0];
 
   if (!market && rankings.length === 0) return null;
 
@@ -40,7 +65,20 @@ export function ContextLine() {
 
   return (
     <div className="flex items-center gap-x-4 gap-y-1 px-4 py-1.5 text-xs bg-[var(--bg-sidebar)] border-b border-[var(--border)] overflow-x-auto whitespace-nowrap text-[var(--text-muted)]">
-      <span className="shrink-0">{dateLabel}</span>
+      {topWarning ? (
+        <Link
+          href="/futures"
+          className={cn(
+            "shrink-0 inline-flex items-center gap-1 font-semibold hover:underline",
+            SEVERITY_COLOR[topWarning.severity]
+          )}
+        >
+          <AlertTriangle className="h-3 w-3" />
+          {formatWarning(topWarning)}
+        </Link>
+      ) : (
+        <span className="shrink-0">{dateLabel}</span>
+      )}
 
       {mode && (
         <span className={cn("font-semibold shrink-0", modeColor)}>{mode}</span>

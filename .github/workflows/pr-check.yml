@@ -1,0 +1,32 @@
+name: PR check
+
+# Type-check and build every pull request. AlphaStream runs locally and
+# deploy.yml is manual-only, so this is the only automatic build check.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20   # matches the Dockerfile
+          cache: npm
+      - run: npm ci
+      - name: Type-check
+        run: npx tsc --noEmit
+      - name: Build
+        env:
+          NEXT_PUBLIC_APP_ENV: production
+        run: npm run build

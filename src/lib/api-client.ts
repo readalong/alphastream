@@ -52,6 +52,13 @@ import type {
   GexAlertsResponse,
   DealerFlowSnapshot,
   BacktestReviewsResponse,
+  DeskState,
+  DeskSeriesRow,
+  ThesisBook,
+  ThesisHistoryReport,
+  RankerReport,
+  LeansReport,
+  LiquidityReport,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -367,4 +374,19 @@ export const api = {
     apiFetch<DealerFlowSnapshot>(`/api/dealer-flow/${ticker}`),
 
   backtestReviews: () => apiFetch<BacktestReviewsResponse>("/api/backtest/reviews"),
+
+  // Desk brief — nightly desk state, thesis book, research reports
+  deskState: () => apiFetch<DeskState>("/api/desk/state"),
+
+  deskSeries: (days = 60) =>
+    apiFetch<{ series: DeskSeriesRow[] }>(`/api/desk/series?days=${days}`),
+
+  theses: () => apiFetch<ThesisBook>("/api/theses"),
+
+  thesisHistory: () => apiFetch<ThesisHistoryReport>("/api/theses/history"),
+
+  rankerReport: () => apiFetch<RankerReport>("/api/research/ranker"),
+
+  leansReport: () => apiFetch<LeansReport>("/api/research/leans"),
+  liquidityReport: () => apiFetch<LiquidityReport>("/api/research/liquidity"),
 };

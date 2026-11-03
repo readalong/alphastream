@@ -2550,7 +2550,9 @@ export interface BookRowBase {
   max_hold_days: number | null;
   /** Stocks: would the capped book (10 open) have held this row? Rows logged
    *  before the cap can be open but over it; the forward gate ignores them. */
-  in_capped_book?: boolean;
+  in_capped_book?: boolean | null;
+  /** "t1_then_trail" / "trail_only" / null (fixed target). trail_only rows have no target exit. */
+  exit_mode?: string | null;
   /** Futures: logged by the current, validated-inputs engine? */
   current_engine?: boolean;
   note?: string;

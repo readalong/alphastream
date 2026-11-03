@@ -107,6 +107,25 @@ export function triageFromDigest(digest: DailyDigest): TriageItem[] {
   return items;
 }
 
+/** What a row resolved on the bars means for the user, by result. Only
+ *  stops, targets and time stops were ever positions; a lapsed order
+ *  (`not_filled`) was not, and must not be "closed". */
+export function resolvedText(r: BookResolvedRow): { headline: string; detail: string } {
+  const r_ = r.r_multiple != null ? ` · ${r.r_multiple >= 0 ? "+" : ""}${r.r_multiple}R` : "";
+  switch (r.result) {
+    case "stopped":
+      return { headline: "stopped out", detail: `Close it at the broker if still open${r_}` };
+    case "hit_t1":
+      return { headline: "hit its target", detail: `Take the target leg at the broker if not filled${r_}` };
+    case "expired":
+      return { headline: "hit its time stop", detail: `Exit at the broker${r_}` };
+    case "not_filled":
+      return { headline: "order lapsed unfilled", detail: "Cancel the order at the broker; there is no position" };
+    default:
+      return { headline: "cannot be traded as logged", detail: `Ledger result "${r.result ?? "unknown"}": cancel any order for it` };
+  }
+}
+
 /** The ledger's open book -> what needs a decision today (Phase R2).
  *  Source of truth is setups.json via GET /api/book, the same rows the
  *  scorecard scores, with the stop as ratcheted today:
@@ -136,19 +155,25 @@ export function triageFromBook(book: BookResponse | undefined): TriageItem[] {
   });
 
   for (const r of book.resolved ?? []) {
-    const how = r.result === "stopped" ? "stopped out" : r.result === "hit_t1" ? "hit its target" : "timed out";
-    items.push(item(r, "resolved_on_bars", "act", `${r.id} ${how}`,
-      `Close it at the broker if still open${r.r_multiple != null ? ` · ${r.r_multiple >= 0 ? "+" : ""}${r.r_multiple}R` : ""}`));
+    const { headline, detail } = resolvedText(r);
+    items.push(item(r, "resolved_on_bars", "act", `${r.id} ${headline}`, detail));
   }
   for (const r of book.filled ?? []) {
     const long = r.direction === "long";
     const toStop = long ? (r.last_close - r.effective_stop) / r.last_close : (r.effective_stop - r.last_close) / r.last_close;
+    if (toStop <= 0) {
+      // The trailing stop is raised at the end of a bar from that bar's own
+      // high, so the close can already be through it: it exits next session.
+      items.push(item(r, "near_stop", "act", `${r.id} closed through its stop`,
+        `Last ${r.last_close} vs today's stop ${r.effective_stop}: it exits at the next open`));
+      continue;
+    }
     if (toStop <= NEAR_PCT) {
       items.push(item(r, "near_stop", "watch", `${r.id} near its stop`,
         `${(toStop * 100).toFixed(1)}% from today's stop ${r.effective_stop} · ${r.unrealized_r >= 0 ? "+" : ""}${r.unrealized_r}R`));
       continue;
     }
-    if (r.target_1 != null) {
+    if (r.target_1 != null && r.exit_mode !== "trail_only") {
       const toT = long ? (r.target_1 - r.last_close) / r.last_close : (r.last_close - r.target_1) / r.last_close;
       if (toT >= 0 && toT <= NEAR_PCT) {
         items.push(item(r, "near_target", "watch", `${r.id} near target`,

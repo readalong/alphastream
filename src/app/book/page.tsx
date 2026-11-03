@@ -15,6 +15,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Briefcase } from "lucide-react";
 import { useBook } from "@/hooks/use-desk";
+import { resolvedText } from "@/lib/triage";
 import { cn, formatPrice } from "@/lib/utils";
 import { Chip, Panel, fmtSigned, isNotFound, signClass } from "@/components/desk/primitives";
 import type { BookFilledRow, BookPendingRow, BookResponse, BookRowBase } from "@/lib/types";
@@ -50,7 +51,7 @@ function FilledTable({ rows }: { rows: BookFilledRow[] }) {
           {rows.map((r) => (
             <tr key={`${r.id}-${r.logged}`} className="border-b border-[var(--border)]/50 last:border-0">
               <td className="py-1.5 pr-3 font-semibold text-[var(--text-primary)]">
-                <Link href={`/ticker/${r.symbol}`} className="hover:text-[var(--accent)]">{r.id}</Link>
+                <Link href={r.kind === "future" ? "/futures" : `/ticker/${r.symbol}`} className="hover:text-[var(--accent)]">{r.id}</Link>
               </td>
               <td className="py-1.5 pr-3 font-sans text-[var(--text-muted)]">{r.direction}</td>
               <td className="py-1.5 pr-3">{r.fill_date}</td>
@@ -59,7 +60,7 @@ function FilledTable({ rows }: { rows: BookFilledRow[] }) {
                 {formatPrice(r.effective_stop)}
                 {r.trailing_active && <span className="ml-1 text-xs text-[var(--text-muted)] font-sans">trail</span>}
               </td>
-              <td className="py-1.5 pr-3 text-right">{formatPrice(r.last_close)}</td>
+              <td className={cn("py-1.5 pr-3 text-right", (r.direction === "long" ? r.last_close <= r.effective_stop : r.last_close >= r.effective_stop) && "text-[var(--short)]")}>{formatPrice(r.last_close)}</td>
               <td className={cn("py-1.5 pr-3 text-right", signClass(r.unrealized_r))}>{fmtSigned(r.unrealized_r, 2)}</td>
               <td className="py-1.5 pr-3 text-right">{r.bars_remaining}</td>
               <td className="py-1.5"><Flags r={r} /></td>
@@ -85,7 +86,7 @@ function PendingTable({ rows }: { rows: BookPendingRow[] }) {
           {rows.map((r) => (
             <tr key={`${r.id}-${r.logged}`} className="border-b border-[var(--border)]/50 last:border-0">
               <td className="py-1.5 pr-3 font-semibold text-[var(--text-primary)]">
-                <Link href={`/ticker/${r.symbol}`} className="hover:text-[var(--accent)]">{r.id}</Link>
+                <Link href={r.kind === "future" ? "/futures" : `/ticker/${r.symbol}`} className="hover:text-[var(--accent)]">{r.id}</Link>
               </td>
               <td className="py-1.5 pr-3 font-sans text-[var(--text-muted)]">{r.direction}</td>
               <td className="py-1.5 pr-3">{r.logged}</td>
@@ -126,17 +127,19 @@ function BookBody({ b }: { b: BookResponse }) {
       )}
 
       {b.resolved.length > 0 && (
-        <Panel title={`Resolved on the bars (${b.resolved.length})`} subtitle="Stop, target or time stop hit; the next brief writes it">
+        <Panel title={`Resolved on the bars (${b.resolved.length})`} subtitle="Stopped, target, time stop or a lapsed order; the next brief writes it">
           <ul className="space-y-1 text-sm">
             {b.resolved.map((r) => (
               <li key={`${r.id}-${r.logged}`} className="font-mono">
                 <span className="font-semibold text-[var(--text-primary)]">{r.id}</span>{" "}
                 <span className="font-sans text-[var(--text-muted)]">
-                  {r.result === "stopped" ? "stopped out" : r.result === "hit_t1" ? "hit target" : "timed out"} on{" "}
-                  {r.resolve_date}
+                  {resolvedText(r).headline}
+                  {r.resolve_date ? ` on ${r.resolve_date}` : ""}
                 </span>{" "}
-                <span className={signClass(r.r_multiple)}>{fmtSigned(r.r_multiple, 2)}R</span>
-                <span className="font-sans text-[var(--text-muted)]"> · close it at the broker if still open</span>
+                {r.r_multiple != null && (
+                  <span className={signClass(r.r_multiple)}>{fmtSigned(r.r_multiple, 2)}R</span>
+                )}
+                <span className="font-sans text-[var(--text-muted)]"> · {resolvedText(r).detail}</span>
               </li>
             ))}
           </ul>

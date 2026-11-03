@@ -1455,6 +1455,9 @@ export interface ScorecardResponse {
   by_direction: Record<string, ScorecardBucket>;
   open_positions: ScorecardOpenPosition[];
   closed_positions: ScorecardClosedPosition[];
+  /** P3: the stock book against its cap. Filled positions AND pending
+   *  stop-buys count; slots_free 0 = no new stock entries today. */
+  stock_book?: { cap: number; open: number | null; slots_free: number; unreadable?: string };
 }
 
 /* ── Phase 2: Futures Plan, GEX Alerts, Dealer Flow, Backtest Reviews ──
@@ -2184,6 +2187,58 @@ export interface LiquidityReport {
   }>;
   verdict: { crash_warning: "PASS" | "FAIL" | "INSUFFICIENT_DATA"; risk_dial: "PASS" | "FAIL" | "INSUFFICIENT_DATA"; warned_share: number };
   caveats: string[];
+  /** Layer 4 (positioning) only: the last session with a state. */
+  latest?: {
+    date: string;
+    state: "UNWIND" | "CROWDED" | "NEUTRAL";
+    flags: Record<string, boolean>;
+    yen_net_oi: number | null;
+    yen_pct_rank: number | null;
+    usdjpy_chg_10d: number | null;
+    rv20: number | null;
+    vol_control_exposure: number | null;
+    cta_signal: number | null;
+  } | null;
+}
+
+/** One row of the stock-book replay (app/stock_book.py, `--book-sim`). */
+export interface BookSimRow {
+  cap: number | null;
+  trades_taken: number;
+  total_r: number;
+  avg_r: number | null;
+  win_rate: number | null;
+  max_drawdown_pct_of_account: number;
+  max_drawdown_days: number;
+  cagr: number | null;
+  sharpe_like: number | null;
+}
+
+export interface BookReport {
+  generated_at: string;
+  source_report: string;
+  run_id: string;
+  window: { start: string; end: string };
+  rule: {
+    max_concurrent: number;
+    slot_priority: string;
+    hold_unfilled_sessions: number;
+    account_value: number;
+    risk_pct_per_trade: number;
+    cost_basis: string;
+  };
+  primary: BookSimRow;
+  primary_ci: BootstrapCI | null;
+  sweep_live_rule: BookSimRow[];
+  compare_hindsight_fills: BookSimRow[];
+  compare_cap_at_fill: BookSimRow[];
+  /** The live rule under random same-score tie orders: quote this range. */
+  tie_break_sensitivity?: {
+    seeds: number;
+    max_drawdown_pct_of_account: { min: number; median: number; max: number } | null;
+    cagr: { min: number; median: number; max: number } | null;
+  };
+  occupancy?: { avg_slots_held: number; avg_filled_positions: number; avg_pending_orders: number };
 }
 
 /* ── Opportunities / /opportunities page (docs/ALPHASTREAM_OPPORTUNITIES_UI.md) ── */
@@ -2476,4 +2531,77 @@ export interface ActionsFilterParams {
   action?: ActionType[];
   min_score?: number;
   min_conviction?: number;
+}
+
+
+/* ── The book (engine app/book.py, GET /api/book): the open ledger ──
+   setups.json is the only ledger; this replaces the recommendations
+   engine's open_positions.json as the source of "what am I in". */
+
+export interface BookRowBase {
+  id: string;
+  symbol: string;
+  kind: "stock" | "future";
+  direction: "long" | "short";
+  logged: string;
+  entry_zone: [number, number] | number[];
+  stop: number;
+  target_1: number | null;
+  max_hold_days: number | null;
+  /** Stocks: would the capped book (10 open) have held this row? Rows logged
+   *  before the cap can be open but over it; the forward gate ignores them. */
+  in_capped_book?: boolean | null;
+  /** "t1_then_trail" / "trail_only" / null (fixed target). trail_only rows have no target exit. */
+  exit_mode?: string | null;
+  /** Futures: logged by the current, validated-inputs engine? */
+  current_engine?: boolean;
+  note?: string;
+}
+
+export interface BookFilledRow extends BookRowBase {
+  state: "filled";
+  fill_date: string;
+  entry: number | null;
+  effective_stop: number;
+  trailing_active: boolean;
+  half_locked_r: number | null;
+  bars_held: number;
+  bars_remaining: number;
+  last_close: number;
+  unrealized_r: number;
+  as_of: string;
+}
+
+export interface BookPendingRow extends BookRowBase {
+  state: "pending";
+  sessions_elapsed: number;
+  fill_window_days: number;
+  sessions_left: number;
+  last_close: number | null;
+  /** % price must move to reach the entry band; 0 = inside it. */
+  pct_to_entry_band: number | null;
+}
+
+export interface BookResolvedRow extends BookRowBase {
+  state: "resolved";
+  result: string | null;
+  r_multiple: number | null;
+  resolve_date: string | null;
+}
+
+export interface BookUnknownRow extends BookRowBase {
+  state: "unknown";
+}
+
+export interface BookResponse {
+  as_of: string;
+  date: string;
+  source: string;
+  unreadable?: string;
+  filled: BookFilledRow[];
+  pending: BookPendingRow[];
+  resolved: BookResolvedRow[];
+  unknown: BookUnknownRow[];
+  superseded_rows?: number;
+  stock_book: { cap: number; open: number; slots_free: number } | null;
 }

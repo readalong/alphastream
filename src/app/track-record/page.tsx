@@ -208,6 +208,26 @@ function ScorecardSection() {
         </table>
       </div>
 
+      {data.stock_book && (
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 text-sm flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="text-xs text-[var(--text-muted)] uppercase tracking-wide">Stock book</span>
+          <span className="font-mono tabular-nums text-[var(--text-primary)]">
+            {data.stock_book.unreadable ? "ledger unreadable" : `${data.stock_book.open}/${data.stock_book.cap} open`}
+          </span>
+          <span className="text-xs text-[var(--text-muted)]">filled positions and pending stop-buys both count</span>
+          <span
+            className={cn(
+              "text-xs font-medium",
+              data.stock_book.slots_free > 0 ? "text-[var(--long)]" : "text-[var(--short)]",
+            )}
+          >
+            {data.stock_book.slots_free > 0
+              ? `${data.stock_book.slots_free} slot${data.stock_book.slots_free === 1 ? "" : "s"} free`
+              : "full: no new stock entries until positions close"}
+          </span>
+        </div>
+      )}
+
       {data.open_positions.length > 0 && (
         <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden">
           <p className="px-3 py-2 text-xs text-[var(--text-muted)] border-b border-[var(--border)]">

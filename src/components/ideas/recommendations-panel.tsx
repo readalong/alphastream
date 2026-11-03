@@ -443,7 +443,7 @@ function BuyCard({
         </div>
       </button>
 
-      {/* Add position button */}
+      {/* Footer (the "Add position" button was removed in Phase R2) */}
       <div className="px-4 pb-3 flex items-center justify-between border-t border-[var(--border)]">
         <span className="text-xs text-[var(--text-muted)]">
           {rec.entry.confirmation_days}d · {rec.entry.level_significance}
@@ -451,20 +451,12 @@ function BuyCard({
             <span className="ml-2 text-[var(--caution)]">⚠ {rec.entry.guard_warnings[0]}</span>
           )}
         </span>
-        {alreadyOpen ? (
-          <span className="text-xs px-2 py-1 rounded text-[var(--long)] bg-[var(--long)]/10 border border-[var(--long)]/20">
-            <CheckCircle2 className="inline h-3 w-3 mr-1" />In portfolio
-          </span>
-        ) : (
-          <button
-            onClick={e => { e.stopPropagation(); onAdd(rec); }}
-            disabled={isAdding === rec.ticker}
-            className="flex items-center gap-1 px-2.5 py-1 rounded text-xs text-[var(--accent)] hover:bg-[var(--accent)]/10 border border-[var(--accent)]/20 transition-colors disabled:opacity-40"
-          >
-            {isAdding === rec.ticker ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
-            Add position
-          </button>
-        )}
+        {/* Phase R2: the Book reads only the engine's ledger (validated
+            setups). This engine is unvalidated, so its ideas are not tracked
+            there; "Add position" used to write to a store nothing reads. */}
+        <span className="text-xs text-[var(--text-muted)]" title="The Book tracks only setups from the two validated engines">
+          {alreadyOpen ? "Entered earlier (old store)" : "Idea only: not tracked in the Book"}
+        </span>
       </div>
 
       {/* Expanded detail */}

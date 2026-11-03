@@ -18,7 +18,7 @@ const NAV_ITEMS = [
   { href: "/ideas",     icon: Target,          label: "Ideas" },
   { href: "/flows",     icon: Waves,           label: "Flows" },
   { href: "/futures",   icon: Gauge,           label: "Futures" },
-  { href: "/portfolio", icon: Briefcase,       label: "Portfolio", countKey: "portfolioActOpenCount" as const },
+  { href: "/book",      icon: Briefcase,       label: "Book",      countKey: "bookActOpenCount" as const },
 ];
 
 export function MobileBottomNav() {

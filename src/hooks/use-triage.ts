@@ -10,9 +10,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useDigest } from "@/hooks/use-digest";
-import { useOpenPositions } from "@/hooks/use-recommendations";
-import { useBatchScreen } from "@/hooks/use-screen";
-import { groupByTicker, triageFromDigest, triageFromPortfolio, type TriageGroup } from "@/lib/triage";
+import { useBook } from "@/hooks/use-desk";
+import { groupByTicker, triageFromBook, triageFromDigest, type TriageGroup } from "@/lib/triage";
 
 export function useMarkedDone(digestDate: string | undefined) {
   const storageKey = digestDate ? `alphastream-today-done-${digestDate}` : null;
@@ -55,22 +54,15 @@ export function groupDoneKey(group: TriageGroup): string {
 
 export function useTriageGroups() {
   const { data: digest, isLoading: digestLoading } = useDigest();
-  const { data: positionsData } = useOpenPositions();
-  const positions = useMemo(() => positionsData?.positions ?? [], [positionsData]);
-  const positionTickers = useMemo(() => positions.map((p) => p.ticker), [positions]);
-  const { data: priceData } = useBatchScreen(positionTickers);
-
-  const priceMap = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const r of priceData?.results ?? []) map[r.ticker] = r.close_price;
-    return map;
-  }, [priceData]);
+  // The open book comes from the ledger (setups.json), not the recommendations
+  // engine's positions file, which was empty while the ledger held 30 rows.
+  const { data: book } = useBook();
 
   const groups = useMemo(() => {
     if (!digest) return [];
-    const items = [...triageFromDigest(digest), ...triageFromPortfolio(positions, priceMap)];
+    const items = [...triageFromDigest(digest), ...triageFromBook(book)];
     return groupByTicker(items);
-  }, [digest, positions, priceMap]);
+  }, [digest, book]);
 
   return {
     digest,
@@ -87,12 +79,12 @@ export function useTriageCounts() {
 
   return useMemo(() => {
     const openActGroups = groups.filter((g) => g.severity === "act" && !done.has(groupDoneKey(g)));
-    const portfolioActGroups = openActGroups.filter((g) =>
-      g.items.some((i) => i.source === "portfolio")
+    const bookActGroups = openActGroups.filter((g) =>
+      g.items.some((i) => i.source === "book")
     );
     return {
       actOpenCount: openActGroups.length,
-      portfolioActOpenCount: portfolioActGroups.length,
+      bookActOpenCount: bookActGroups.length,
     };
   }, [groups, done]);
 }

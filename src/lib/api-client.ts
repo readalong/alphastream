@@ -59,6 +59,8 @@ import type {
   RankerReport,
   LeansReport,
   LiquidityReport,
+  BookReport,
+  BookResponse,
   OpportunitiesBothResponse,
   OpportunitiesUniverse,
   CANSLIMResult,
@@ -399,8 +401,13 @@ export const api = {
   rankerReport: () => apiFetch<RankerReport>("/api/research/ranker"),
 
   leansReport: () => apiFetch<LeansReport>("/api/research/leans"),
-  liquidityReport: () => apiFetch<LiquidityReport>("/api/research/liquidity"),
+  liquidityReport: (layer: "plumbing" | "positioning" = "plumbing") =>
+    apiFetch<LiquidityReport>(`/api/research/liquidity?layer=${layer}`),
 
+  bookReport: () => apiFetch<BookReport>("/api/research/book"),
+
+  // The open book, from the ledger (setups.json) — Phase R2.
+  book: () => apiFetch<BookResponse>("/api/book"),
   // Phase 5 — /opportunities (sector rotation + long/short opportunity
   // scans). A cache-miss full sp500 scan takes a few minutes server-side —
   // long timeout, and refresh must only ever come from an explicit user

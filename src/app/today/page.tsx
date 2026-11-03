@@ -80,40 +80,34 @@ function FuturesActBody({ item }: { item: Extract<TriageItem, { source: "futures
   );
 }
 
-function PortfolioActBody({ item }: { item: Extract<TriageItem, { source: "portfolio" }> }) {
-  const { position, currentPrice, headline, detail } = item;
-  const stop = position.trailing_stop || position.stop_loss;
-  const target = position.targets?.[0]?.price;
-
+function BookActBody({ item }: { item: Extract<TriageItem, { source: "book" }> }) {
+  const { row, headline, detail } = item;
   return (
     <div className="space-y-3">
       <p className="text-sm font-medium text-[var(--short)]">{headline}</p>
       {detail && <p className="text-sm text-[var(--text-muted)]">{detail}</p>}
-
       <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 text-sm font-mono tabular-nums">
         <div>
-          <dt className="text-xs text-[var(--text-muted)] font-sans">Last</dt>
-          <dd className="text-[var(--text-primary)]">{formatPrice(currentPrice)}</dd>
+          <dt className="text-xs text-[var(--text-muted)] font-sans">Logged</dt>
+          <dd className="text-[var(--text-primary)]">{row.logged}</dd>
         </div>
         <div>
-          <dt className="text-xs text-[var(--text-muted)] font-sans">Entry</dt>
-          <dd className="text-[var(--text-primary)]">{formatPrice(position.entry_price)}</dd>
+          <dt className="text-xs text-[var(--text-muted)] font-sans">Entry band</dt>
+          <dd className="text-[var(--text-primary)]">
+            {row.entry_zone ? `${row.entry_zone[0]}–${row.entry_zone[1]}` : "—"}
+          </dd>
         </div>
         <div>
           <dt className="text-xs text-[var(--text-muted)] font-sans">Stop</dt>
-          <dd className="text-[var(--text-primary)]">{formatPrice(stop)}</dd>
+          <dd className="text-[var(--text-primary)]">{formatPrice(row.stop)}</dd>
         </div>
         <div>
           <dt className="text-xs text-[var(--text-muted)] font-sans">Target</dt>
-          <dd className="text-[var(--text-primary)]">{target != null ? formatPrice(target) : "—"}</dd>
+          <dd className="text-[var(--text-primary)]">{row.target_1 != null ? formatPrice(row.target_1) : "—"}</dd>
         </div>
       </dl>
-
-      <Link
-        href={item.href}
-        className="inline-flex items-center gap-1 text-sm text-[var(--accent)] hover:underline"
-      >
-        View position <ChevronRight className="h-3.5 w-3.5" />
+      <Link href={item.href} className="inline-flex items-center gap-1 text-sm text-[var(--accent)] hover:underline">
+        Open the book <ChevronRight className="h-3.5 w-3.5" />
       </Link>
     </div>
   );
@@ -152,8 +146,8 @@ function TriageActCard({
       {group.items.map((item) =>
         item.source === "futures" ? (
           <FuturesActBody key={item.id} item={item} />
-        ) : item.source === "portfolio" ? (
-          <PortfolioActBody key={item.id} item={item} />
+        ) : item.source === "book" ? (
+          <BookActBody key={item.id} item={item} />
         ) : null
       )}
     </div>

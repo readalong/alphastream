@@ -2331,3 +2331,204 @@ export interface OpportunitiesBothResponse {
   long: OpportunitySideResponse;
   short: OpportunitySideResponse;
 }
+
+// ─── CAN SLIM Types ────────────────────────────────────────────────────────────
+
+export type CANSLIMGrade = "A" | "B" | "C" | "D";
+
+export type PatternType =
+  | "CUP_AND_HANDLE"
+  | "FLAT_BASE"
+  | "DOUBLE_BOTTOM"
+  | "SAUCER"
+  | "HIGH_TIGHT_FLAG"
+  | "NONE"
+  | "INSUFFICIENT_DATA";
+
+export type PatternStage =
+  | "FORMING"
+  | "CUP_COMPLETE"
+  | "HANDLE"
+  | "BREAKOUT"
+  | "EXTENDED"
+  | "INSUFFICIENT_DATA";
+
+export type DataQuality = "FULL" | "PARTIAL" | "PROXY_ONLY";
+
+export interface CANSLIMCriterion {
+  pass: boolean;
+  // C — Current quarterly EPS
+  eps_growth_yoy?: number;
+  revenue_growth_yoy?: number;
+  eps_accelerating?: boolean;
+  // A — Annual EPS growth
+  eps_cagr_3y?: number;
+  revenue_cagr_3y?: number;
+  roe?: number;
+  eps_consistent?: boolean;
+  // N — New highs
+  near_52w_high?: boolean;
+  pct_from_high?: number;
+  // S — Supply/demand
+  float_shares?: number;
+  short_ratio?: number;
+  insider_pct?: number;
+  s_score?: number;
+  pocket_pivot?: boolean;
+  base_tightness?: string;
+  // L — Leader
+  rs_percentile?: number;
+  rs_52w_high?: boolean;
+  sector_tier?: string;
+  // I — Institutional sponsorship
+  cmf_20?: number;
+  sector_flow?: string;
+  // M — Market direction
+  regime?: string;
+  vix_level?: string;
+}
+
+export interface PatternResult {
+  pattern_detected: PatternType;
+  stage: PatternStage;
+  pivot_price?: number;
+  stop_loss_price?: number;
+  stop_loss_pct?: number;
+  depth_pct?: number;
+  weeks_in_base?: number;
+  volume_ratio_at_breakout?: number;
+  handle_depth_pct?: number;
+  right_side_above_midpoint?: boolean;
+  up_down_volume_ratio?: number;
+  base_volume_dry?: boolean;
+  confidence: number;
+  time_since_breakout_days?: number;
+  extended?: boolean;
+}
+
+export interface CANSLIMResult {
+  ticker: string;
+  canslim_score: number;
+  canslim_grade: CANSLIMGrade;
+  criteria: {
+    C: CANSLIMCriterion;
+    A: CANSLIMCriterion;
+    N: CANSLIMCriterion;
+    S: CANSLIMCriterion;
+    L: CANSLIMCriterion;
+    I: CANSLIMCriterion;
+    M: CANSLIMCriterion;
+  };
+  pattern: PatternResult;
+  as_of_date: string;
+  data_quality: DataQuality;
+}
+
+export interface BreakoutEntry {
+  ticker: string;
+  canslim_score: number;
+  canslim_grade: CANSLIMGrade;
+  pattern: PatternType;
+  stage: PatternStage;
+  pivot?: number;
+  stop_loss?: number;
+  stop_loss_pct?: number;
+  days_since_breakout?: number;
+  volume_ratio?: number;
+  pct_above_pivot?: number;
+  extended: boolean;
+  eps_growth_yoy?: number;
+  rs_percentile?: number;
+  rs_52w_high?: boolean;
+  sector?: string;
+  sector_etf?: string;
+  sector_tier?: string;
+  weeks_in_base?: number;
+  close_price: number;
+  confidence: number;
+  data_quality: DataQuality;
+  up_down_volume_ratio?: number;
+}
+
+export interface BreakoutsResponse {
+  as_of_date: string;
+  market_regime: string;
+  total_scanned: number;
+  total_qualified: number;
+  breakouts: BreakoutEntry[];
+}
+
+export interface BreakoutChartResponse {
+  ticker: string;
+  chart_b64: string;
+  pattern: PatternType;
+  stage: PatternStage;
+  pivot?: number;
+  stop_loss?: number;
+  weeks_in_base?: number;
+  timeframe: "weekly" | "daily";
+  bars: number;
+}
+
+export interface BreakoutFilterParams {
+  min_score?: number;
+  pattern?: PatternType[];
+  stage?: PatternStage[];
+  days_ago?: number;
+  include_extended?: boolean;
+  sector?: string;
+}
+
+export type ActionType = "BUY" | "ALERT" | "WATCHLIST" | "WAIT" | "NO_BUY" | "SKIP";
+
+export interface ActionItem {
+  ticker: string;
+  action: ActionType;
+  conviction: number;
+  canslim_score: number;
+  canslim_grade: CANSLIMGrade;
+  entry?: number;
+  stop?: number;
+  target?: number;
+  pct_above_pivot?: number;
+  extended: boolean;
+  action_reason?: string;
+  pattern?: PatternType;
+  stage?: PatternStage;
+  pivot?: number;
+  eps_growth_yoy?: number;
+  eps_cagr_3y?: number;
+  rs_percentile?: number;
+  sector_tier?: string;
+  sector_flow?: string;
+  close_price: number;
+  data_quality: DataQuality;
+  as_of_date: string;
+  sector_etf?: string;
+}
+
+export interface ActionsResponse {
+  total: number;
+  has_precomputed_actions: boolean;
+  actions: ActionItem[];
+  as_of_date?: string;
+  market_regime?: string;
+  total_scanned?: number;
+}
+
+export interface NarrativeResponse {
+  market_context: string;
+  buy_analysis: string;
+  alert_analysis: string;
+  risk_notes: string;
+  generated_at: string;
+  candidate_count: number;
+  tickers: string[];
+  source: "pre_generated" | "on_demand";
+}
+
+export interface ActionsFilterParams {
+  action?: ActionType[];
+  min_score?: number;
+  min_conviction?: number;
+}

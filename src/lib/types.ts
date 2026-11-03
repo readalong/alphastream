@@ -2532,3 +2532,74 @@ export interface ActionsFilterParams {
   min_score?: number;
   min_conviction?: number;
 }
+
+
+/* ── The book (engine app/book.py, GET /api/book): the open ledger ──
+   setups.json is the only ledger; this replaces the recommendations
+   engine's open_positions.json as the source of "what am I in". */
+
+export interface BookRowBase {
+  id: string;
+  symbol: string;
+  kind: "stock" | "future";
+  direction: "long" | "short";
+  logged: string;
+  entry_zone: [number, number] | number[];
+  stop: number;
+  target_1: number | null;
+  max_hold_days: number | null;
+  /** Stocks: would the capped book (10 open) have held this row? Rows logged
+   *  before the cap can be open but over it; the forward gate ignores them. */
+  in_capped_book?: boolean;
+  /** Futures: logged by the current, validated-inputs engine? */
+  current_engine?: boolean;
+  note?: string;
+}
+
+export interface BookFilledRow extends BookRowBase {
+  state: "filled";
+  fill_date: string;
+  entry: number | null;
+  effective_stop: number;
+  trailing_active: boolean;
+  half_locked_r: number | null;
+  bars_held: number;
+  bars_remaining: number;
+  last_close: number;
+  unrealized_r: number;
+  as_of: string;
+}
+
+export interface BookPendingRow extends BookRowBase {
+  state: "pending";
+  sessions_elapsed: number;
+  fill_window_days: number;
+  sessions_left: number;
+  last_close: number | null;
+  /** % price must move to reach the entry band; 0 = inside it. */
+  pct_to_entry_band: number | null;
+}
+
+export interface BookResolvedRow extends BookRowBase {
+  state: "resolved";
+  result: string | null;
+  r_multiple: number | null;
+  resolve_date: string | null;
+}
+
+export interface BookUnknownRow extends BookRowBase {
+  state: "unknown";
+}
+
+export interface BookResponse {
+  as_of: string;
+  date: string;
+  source: string;
+  unreadable?: string;
+  filled: BookFilledRow[];
+  pending: BookPendingRow[];
+  resolved: BookResolvedRow[];
+  unknown: BookUnknownRow[];
+  superseded_rows?: number;
+  stock_book: { cap: number; open: number; slots_free: number } | null;
+}

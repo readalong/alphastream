@@ -48,3 +48,10 @@ export function useBookReport() {
   return useQuery({ queryKey: ["book-report"], queryFn: () => api.bookReport(),
     staleTime: 60 * 60 * 1000, retry: false });
 }
+
+/** The open book from the ledger. Refreshed every 5 minutes: the stop and
+ *  unrealized R move with the last close. */
+export function useBook() {
+  return useQuery({ queryKey: ["book"], queryFn: () => api.book(),
+    staleTime: 5 * 60 * 1000, retry: false });
+}

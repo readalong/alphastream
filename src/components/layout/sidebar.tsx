@@ -70,7 +70,7 @@ const NAV_SECTIONS = [
     items: [
       ...(!IS_PRODUCTION ? [{ name: "Sessions", href: "/sessions", icon: FolderOpen }] : []),
       ...(!IS_PRODUCTION ? [{ name: "Jobs", href: "/jobs", icon: Zap }] : []),
-      { name: "Portfolio", href: "/portfolio", icon: Briefcase },
+      { name: "Book", href: "/book", icon: Briefcase },
       { name: "Settings", href: "/settings", icon: Settings },
       { name: "User Guide", href: "/guide", icon: BookOpen },
     ],
@@ -82,9 +82,9 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const BADGE_COUNTS: Record<string, "actOpenCount" | "portfolioActOpenCount"> = {
+const BADGE_COUNTS: Record<string, "actOpenCount" | "bookActOpenCount"> = {
   "/today": "actOpenCount",
-  "/portfolio": "portfolioActOpenCount",
+  "/book": "bookActOpenCount",
 };
 
 export function Sidebar({ open, onClose }: SidebarProps) {

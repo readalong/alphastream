@@ -9,7 +9,15 @@
  * function here that returns TriageItem[]; nothing downstream changes.
  */
 
-import type { DailyDigest, DigestFuturesEntry, DigestGexEntry, OpenPosition } from "@/lib/types";
+import type {
+  BookFilledRow,
+  BookPendingRow,
+  BookResolvedRow,
+  BookResponse,
+  DailyDigest,
+  DigestFuturesEntry,
+  DigestGexEntry,
+} from "@/lib/types";
 
 export type TriageSeverity = "act" | "watch" | "stand_aside";
 
@@ -27,10 +35,9 @@ export type TriageItem =
   | (TriageItemBase & { source: "futures"; futures: DigestFuturesEntry })
   | (TriageItemBase & { source: "gex"; gex: DigestGexEntry })
   | (TriageItemBase & {
-      source: "portfolio";
-      position: OpenPosition;
-      currentPrice: number;
-      kind: "stop_breached" | "trailing_stop_breached" | "near_stop" | "near_target";
+      source: "book";
+      row: BookFilledRow | BookPendingRow | BookResolvedRow;
+      kind: "resolved_on_bars" | "near_stop" | "near_target" | "order_expiring";
     });
 
 /* A position is "approaching" its stop or target within this band. */
@@ -100,92 +107,62 @@ export function triageFromDigest(digest: DailyDigest): TriageItem[] {
   return items;
 }
 
-/** Open positions + latest close prices -> stop/target proximity items.
- *  Positions in this app are long-only (stop below entry, targets above),
- *  matching OpenPosition's field shape. */
-export function triageFromPortfolio(
-  positions: OpenPosition[],
-  prices: Record<string, number>
-): TriageItem[] {
+/** The ledger's open book -> what needs a decision today (Phase R2).
+ *  Source of truth is setups.json via GET /api/book, the same rows the
+ *  scorecard scores, with the stop as ratcheted today:
+ *    - resolved on the bars (stop/target/time hit, not yet written)  -> ACT
+ *    - filled and within NEAR_PCT of today's stop or target_1         -> WATCH
+ *    - pending order with <= 2 sessions left in its fill window       -> WATCH
+ *  Works for longs and shorts. */
+export function triageFromBook(book: BookResponse | undefined): TriageItem[] {
+  if (!book) return [];
   const items: TriageItem[] = [];
-
-  for (const p of positions) {
-    const price = prices[p.ticker];
-    if (price == null) continue;
-
-    const trailStop = p.trailing_stop || p.stop_loss;
-    const nearestTarget = p.targets?.[0]?.price;
-
-    if (price <= p.stop_loss) {
-      items.push(
-        portfolioItem(
-          p,
-          price,
-          "stop_breached",
-          "act",
-          `${p.ticker} at or below stop`,
-          `Stop ${p.stop_loss} · last ${price}`
-        )
-      );
-    } else if (price <= trailStop) {
-      items.push(
-        portfolioItem(
-          p,
-          price,
-          "trailing_stop_breached",
-          "act",
-          `${p.ticker} at or below trailing stop`,
-          `Trailing stop ${trailStop} · last ${price}`
-        )
-      );
-    } else if ((price - trailStop) / price <= NEAR_PCT) {
-      items.push(
-        portfolioItem(
-          p,
-          price,
-          "near_stop",
-          "watch",
-          `${p.ticker} approaching stop`,
-          `${(((price - trailStop) / price) * 100).toFixed(1)}% above trailing stop ${trailStop}`
-        )
-      );
-    } else if (nearestTarget != null && (nearestTarget - price) / price <= NEAR_PCT) {
-      items.push(
-        portfolioItem(
-          p,
-          price,
-          "near_target",
-          "watch",
-          `${p.ticker} approaching target`,
-          `${(((nearestTarget - price) / price) * 100).toFixed(1)}% from target ${nearestTarget}`
-        )
-      );
-    }
-  }
-
-  return items;
-}
-
-function portfolioItem(
-  position: OpenPosition,
-  currentPrice: number,
-  kind: "stop_breached" | "trailing_stop_breached" | "near_stop" | "near_target",
-  severity: TriageSeverity,
-  headline: string,
-  detail: string
-): TriageItem {
-  return {
-    id: `portfolio:${position.ticker}:${kind}`,
-    ticker: position.ticker,
+  const item = (
+    row: BookFilledRow | BookPendingRow | BookResolvedRow,
+    kind: "resolved_on_bars" | "near_stop" | "near_target" | "order_expiring",
+    severity: TriageSeverity,
+    headline: string,
+    detail: string
+  ): TriageItem => ({
+    id: `book:${row.id}:${row.logged}:${kind}`,
+    ticker: row.id,
     severity,
-    source: "portfolio",
+    source: "book",
     headline,
     detail,
-    href: "/portfolio",
-    position,
-    currentPrice,
+    href: "/book",
+    row,
     kind,
-  };
+  });
+
+  for (const r of book.resolved ?? []) {
+    const how = r.result === "stopped" ? "stopped out" : r.result === "hit_t1" ? "hit its target" : "timed out";
+    items.push(item(r, "resolved_on_bars", "act", `${r.id} ${how}`,
+      `Close it at the broker if still open${r.r_multiple != null ? ` · ${r.r_multiple >= 0 ? "+" : ""}${r.r_multiple}R` : ""}`));
+  }
+  for (const r of book.filled ?? []) {
+    const long = r.direction === "long";
+    const toStop = long ? (r.last_close - r.effective_stop) / r.last_close : (r.effective_stop - r.last_close) / r.last_close;
+    if (toStop <= NEAR_PCT) {
+      items.push(item(r, "near_stop", "watch", `${r.id} near its stop`,
+        `${(toStop * 100).toFixed(1)}% from today's stop ${r.effective_stop} · ${r.unrealized_r >= 0 ? "+" : ""}${r.unrealized_r}R`));
+      continue;
+    }
+    if (r.target_1 != null) {
+      const toT = long ? (r.target_1 - r.last_close) / r.last_close : (r.last_close - r.target_1) / r.last_close;
+      if (toT >= 0 && toT <= NEAR_PCT) {
+        items.push(item(r, "near_target", "watch", `${r.id} near target`,
+          `${(toT * 100).toFixed(1)}% from target ${r.target_1}`));
+      }
+    }
+  }
+  for (const r of book.pending ?? []) {
+    if (r.sessions_left <= 2) {
+      items.push(item(r, "order_expiring", "watch", `${r.id} order expires soon`,
+        `${r.sessions_left} session${r.sessions_left === 1 ? "" : "s"} left unfilled; cancel it at the broker when it lapses`));
+    }
+  }
+  return items;
 }
 
 /** Groups same-ticker items together (plan §3.1: "if NVDA has a CANSLIM BUY

@@ -52,7 +52,6 @@ import type {
   GexAlertsResponse,
   DealerFlowSnapshot,
   BacktestReviewsResponse,
-<<<<<<< Updated upstream
   DeskState,
   DeskSeriesRow,
   ThesisBook,
@@ -60,10 +59,17 @@ import type {
   RankerReport,
   LeansReport,
   LiquidityReport,
-=======
   OpportunitiesBothResponse,
   OpportunitiesUniverse,
->>>>>>> Stashed changes
+  CANSLIMResult,
+  BreakoutsResponse,
+  BreakoutChartResponse,
+  BreakoutFilterParams,
+  PatternType,
+  PatternStage,
+  ActionsResponse,
+  NarrativeResponse,
+  ActionsFilterParams,
 } from "./types";
 
 // All Trading Engine calls are proxied through /api/trading/[...path]
@@ -380,7 +386,6 @@ export const api = {
 
   backtestReviews: () => apiFetch<BacktestReviewsResponse>("/api/backtest/reviews"),
 
-<<<<<<< Updated upstream
   // Desk brief — nightly desk state, thesis book, research reports
   deskState: () => apiFetch<DeskState>("/api/desk/state"),
 
@@ -395,7 +400,7 @@ export const api = {
 
   leansReport: () => apiFetch<LeansReport>("/api/research/leans"),
   liquidityReport: () => apiFetch<LiquidityReport>("/api/research/liquidity"),
-=======
+
   // Phase 5 — /opportunities (sector rotation + long/short opportunity
   // scans). A cache-miss full sp500 scan takes a few minutes server-side —
   // long timeout, and refresh must only ever come from an explicit user
@@ -405,5 +410,38 @@ export const api = {
       `/api/opportunities/both?universe=${universe}&top=${top}&refresh=${refresh ? 1 : 0}`,
       { timeout: 300_000 }
     ),
->>>>>>> Stashed changes
+
+  // ─── CAN SLIM endpoints ────────────────────────────────────────────────────
+  canslim: (ticker: string) =>
+    apiFetch<CANSLIMResult>(`/api/canslim/${ticker}`),
+
+  breakouts: (params: BreakoutFilterParams = {}) => {
+    const qs = new URLSearchParams();
+    if (params.min_score != null)  qs.set("min_score", String(params.min_score));
+    if (params.pattern?.length)    qs.set("pattern",   params.pattern.join(","));
+    if (params.stage?.length)      qs.set("stage",     params.stage.join(","));
+    if (params.days_ago != null)   qs.set("days_ago",  String(params.days_ago));
+    if (params.include_extended)   qs.set("include_extended", "true");
+    if (params.sector)             qs.set("sector", params.sector);
+    return apiFetch<BreakoutsResponse>(`/api/canslim/breakouts?${qs.toString()}`);
+  },
+
+  breakoutChart: (
+    ticker: string,
+    timeframe: "weekly" | "daily" = "weekly",
+    bars = 65
+  ) =>
+    apiFetch<BreakoutChartResponse>(
+      `/api/canslim/breakouts/${ticker}/chart?format=json&timeframe=${timeframe}&bars=${bars}`
+    ),
+
+  actions: (params: ActionsFilterParams = {}) => {
+    const qs = new URLSearchParams();
+    if (params.min_score != null)     qs.set("min_score",     String(params.min_score));
+    if (params.min_conviction != null) qs.set("min_conviction", String(params.min_conviction));
+    if (params.action?.length)        qs.set("action",         params.action.join(","));
+    return apiFetch<ActionsResponse>(`/api/canslim/actions?${qs.toString()}`);
+  },
+
+  narrative: () => apiFetch<NarrativeResponse>("/api/canslim/actions/narrative"),
 };

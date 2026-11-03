@@ -18,13 +18,10 @@ import {
   Briefcase,
   Sun,
   Check,
-<<<<<<< Updated upstream
   Newspaper,
   ScrollText,
   FlaskConical,
-=======
   Waypoints,
->>>>>>> Stashed changes
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTriageCounts } from "@/hooks/use-triage";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -510,6 +510,14 @@ function ChartPanel({ ticker }: { ticker: string }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CANSLIMPage() {
+  return (
+    <Suspense>
+      <CANSLIMPageInner />
+    </Suspense>
+  );
+}
+
+function CANSLIMPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();

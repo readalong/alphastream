@@ -2605,3 +2605,97 @@ export interface BookResponse {
   superseded_rows?: number;
   stock_book: { cap: number; open: number; slots_free: number } | null;
 }
+
+// ---------------------------------------------------------------------------
+// Decision cards and Tonight (Phase R3/R4, engine app/decision.py, app/tonight.py)
+// ---------------------------------------------------------------------------
+
+export interface DecisionOrder {
+  type: "limit" | "stop_limit";
+  side: "buy" | "sell";
+  qty: number;
+  unit: string;
+  limit: number;
+  stop_trigger?: number;
+  band: [number, number];
+  time_in_force: string;
+  cancel_after_sessions: number;
+  protective_stop: number;
+  target_1: number;
+  max_hold_sessions: number;
+  scored_entry?: number;
+  exit_rule: string;
+  text: string;
+}
+
+export interface DecisionSize {
+  account: number;
+  risk_pct: number;
+  qty: number;
+  unit: string;
+  risk_per_unit_usd: number | null;
+  risk_usd: number | null;
+  note: string | null;
+  why_not_1pct?: string;
+  sized_from?: string;
+}
+
+export interface DecisionCard {
+  engine: "futures_plan" | "stock_slate" | null;
+  kind: "future" | "stock";
+  instrument: string;
+  symbol: string;
+  date: string;
+  when: string | null;
+  verb: string;
+  direction: "long" | "short" | null;
+  order: DecisionOrder | null;
+  size: DecisionSize | null;
+  invalidation: string[];
+  why: string;
+  deviations: string[];
+  context: { label: string; text: string }[];
+  evidence: { lines: string[]; gate_status?: string | null };
+  ledger?: { status: "logged" | "different" | "absent"; date?: string; logged_zone?: number[] } | null;
+  stale?: boolean;
+  stale_verb?: string;
+  /** The ledger did not log this order (or logged another band): no order shown. */
+  unscored?: boolean;
+  unscored_verb?: string;
+  sized_out_verb?: string;
+}
+
+export interface TonightSection {
+  status?: "current" | "stale" | "missing";
+  date?: string | null;
+  built_at?: string | null;
+  sessions_since?: number;
+  cards: DecisionCard[];
+}
+
+export interface TonightResponse {
+  as_of: string;
+  headline: string;
+  futures: TonightSection & { plan_file?: string | null; session_open?: boolean };
+  stocks: TonightSection & {
+    slate_file?: string | null;
+    note?: string;
+    book?: string;
+    candidates?: number | null;
+    watchlist?: number;
+    book_summary?: { filled: number; pending: number; resolved: number; unknown: number };
+  };
+  events: { label: string; text: string }[];
+  risk: {
+    orders: number;
+    futures_usd: number;
+    stocks_usd: number;
+    total_usd: number;
+    total_pct: number | null;
+    futures_pct: number;
+    futures_heat_cap_pct: number;
+    account: number;
+    warning?: string;
+  };
+  warnings: string[];
+}

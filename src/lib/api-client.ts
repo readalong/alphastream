@@ -61,6 +61,7 @@ import type {
   LiquidityReport,
   BookReport,
   BookResponse,
+  TonightResponse,
   OpportunitiesBothResponse,
   OpportunitiesUniverse,
   CANSLIMResult,
@@ -408,6 +409,8 @@ export const api = {
 
   // The open book, from the ledger (setups.json) — Phase R2.
   book: () => apiFetch<BookResponse>("/api/book"),
+  // What do I do tonight: decision cards from the brief's plan and slate — Phase R4.
+  tonight: () => apiFetch<TonightResponse>("/api/tonight"),
   // Phase 5 — /opportunities (sector rotation + long/short opportunity
   // scans). A cache-miss full sp500 scan takes a few minutes server-side —
   // long timeout, and refresh must only ever come from an explicit user

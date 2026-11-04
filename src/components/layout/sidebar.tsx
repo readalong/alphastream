@@ -15,6 +15,7 @@ import {
   Gauge,
   Waves,
   BookOpen,
+  Moon,
   Briefcase,
   Sun,
   Check,
@@ -38,7 +39,10 @@ const IS_PRODUCTION = process.env.NEXT_PUBLIC_APP_ENV === "production";
 const NAV_SECTIONS = [
   {
     label: "TODAY",
-    items: [{ name: "Today", href: "/today", icon: Sun }],
+    items: [
+      { name: "Tonight", href: "/tonight", icon: Moon },
+      { name: "Today", href: "/today", icon: Sun },
+    ],
   },
   {
     label: "MARKETS",

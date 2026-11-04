@@ -39,7 +39,7 @@ const STEPS = [
     content: (
       <div className="space-y-2.5">
         {[
-          { step: 1, label: "Today", desc: "Check Today → what to act on, watch, and avoid", href: "/today" },
+          { step: 1, label: "Tonight", desc: "Check Tonight → the orders to place before the next open", href: "/tonight" },
           { step: 2, label: "Markets & Flows", desc: "Markets & Flows → regime, VIX, where is money moving?", href: "/markets" },
           { step: 3, label: "Find Opportunities", desc: "Ideas → normalized ranked setups across every engine", href: "/ideas" },
           { step: 4, label: "Assess Risk", desc: "Strategy & Futures → regime allocation, collar, CTA positioning", href: "/strategy" },

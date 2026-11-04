@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
+  Moon,
   Target,
   Waves,
   Gauge,
@@ -14,7 +14,7 @@ import { useTriageCounts } from "@/hooks/use-triage";
 import { NavBadge } from "./nav-badge";
 
 const NAV_ITEMS = [
-  { href: "/today",     icon: LayoutDashboard, label: "Today",     countKey: "actOpenCount" as const },
+  { href: "/tonight",   icon: Moon,            label: "Tonight" },
   { href: "/ideas",     icon: Target,          label: "Ideas" },
   { href: "/flows",     icon: Waves,           label: "Flows" },
   { href: "/futures",   icon: Gauge,           label: "Futures" },

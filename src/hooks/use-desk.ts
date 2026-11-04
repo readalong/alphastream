@@ -55,3 +55,10 @@ export function useBook() {
   return useQuery({ queryKey: ["book"], queryFn: () => api.book(),
     staleTime: 5 * 60 * 1000, retry: false });
 }
+
+/** Tonight's decision cards. Refreshed every 5 minutes so a plan that turns
+ *  stale at the session close says so without a reload. */
+export function useTonight() {
+  return useQuery({ queryKey: ["tonight"], queryFn: () => api.tonight(),
+    staleTime: 5 * 60 * 1000, refetchInterval: 5 * 60 * 1000, retry: false });
+}

@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Search, X, LayoutDashboard, ScanSearch, Target, Filter, BarChart3, Globe, Waves, Swords, TrendingUp, Zap, Check, Newspaper, ScrollText, FlaskConical } from "lucide-react";
+import { Search, X, LayoutDashboard, Moon, ScanSearch, Target, Filter, BarChart3, Globe, Waves, Swords, TrendingUp, Zap, Check, Newspaper, ScrollText, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { SECTOR_ETF_NAMES } from "@/lib/constants";
 
 const PAGES = [
+  { name: "Tonight", href: "/tonight", icon: Moon, description: "The orders to place before the next open, with evidence" },
   { name: "Today", href: "/today", icon: LayoutDashboard, description: "What to do, watch, and avoid today" },
   { name: "Desk", href: "/desk", icon: Newspaper, description: "Nightly desk state: dealer levels, breadth, baskets, macro" },
   { name: "Markets", href: "/markets", icon: Globe, description: "Overview, global markets, internals, economic, CTA" },

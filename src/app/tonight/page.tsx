@@ -21,7 +21,7 @@ import { Chip, Panel, Stat, isNotFound } from "@/components/desk/primitives";
 import type { DecisionCard, TonightResponse } from "@/lib/types";
 
 function verbTone(c: DecisionCard): "long" | "short" | "caution" | "muted" {
-  if (c.stale) return "caution";
+  if (c.stale || c.unscored) return "caution";
   if (!c.order) return "muted";
   return c.direction === "short" ? "short" : "long";
 }
@@ -46,7 +46,6 @@ function Card({ c }: { c: DecisionCard }) {
           ) : c.instrument}
         </span>
         <Chip tone={verbTone(c)}>{c.verb}</Chip>
-        {c.stale && c.stale_verb && <Chip tone="muted">was: {c.stale_verb}</Chip>}
         <LedgerChip c={c} />
       </header>
 
@@ -67,6 +66,15 @@ function Card({ c }: { c: DecisionCard }) {
           )}
           {c.size?.note && <p className="text-xs text-[var(--caution)]">{c.size.note}</p>}
           {c.size?.why_not_1pct && <p className="text-xs text-[var(--text-muted)]">{c.size.why_not_1pct}</p>}
+          {c.invalidation.length > 0 && (
+            <ul className="text-xs text-[var(--text-primary)] space-y-0.5">
+              {c.invalidation.map((x) => (
+                <li key={x} className={cn(x.includes("could not check") && "text-[var(--caution)]")}>
+                  Cancel / skip: {x}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
@@ -127,13 +135,13 @@ function Section({ title, sub, cards, note }: { title: string; sub: string; card
   );
 }
 
-function statusText(s: { status?: string; date?: string }) {
+function statusText(s: { status?: string; date?: string | null }) {
   if (s.status === "missing") return "not built yet";
   return `built ${s.date ?? "?"}, ${s.status === "stale" ? "stale" : "current"}`;
 }
 
 function TonightBody({ t }: { t: TonightResponse }) {
-  const stale = t.futures.status === "stale" || t.stocks.status === "stale";
+  const stale = t.futures.status !== "current" || t.stocks.status !== "current" || t.warnings.length > 0;
   const r = t.risk;
   return (
     <div className="space-y-4">
@@ -153,7 +161,7 @@ function TonightBody({ t }: { t: TonightResponse }) {
       />
       <Section
         title="Stocks"
-        sub={`Slate ${statusText(t.stocks)}. Breakout stop-limits into free book slots only.`}
+        sub={`Slate ${statusText(t.stocks)}. New entries only into free book slots: a stop-limit at the pivot, or a limit back into the band once price is past it.`}
         cards={t.stocks.cards}
         note={t.stocks.note ?? t.stocks.book}
       />
@@ -180,7 +188,8 @@ function TonightBody({ t }: { t: TonightResponse }) {
       {t.stocks.book_summary && (
         <p className="text-sm text-[var(--text-muted)]">
           Already on: {t.stocks.book_summary.filled} filled, {t.stocks.book_summary.pending} pending orders
-          {t.stocks.book_summary.resolved ? `, ${t.stocks.book_summary.resolved} resolved but not yet written` : ""}.{" "}
+          {t.stocks.book_summary.resolved ? `, ${t.stocks.book_summary.resolved} resolved but not yet written` : ""}
+          {t.stocks.book_summary.unknown ? `, ${t.stocks.book_summary.unknown} with no price file` : ""}.{" "}
           <Link href="/book" className="text-[var(--accent)] hover:underline">Manage them on the Book</Link>.
         </p>
       )}

@@ -2656,14 +2656,17 @@ export interface DecisionCard {
   deviations: string[];
   context: { label: string; text: string }[];
   evidence: { lines: string[]; gate_status?: string | null };
-  ledger?: { status: "logged" | "different" | "absent"; date?: string } | null;
+  ledger?: { status: "logged" | "different" | "absent"; date?: string; logged_zone?: number[] } | null;
   stale?: boolean;
   stale_verb?: string;
+  /** The ledger did not log this order (or logged another band): no order shown. */
+  unscored?: boolean;
+  unscored_verb?: string;
 }
 
 export interface TonightSection {
   status?: "current" | "stale" | "missing";
-  date?: string;
+  date?: string | null;
   built_at?: string | null;
   sessions_since?: number;
   cards: DecisionCard[];
@@ -2677,7 +2680,7 @@ export interface TonightResponse {
     slate_file?: string | null;
     note?: string;
     book?: string;
-    candidates?: number;
+    candidates?: number | null;
     watchlist?: number;
     book_summary?: { filled: number; pending: number; resolved: number; unknown: number };
   };

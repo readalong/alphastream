@@ -2662,6 +2662,7 @@ export interface DecisionCard {
   /** The ledger did not log this order (or logged another band): no order shown. */
   unscored?: boolean;
   unscored_verb?: string;
+  sized_out_verb?: string;
 }
 
 export interface TonightSection {
@@ -2675,7 +2676,7 @@ export interface TonightSection {
 export interface TonightResponse {
   as_of: string;
   headline: string;
-  futures: TonightSection & { plan_file?: string | null };
+  futures: TonightSection & { plan_file?: string | null; session_open?: boolean };
   stocks: TonightSection & {
     slate_file?: string | null;
     note?: string;

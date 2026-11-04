@@ -22,6 +22,7 @@ import type { DecisionCard, TonightResponse } from "@/lib/types";
 
 function verbTone(c: DecisionCard): "long" | "short" | "caution" | "muted" {
   if (c.stale || c.unscored) return "caution";
+  if (c.verb === "NO SIZE") return "muted";
   if (!c.order) return "muted";
   return c.direction === "short" ? "short" : "long";
 }
@@ -156,7 +157,7 @@ function TonightBody({ t }: { t: TonightResponse }) {
 
       <Section
         title="Futures"
-        sub={`Plan ${statusText(t.futures)}. Micros, sized at the plan's risk.`}
+        sub={`Plan ${statusText(t.futures)}. Micros at 1% risk sized from the limit (SI at half). Place before 6 pm ET, when the next session opens.`}
         cards={t.futures.cards}
       />
       <Section
@@ -194,7 +195,8 @@ function TonightBody({ t }: { t: TonightResponse }) {
         </p>
       )}
       <p className="text-xs text-[var(--text-muted)]">
-        Cards are built after the close; place orders before the next session opens. As of{" "}
+        Cards are built after the close. Futures orders go in before 6 pm ET, when the next futures session
+        opens; stock orders before the 9:30 am open. As of{" "}
         {t.as_of.slice(0, 16).replace("T", " ")} UTC.
       </p>
     </div>

@@ -157,7 +157,7 @@ function TonightBody({ t }: { t: TonightResponse }) {
 
       <Section
         title="Futures"
-        sub={`Plan ${statusText(t.futures)}. Micros at 1% risk sized from the limit (SI at half). Place before 6 pm ET, when the next session opens.`}
+        sub={`Plan ${statusText(t.futures)}. Micros at 1% risk sized from the limit (SI at its reduced size multiplier). Place before 6 pm ET, when the next session opens.`}
         cards={t.futures.cards}
       />
       <Section

@@ -154,11 +154,15 @@ export function triageFromBook(book: BookResponse | undefined): TriageItem[] {
     kind,
   });
 
-  for (const r of book.resolved ?? []) {
+  // A paper row (logged while futures orders were paused) was never an
+  // order, so it never needs a decision at the broker.
+  const live = <R extends { paper?: boolean }>(rows: R[] | undefined): R[] =>
+    (rows ?? []).filter((r) => !r.paper);
+  for (const r of live(book.resolved)) {
     const { headline, detail } = resolvedText(r);
     items.push(item(r, "resolved_on_bars", "act", `${r.id} ${headline}`, detail));
   }
-  for (const r of book.filled ?? []) {
+  for (const r of live(book.filled)) {
     const long = r.direction === "long";
     const toStop = long ? (r.last_close - r.effective_stop) / r.last_close : (r.effective_stop - r.last_close) / r.last_close;
     if (toStop <= 0) {
@@ -181,7 +185,7 @@ export function triageFromBook(book: BookResponse | undefined): TriageItem[] {
       }
     }
   }
-  for (const r of book.pending ?? []) {
+  for (const r of live(book.pending)) {
     if (r.sessions_left <= 2) {
       items.push(item(r, "order_expiring", "watch", `${r.id} order expires soon`,
         `${r.sessions_left} session${r.sessions_left === 1 ? "" : "s"} left unfilled; cancel it at the broker when it lapses`));

@@ -26,6 +26,7 @@ function Flags({ r }: { r: BookRowBase }) {
       {r.kind === "stock" && r.in_capped_book === false && (
         <Chip tone="muted">over cap: logged before the cap, not scored</Chip>
       )}
+      {r.paper && <Chip tone="muted">paper: logged while futures orders were paused</Chip>}
       {r.kind === "future" && r.current_engine === false && (
         <Chip tone="muted">earlier plan: not counted</Chip>
       )}
@@ -133,6 +134,7 @@ function BookBody({ b }: { b: BookResponse }) {
               <li key={`${r.id}-${r.logged}`} className="font-mono">
                 <span className="font-semibold text-[var(--text-primary)]">{r.id}</span>{" "}
                 <span className="font-sans text-[var(--text-muted)]">
+                  {r.paper ? "(paper) " : ""}
                   {resolvedText(r).headline}
                   {r.resolve_date ? ` on ${r.resolve_date}` : ""}
                 </span>{" "}
@@ -183,7 +185,14 @@ export default function BookPage() {
           The ledger is unreadable, so nothing is shown and no new entries are taken: {data.unreadable}
         </p>
       ) : data ? (
-        <BookBody b={data} />
+        <>
+          {data.futures_paused_note && (
+            <p role="status" className="border border-[var(--caution)]/30 bg-[var(--caution)]/10 px-3 py-2 text-sm text-[var(--caution)]">
+              {data.futures_paused_note}
+            </p>
+          )}
+          <BookBody b={data} />
+        </>
       ) : (
         <p className="text-sm text-[var(--text-muted)]">
           {error && !isNotFound(error)

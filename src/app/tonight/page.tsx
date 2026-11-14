@@ -157,7 +157,11 @@ function TonightBody({ t }: { t: TonightResponse }) {
 
       <Section
         title="Futures"
-        sub={`Plan ${statusText(t.futures)}. Micros at 1% risk sized from the limit (SI at its reduced size multiplier). Place before 6 pm ET, when the next session opens.`}
+        sub={
+          t.futures.paused
+            ? `Plan ${statusText(t.futures)}. Futures orders are paused: place no futures order. The setups are logged as paper trades.`
+            : `Plan ${statusText(t.futures)}. Micros at 1% risk sized from the limit (SI at its reduced size multiplier). Place before 6 pm ET, when the next session opens.`
+        }
         cards={t.futures.cards}
       />
       <Section
@@ -195,8 +199,11 @@ function TonightBody({ t }: { t: TonightResponse }) {
         </p>
       )}
       <p className="text-xs text-[var(--text-muted)]">
-        Cards are built after the close. Futures orders go in before 6 pm ET, when the next futures session
-        opens; stock orders before the 9:30 am open. As of{" "}
+        Cards are built after the close.{" "}
+        {t.futures.paused
+          ? "Futures orders are paused"
+          : "Futures orders go in before 6 pm ET, when the next futures session opens"}
+        ; stock orders before the 9:30 am open. As of{" "}
         {t.as_of.slice(0, 16).replace("T", " ")} UTC.
       </p>
     </div>

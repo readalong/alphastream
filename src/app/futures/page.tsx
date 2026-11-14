@@ -240,6 +240,11 @@ function InstrumentCard({ instrument, plan }: { instrument: string; plan: Future
         )}
       >
         {ACTION_LABEL[plan.today_action] ?? plan.today_action}
+        {plan.paused_action && (
+          <span className="ml-2 font-normal text-xs">
+            (paused; the plan said {ACTION_LABEL[plan.paused_action] ?? plan.paused_action})
+          </span>
+        )}
         <span className="ml-2 font-normal text-xs opacity-80">
           {plan.tier}
           {plan.pattern_signal?.tier && ` · pattern ${plan.pattern_signal.tier.toLowerCase()}`}
@@ -297,6 +302,16 @@ export default function FuturesPage() {
         <h1 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)]">Futures</h1>
         <span className="text-sm text-[var(--text-muted)]">{data.date}</span>
       </header>
+
+      {data.orders_paused && (
+        <p
+          role="status"
+          className="border border-[var(--caution)]/30 bg-[var(--caution)]/10 px-3 py-2 text-sm text-[var(--caution)]"
+        >
+          <strong>Futures orders are paused.</strong> {data.orders_paused}. The setups and sizes
+          below are the plan&apos;s paper record: place no futures order.
+        </p>
+      )}
 
       {!data.is_today && (
         <p className="border border-[var(--caution)]/30 bg-[var(--caution)]/10 px-3 py-2 text-sm text-[var(--caution)]">

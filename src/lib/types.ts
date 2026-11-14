@@ -1528,6 +1528,8 @@ export interface FuturesInstrumentPlan {
   pattern_signal?: FuturesPatternSignal | null;
   reason_trail: string;
   today_action: "STAND_ASIDE" | "ENTER_NOW" | "ENTER_ON_PULLBACK" | string;
+  /** The plan's own action while futures orders are paused. */
+  paused_action?: string;
   event_rules: FuturesEventRules;
   long_setup?: FuturesSetup | null;
   short_setup?: FuturesSetup | null;
@@ -1539,6 +1541,9 @@ export interface FuturesPlanResponse {
   date: string;
   generated_at: string;
   is_today: boolean;
+  /** Set while the owner has paused futures orders: the reason. Each plan's
+   *  today_action then reads STAND_ASIDE, its own action in paused_action. */
+  orders_paused?: string;
   plans: Record<string, FuturesInstrumentPlan | null>;
 }
 
@@ -2555,6 +2560,9 @@ export interface BookRowBase {
   exit_mode?: string | null;
   /** Futures: logged by the current, validated-inputs engine? */
   current_engine?: boolean;
+  /** Futures: logged while the owner paused futures orders. The ledger
+   *  scores it on paper; no order was placed, so there is nothing to manage. */
+  paper?: boolean;
   note?: string;
 }
 
@@ -2604,6 +2612,9 @@ export interface BookResponse {
   unknown: BookUnknownRow[];
   superseded_rows?: number;
   stock_book: { cap: number; open: number; slots_free: number } | null;
+  /** Set while futures orders are paused: the reason, and what it means for the book. */
+  futures_orders_paused?: string;
+  futures_paused_note?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -2676,7 +2687,7 @@ export interface TonightSection {
 export interface TonightResponse {
   as_of: string;
   headline: string;
-  futures: TonightSection & { plan_file?: string | null; session_open?: boolean };
+  futures: TonightSection & { plan_file?: string | null; session_open?: boolean; paused?: string };
   stocks: TonightSection & {
     slate_file?: string | null;
     note?: string;

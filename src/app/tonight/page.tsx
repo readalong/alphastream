@@ -199,8 +199,11 @@ function TonightBody({ t }: { t: TonightResponse }) {
         </p>
       )}
       <p className="text-xs text-[var(--text-muted)]">
-        Cards are built after the close. Futures orders go in before 6 pm ET, when the next futures session
-        opens; stock orders before the 9:30 am open. As of{" "}
+        Cards are built after the close.{" "}
+        {t.futures.paused
+          ? "Futures orders are paused"
+          : "Futures orders go in before 6 pm ET, when the next futures session opens"}
+        ; stock orders before the 9:30 am open. As of{" "}
         {t.as_of.slice(0, 16).replace("T", " ")} UTC.
       </p>
     </div>

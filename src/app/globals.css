@@ -86,6 +86,12 @@
     --severe-soft: #F3E0CE;
     --info: #3D6EA8;
     --info-soft: #DCE6F0;
+
+    /* Exposure heatmap (/options strike x expiry table): a diverging pair,
+       positive dealer exposure blue, negative red, mixed into --bg-card by
+       magnitude. Validated with the dataviz palette checks (CVD + contrast). */
+    --heat-pos: #3D6EA8;
+    --heat-neg: #B3382E;
   }
 
   .dark {
@@ -111,6 +117,9 @@
     --severe-soft: #33240F;
     --info: #7FA8D9;
     --info-soft: #1C2731;
+
+    --heat-pos: #4F8FD9;   /* --info fails the lightness/chroma band on the dark card */
+    --heat-neg: #E06A5E;
   }
 
   /* Compact density mode — reduces card padding and row height */

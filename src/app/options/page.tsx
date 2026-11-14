@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { useGexAlerts } from "@/hooks/use-gex";
+import { ExposureTable } from "@/components/options/exposure-table";
 import { GlossaryLink } from "@/components/glossary-link";
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -223,21 +224,27 @@ function InstrumentDetail({ alert, ticker }: { alert: GexAlert | null; ticker: s
         </div>
       )}
 
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-        {imgFailed ? (
-          <p className="text-sm text-[var(--text-muted)] text-center py-8">
-            Heatmap unavailable for {ticker}.
-          </p>
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={api.gexHeatmapUrl(ticker)}
-            alt={`${ticker} strike x expiry GEX/VEX/CEX/OI heatmap`}
-            className="w-full rounded"
-            onError={() => setImgFailed(true)}
-          />
-        )}
-      </div>
+      <ExposureTable ticker={ticker} />
+
+      <details className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+        <summary className="cursor-pointer text-xs text-[var(--text-muted)]">Heatmap image (the same data)</summary>
+        <div className="mt-3">
+          {imgFailed ? (
+            <p className="text-sm text-[var(--text-muted)] text-center py-8">
+              Heatmap unavailable for {ticker}.
+            </p>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={api.gexHeatmapUrl(ticker)}
+              alt={`${ticker} strike x expiry GEX/VEX/CEX/OI heatmap`}
+              className="w-full rounded"
+              loading="lazy"
+              onError={() => setImgFailed(true)}
+            />
+          )}
+        </div>
+      </details>
 
       <p className="text-sm text-[var(--text-muted)]">{alert.summary}</p>
     </div>

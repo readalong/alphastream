@@ -8,7 +8,8 @@ import type { DealerFlowSnapshot } from "@/lib/types";
 
 export type ExposureMetric = "gex" | "vex" | "cex" | "oi";
 
-export const MAX_MIX = 60;
+/** Bar strength: light enough that full ink on top keeps >= 4.5:1. */
+export const BAR_MIX = 45;
 
 const UNITS: [number, string][] = [[1, ""], [1e3, "K"], [1e6, "M"], [1e9, "B"]];
 
@@ -52,28 +53,62 @@ export interface ExposureRow {
   total: number;
 }
 
+/** Per-column scale, AION style: each expiry is read against its own
+ *  largest cell, since a same-week expiry dwarfs a monthly one. */
+export interface ColumnStat {
+  /** Largest |value| in the column, among the rows shown. */
+  max: number;
+  /** |value| at or above which a cell is in the column's top decile. */
+  top: number;
+  /** Strike of the column's largest |value| (the star), or null. */
+  star: number | null;
+}
+
 export interface ExposureTableData {
   rows: ExposureRow[];
   /** Index of the first row below spot: the spot line is drawn above it. */
   spotBefore: number;
   /** Visible strike closest to the gamma flip, when the flip is in range. */
   flipStrike: number | null;
-  maxCell: number;
-  maxTotal: number;
+  /** One per expiry column shown. */
+  cols: ColumnStat[];
+  /** The "All" column (sum over every expiry in the snapshot). */
+  total: ColumnStat;
 }
 
-/** Pure: the visible slice of the snapshot for one metric and range. */
+/** Pure: the column statistics for one list of values (strike-aligned). */
+export function columnStat(values: number[], strikes: number[]): ColumnStat {
+  let max = 0;
+  let star: number | null = null;
+  const nonzero: number[] = [];
+  values.forEach((v, i) => {
+    const a = Math.abs(v);
+    if (a > 0) nonzero.push(a);
+    if (a > max) {
+      max = a;
+      star = strikes[i];
+    }
+  });
+  nonzero.sort((x, y) => x - y);
+  // Top decile of the non-zero cells; with fewer than 10 cells, the largest.
+  const top = nonzero.length ? nonzero[Math.min(nonzero.length - 1, Math.floor(nonzero.length * 0.9))] : Infinity;
+  return { max, top, star };
+}
+
+/** Pure: the visible slice of the snapshot for one metric, strike range
+ *  and number of expiry columns (the "All" total always sums every expiry). */
 export function buildExposureTable(
   snap: Pick<DealerFlowSnapshot, "strikes" | "spot" | "gex" | "vex" | "cex" | "oi" | "totals">,
   metric: ExposureMetric,
-  rangePct: number
+  rangePct: number,
+  maxExpiries: number = Infinity
 ): ExposureTableData {
   const m = (snap[metric] ?? []) as number[][];
   const rows: ExposureRow[] = [];
   snap.strikes.forEach((k, i) => {
     if (Math.abs(k - snap.spot) / snap.spot > rangePct / 100) return;
-    const cells = (m[i] ?? []).map((v) => (Number.isFinite(v) ? v : 0));
-    rows.push({ strike: k, cells, total: cells.reduce((a, b) => a + b, 0) });
+    const all = (m[i] ?? []).map((v) => (Number.isFinite(v) ? v : 0));
+    rows.push({ strike: k, cells: all.slice(0, maxExpiries), total: all.reduce((a, b) => a + b, 0) });
   });
   rows.sort((a, b) => b.strike - a.strike);
   const below = rows.findIndex((r) => r.strike < snap.spot);
@@ -84,21 +119,26 @@ export function buildExposureTable(
       Math.abs(r.strike - flip) < Math.abs(best.strike - flip) ? r : best
     ).strike;
   }
+  const strikes = rows.map((r) => r.strike);
+  const nCols = rows.reduce((n, r) => Math.max(n, r.cells.length), 0);
+  const cols: ColumnStat[] = [];
+  for (let c = 0; c < nCols; c++) cols.push(columnStat(rows.map((r) => r.cells[c] ?? 0), strikes));
   return {
     rows,
     spotBefore: below === -1 ? rows.length : below,
     flipStrike,
-    // A loop, not Math.max(...spread): a spread of a very large table overflows the stack.
-    maxCell: rows.reduce((m, r) => r.cells.reduce((mm, v) => Math.max(mm, Math.abs(v)), m), 0),
-    maxTotal: rows.reduce((m, r) => Math.max(m, Math.abs(r.total)), 0),
+    cols,
+    total: columnStat(rows.map((r) => r.total), strikes),
   };
 }
 
-/** Pure: the tint for one cell, as a CSS color-mix() into the card surface. */
-export function cellTint(v: number, max: number): string | undefined {
-  if (!max || !v) return undefined;
-  const pct = Math.round(Math.sqrt(Math.min(1, Math.abs(v) / max)) * MAX_MIX);
-  if (pct < 3) return undefined;
-  return `color-mix(in srgb, var(${v > 0 ? "--heat-pos" : "--heat-neg"}) ${pct}%, var(--bg-card))`;
+/** Pure: how a cell is drawn. A top-decile cell gets a bar (its share of the
+ *  column's largest, blue positive / red negative) and full ink; the rest
+ *  are muted with no bar, so the walls read first. */
+export function cellStyle(v: number, col: ColumnStat): { bar?: string; strong: boolean } {
+  const a = Math.abs(v);
+  if (!col.max || !a || a < col.top) return { strong: false };
+  const w = Math.max(4, Math.round((a / col.max) * 100));
+  const c = `color-mix(in srgb, var(${v > 0 ? "--heat-pos" : "--heat-neg"}) ${BAR_MIX}%, var(--bg-card))`;
+  return { bar: `linear-gradient(to right, ${c} ${w}%, transparent ${w}%)`, strong: true };
 }
-

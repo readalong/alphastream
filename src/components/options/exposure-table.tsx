@@ -5,16 +5,13 @@
  * snapshot (GET /api/dealer-flow/{ticker}, engine app/dealer_flow.py).
  *
  * One row per strike near spot, one column per expiry plus an "All" total,
- * each cell the dealer exposure in that bucket. Cells are tinted on a
- * diverging blue (positive) / red (negative) scale mixed into the card
- * surface, so the walls stand out, but every cell also prints its signed
- * value: color is never the only carrier of the sign. OI is unsigned and
- * uses the blue arm alone.
- *
- * Scale: sqrt(|v| / max) of the visible cells, capped at a 60% mix so the
- * ink stays readable on the strongest cell. Exposure is heavy-tailed (a
- * handful of strikes hold most of it), and a linear scale would leave
- * every other cell blank. The "All" column has its own max.
+ * each cell the dealer exposure in that bucket. Laid out like the AION
+ * reference table: each column is read against its own largest cell (a
+ * same-week expiry dwarfs a monthly one), a top-decile cell gets a bar
+ * (its share of the column max, blue positive / red negative) and full
+ * ink, the rest are muted, and the column's largest gets a star. Every cell
+ * prints its signed value, so colour never carries the sign alone. The
+ * next five expiries show by default; the "All" total sums every expiry.
  */
 
 import { useMemo, useState } from "react";
@@ -24,7 +21,8 @@ import { GlossaryLink } from "@/components/glossary-link";
 import { cn } from "@/lib/utils";
 import {
   buildExposureTable,
-  cellTint,
+  cellStyle,
+  type ColumnStat,
   fmtCompact,
   fmtExpiry,
   fmtFull,
@@ -77,25 +75,27 @@ const METRICS: {
   },
 ];
 
-const RANGES = [2, 3, 5, 10] as const;
+const RANGES = [2, 3, 4, 5, 10] as const;
+const NEXT_EXPIRIES = 5;
 
 function Legend({ metric }: { metric: (typeof METRICS)[number] }) {
-  const sw = (v: number) => ({ background: cellTint(v, 1) ?? "var(--bg-card)" });
+  const one: ColumnStat = { max: 1, top: 0, star: null };
+  const sw = (v: number) => ({ background: cellStyle(v * 0.7, one).bar });
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[var(--text-muted)]">
       {metric.neg && (
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-5 border border-[var(--border)]" style={sw(-1)} />
+          <span className="inline-block h-3 w-6 border border-[var(--border)]" style={sw(-1)} />
           negative: {metric.neg}
         </span>
       )}
       <span className="flex items-center gap-1.5">
-        <span className="inline-block h-3 w-5 border border-[var(--border)]" style={sw(1)} />
+        <span className="inline-block h-3 w-6 border border-[var(--border)]" style={sw(1)} />
         {metric.key === "oi" ? metric.pos : `positive: ${metric.pos}`}
       </span>
       <span>
-        Darker = larger, relative to the strikes shown. Colour shows the sign of the number, not a
-        bullish or bearish call.
+        Bar = share of that column&apos;s largest; cells below the column&apos;s top 10% are dimmed;
+        ★ = the column&apos;s largest. Colour shows the sign of the number, not a bullish or bearish call.
       </span>
     </div>
   );
@@ -104,14 +104,15 @@ function Legend({ metric }: { metric: (typeof METRICS)[number] }) {
 export function ExposureTable({ ticker }: { ticker: string }) {
   const { data, isLoading, error } = useDealerFlow(ticker);
   const [metric, setMetric] = useState<ExposureMetric>("gex");
-  const [range, setRange] = useState<number>(3);
+  const [range, setRange] = useState<number>(4);
+  const [allExpiries, setAllExpiries] = useState(false);
 
   // An older snapshot has no OI matrix: its OI toggle is disabled, and a
   // stale "oi" choice falls back to GEX instead of a dead end.
   const shown: ExposureMetric = metric === "oi" && data && !Array.isArray(data.oi) ? "gex" : metric;
   const table = useMemo(
-    () => (data ? buildExposureTable(data, shown, range) : null),
-    [data, shown, range]
+    () => (data ? buildExposureTable(data, shown, range, allExpiries ? Infinity : NEXT_EXPIRIES) : null),
+    [data, shown, range, allExpiries]
   );
 
   if (isLoading) return <div className="h-64 rounded-lg bg-[var(--bg-card)]" />;
@@ -134,7 +135,8 @@ export function ExposureTable({ ticker }: { ticker: string }) {
   const meta = METRICS.find((x) => x.key === shown)!;
 
   const pulled = data.retrieved_at ? new Date(data.retrieved_at) : null;
-  const colCount = data.expiries.length + 2;
+  const expiries = allExpiries ? data.expiries : data.expiries.slice(0, NEXT_EXPIRIES);
+  const colCount = expiries.length + 2;
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3">
@@ -186,6 +188,16 @@ export function ExposureTable({ ticker }: { ticker: string }) {
             </select>
             of spot
           </label>
+          {data.expiries.length > NEXT_EXPIRIES && (
+            <button
+              type="button"
+              aria-pressed={allExpiries}
+              onClick={() => setAllExpiries((x) => !x)}
+              className="border border-[var(--border)] px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            >
+              {allExpiries ? `Next ${NEXT_EXPIRIES} expiries` : `All ${data.expiries.length} expiries`}
+            </button>
+          )}
         </div>
       </div>
 
@@ -214,7 +226,7 @@ export function ExposureTable({ ticker }: { ticker: string }) {
               <th scope="col" className="sticky left-0 z-30 bg-[var(--bg-card)] px-2 py-1.5 text-left font-normal">
                 Strike
               </th>
-              {data.expiries.map((e, c) => (
+              {expiries.map((e, c) => (
                 <th key={e} scope="col" className="px-2 py-1.5 text-right font-normal whitespace-nowrap">
                   <span className="block font-sans text-[var(--text-primary)]">{fmtExpiry(e)}</span>
                   <span className="block">{data.dtes[c]}d</span>
@@ -232,10 +244,10 @@ export function ExposureTable({ ticker }: { ticker: string }) {
                 key={r.strike}
                 row={r}
                 metric={shown}
-                expiries={data.expiries}
+                expiries={expiries}
                 dtes={data.dtes}
-                maxCell={table.maxCell}
-                maxTotal={table.maxTotal}
+                cols={table.cols}
+                total={table.total}
                 spotLine={i === table.spotBefore ? data.spot : null}
                 colCount={colCount}
                 flip={r.strike === table.flipStrike}
@@ -276,8 +288,8 @@ function ExposureRowView({
   metric,
   expiries,
   dtes,
-  maxCell,
-  maxTotal,
+  cols,
+  total,
   spotLine,
   colCount,
   flip,
@@ -286,8 +298,8 @@ function ExposureRowView({
   metric: ExposureMetric;
   expiries: string[];
   dtes: number[];
-  maxCell: number;
-  maxTotal: number;
+  cols: ColumnStat[];
+  total: ColumnStat;
   spotLine: number | null;
   colCount: number;
   flip: boolean;
@@ -308,23 +320,58 @@ function ExposureRowView({
           )}
         </th>
         {row.cells.map((v, c) => (
-          <td
+          <Cell
             key={expiries[c]}
-            className="px-2 py-1 text-right text-[var(--text-primary)] whitespace-nowrap"
-            style={{ background: cellTint(v, maxCell) }}
+            v={v}
+            col={cols[c]}
+            strike={row.strike}
+            metric={metric}
             title={`${row.strike} · ${expiries[c]} (${dtes[c]}d) · ${fmtFull(v, metric)}`}
-          >
-            {fmtCompact(v, metric) === "0" ? <span className="text-[var(--text-faint)]">·</span> : fmtCompact(v, metric)}
-          </td>
+          />
         ))}
-        <td
-          className="border-l border-[var(--border)] px-2 py-1 text-right font-semibold text-[var(--text-primary)] whitespace-nowrap"
-          style={{ background: cellTint(row.total, maxTotal) }}
+        <Cell
+          v={row.total}
+          col={total}
+          strike={row.strike}
+          metric={metric}
           title={`${row.strike} · all expiries · ${fmtFull(row.total, metric)}`}
-        >
-          {fmtCompact(row.total, metric)}
-        </td>
+          className="border-l border-[var(--border)]"
+        />
       </tr>
     </>
+  );
+}
+
+function Cell({
+  v,
+  col,
+  strike,
+  metric,
+  title,
+  className,
+}: {
+  v: number;
+  col: ColumnStat;
+  strike: number;
+  metric: ExposureMetric;
+  title: string;
+  className?: string;
+}) {
+  const text = fmtCompact(v, metric);
+  const { bar, strong } = cellStyle(v, col);
+  const star = col.star === strike && text !== "0";
+  return (
+    <td
+      className={cn(
+        "px-2 py-1 text-right whitespace-nowrap",
+        strong ? "font-semibold text-[var(--text-primary)]" : "text-[var(--text-muted)]",
+        className
+      )}
+      style={bar ? { background: bar } : undefined}
+      title={star ? `${title} · the largest in this column` : title}
+    >
+      {text === "0" ? <span className="text-[var(--text-faint)]">·</span> : text}
+      {star && <span aria-label="largest in column"> ★</span>}
+    </td>
   );
 }

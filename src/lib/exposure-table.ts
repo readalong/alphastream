@@ -1,7 +1,7 @@
 /**
  * Pure helpers for the /options strike x expiry exposure table
  * (src/components/options/exposure-table.tsx). No React, no JSX, so they
- * can be checked on their own (scripts/check-exposure-table.ts).
+ * can be checked on their own (checked against real snapshots, see PR #11).
  */
 
 import type { DealerFlowSnapshot } from "@/lib/types";
@@ -10,14 +10,23 @@ export type ExposureMetric = "gex" | "vex" | "cex" | "oi";
 
 export const MAX_MIX = 60;
 
+const UNITS: [number, string][] = [[1, ""], [1e3, "K"], [1e6, "M"], [1e9, "B"]];
+
+/** Compact signed value: "−$80M", "14K", "$1.3B". Picks the unit from the
+ *  ROUNDED value, so 999.6 is "$1.0K", not "$1000", and 9,999 is "$10K",
+ *  not "$10.0K". Anything that rounds to zero is "0". */
 export function fmtCompact(v: number, metric: ExposureMetric): string {
-  if (!Number.isFinite(v) || v === 0) return "0";
+  if (!Number.isFinite(v) || Math.abs(v) < 0.5) return "0";
   const abs = Math.abs(v);
   const sign = v < 0 ? "−" : "";
   const pre = metric === "oi" ? "" : "$";
-  if (abs >= 1e9) return `${sign}${pre}${(abs / 1e9).toFixed(abs >= 1e10 ? 0 : 1)}B`;
-  if (abs >= 1e6) return `${sign}${pre}${(abs / 1e6).toFixed(abs >= 1e7 ? 0 : 1)}M`;
-  if (abs >= 1e3) return `${sign}${pre}${(abs / 1e3).toFixed(abs >= 1e4 ? 0 : 1)}K`;
+  for (let i = 0; i < UNITS.length; i++) {
+    const [u, suffix] = UNITS[i];
+    const x = abs / u;
+    let t = u === 1 ? x.toFixed(0) : x.toFixed(1);
+    if (Number(t) >= 10) t = x.toFixed(0);
+    if (Number(t) < 1000 || i === UNITS.length - 1) return `${sign}${pre}${t}${suffix}`;
+  }
   return `${sign}${pre}${abs.toFixed(0)}`;
 }
 
@@ -79,8 +88,9 @@ export function buildExposureTable(
     rows,
     spotBefore: below === -1 ? rows.length : below,
     flipStrike,
-    maxCell: Math.max(0, ...rows.flatMap((r) => r.cells.map(Math.abs))),
-    maxTotal: Math.max(0, ...rows.map((r) => Math.abs(r.total))),
+    // A loop, not Math.max(...spread): a spread of a very large table overflows the stack.
+    maxCell: rows.reduce((m, r) => r.cells.reduce((mm, v) => Math.max(mm, Math.abs(v)), m), 0),
+    maxTotal: rows.reduce((m, r) => Math.max(m, Math.abs(r.total)), 0),
   };
 }
 

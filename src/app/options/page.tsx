@@ -227,7 +227,9 @@ function InstrumentDetail({ alert, ticker }: { alert: GexAlert | null; ticker: s
       <ExposureTable ticker={ticker} />
 
       <details className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-        <summary className="cursor-pointer text-xs text-[var(--text-muted)]">Heatmap image (the same data)</summary>
+        <summary className="cursor-pointer text-xs text-[var(--text-muted)]">
+          Heatmap image (the same data, other colours: in the image negative is cyan and positive is magenta)
+        </summary>
         <div className="mt-3">
           {imgFailed ? (
             <p className="text-sm text-[var(--text-muted)] text-center py-8">

@@ -19,6 +19,7 @@
 
 import { useMemo, useState } from "react";
 import { useDealerFlow } from "@/hooks/use-gex";
+import { isNotFound } from "@/components/desk/primitives";
 import { GlossaryLink } from "@/components/glossary-link";
 import { cn } from "@/lib/utils";
 import {
@@ -50,6 +51,7 @@ const METRICS: {
   {
     key: "vex",
     label: "VEX",
+    glossary: "VEX",
     unit: "dollars of dealer delta change per 1 point of implied volatility",
     // app/dealer_flow.vanna_regime: positive net VEX = an IV decline forces dealers to buy.
     pos: "if implied vol falls, dealers buy",
@@ -58,7 +60,8 @@ const METRICS: {
   {
     key: "cex",
     label: "CEX",
-    unit: "dollars of dealer delta decay per calendar day (charm)",
+    glossary: "CEX",
+    unit: "dollars of dealer delta change per calendar day (charm)",
     // CEX = dealer sign x charm (dDelta/dt as calendar time passes): positive means
     // dealer delta rises each day, so the hedge is to sell; negative, to buy.
     pos: "as a day passes, dealers' hedge sells",
@@ -67,6 +70,7 @@ const METRICS: {
   {
     key: "oi",
     label: "OI",
+    glossary: "Open interest",
     unit: "open contracts, calls plus puts",
     pos: "more open contracts",
     neg: "",
@@ -89,7 +93,10 @@ function Legend({ metric }: { metric: (typeof METRICS)[number] }) {
         <span className="inline-block h-3 w-5 border border-[var(--border)]" style={sw(1)} />
         {metric.key === "oi" ? metric.pos : `positive: ${metric.pos}`}
       </span>
-      <span>Darker = larger, relative to the strikes shown.</span>
+      <span>
+        Darker = larger, relative to the strikes shown. Colour shows the sign of the number, not a
+        bullish or bearish call.
+      </span>
     </div>
   );
 }
@@ -98,15 +105,24 @@ export function ExposureTable({ ticker }: { ticker: string }) {
   const { data, isLoading, error } = useDealerFlow(ticker);
   const [metric, setMetric] = useState<ExposureMetric>("gex");
   const [range, setRange] = useState<number>(3);
-  const meta = METRICS.find((x) => x.key === metric)!;
 
+  // An older snapshot has no OI matrix: its OI toggle is disabled, and a
+  // stale "oi" choice falls back to GEX instead of a dead end.
+  const shown: ExposureMetric = metric === "oi" && data && !Array.isArray(data.oi) ? "gex" : metric;
   const table = useMemo(
-    () => (data ? buildExposureTable(data, metric, range) : null),
-    [data, metric, range]
+    () => (data ? buildExposureTable(data, shown, range) : null),
+    [data, shown, range]
   );
 
   if (isLoading) return <div className="h-64 rounded-lg bg-[var(--bg-card)]" />;
-  if (error || !data || !table) {
+  if (error && !isNotFound(error)) {
+    return (
+      <p className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 text-sm text-[var(--text-muted)]">
+        Could not load the {ticker} matrix: {error instanceof Error ? error.message : String(error)}
+      </p>
+    );
+  }
+  if (!data || !table) {
     return (
       <p className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 text-sm text-[var(--text-muted)]">
         No dealer-flow matrix for {ticker} today. Run{" "}
@@ -114,13 +130,8 @@ export function ExposureTable({ ticker }: { ticker: string }) {
       </p>
     );
   }
-  if (metric === "oi" && !data.oi) {
-    return (
-      <p className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 text-sm text-[var(--text-muted)]">
-        This snapshot has no OI matrix (it predates the OI column). Re-run --dealer-flow.
-      </p>
-    );
-  }
+  const hasOi = Array.isArray(data.oi);
+  const meta = METRICS.find((x) => x.key === shown)!;
 
   const pulled = data.retrieved_at ? new Date(data.retrieved_at) : null;
   const colCount = data.expiries.length + 2;
@@ -140,16 +151,18 @@ export function ExposureTable({ ticker }: { ticker: string }) {
           : {meta.unit}
         </p>
         <div className="flex flex-wrap items-center gap-2">
-          <div role="tablist" aria-label="Exposure metric" className="flex border border-[var(--border)]">
+          <div role="group" aria-label="Exposure metric" className="flex border border-[var(--border)]">
             {METRICS.map((x) => (
               <button
                 key={x.key}
-                role="tab"
-                aria-selected={metric === x.key}
+                type="button"
+                aria-pressed={shown === x.key}
+                disabled={x.key === "oi" && !hasOi}
+                title={x.key === "oi" && !hasOi ? "This snapshot predates the OI matrix" : undefined}
                 onClick={() => setMetric(x.key)}
                 className={cn(
-                  "px-2.5 py-1 text-xs font-semibold",
-                  metric === x.key
+                  "px-2.5 py-1 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed",
+                  shown === x.key
                     ? "bg-[var(--accent)]/10 text-[var(--accent)]"
                     : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 )}
@@ -178,7 +191,13 @@ export function ExposureTable({ ticker }: { ticker: string }) {
 
       <Legend metric={meta} />
 
-      {data.totals?.gamma_flip_strike != null && table.flipStrike == null && (
+      {table.rows.length === 0 && (
+        <p className="text-xs text-[var(--text-muted)]">
+          No strikes within ±{range}% of spot in this snapshot: widen the range.
+        </p>
+      )}
+
+      {data.totals?.gamma_flip_strike != null && table.rows.length > 0 && table.flipStrike == null && (
         <p className="text-xs text-[var(--text-muted)]">
           Gamma flip {data.totals.gamma_flip_strike.toLocaleString("en-US")} is{" "}
           {data.totals.gamma_flip_strike > data.spot ? "above" : "below"} the strikes shown.
@@ -212,7 +231,7 @@ export function ExposureTable({ ticker }: { ticker: string }) {
               <ExposureRowView
                 key={r.strike}
                 row={r}
-                metric={metric}
+                metric={shown}
                 expiries={data.expiries}
                 dtes={data.dtes}
                 maxCell={table.maxCell}
@@ -295,7 +314,7 @@ function ExposureRowView({
             style={{ background: cellTint(v, maxCell) }}
             title={`${row.strike} · ${expiries[c]} (${dtes[c]}d) · ${fmtFull(v, metric)}`}
           >
-            {v === 0 ? <span className="text-[var(--text-faint)]">·</span> : fmtCompact(v, metric)}
+            {fmtCompact(v, metric) === "0" ? <span className="text-[var(--text-faint)]">·</span> : fmtCompact(v, metric)}
           </td>
         ))}
         <td

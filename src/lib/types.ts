@@ -1528,6 +1528,8 @@ export interface FuturesInstrumentPlan {
   pattern_signal?: FuturesPatternSignal | null;
   reason_trail: string;
   today_action: "STAND_ASIDE" | "ENTER_NOW" | "ENTER_ON_PULLBACK" | string;
+  /** The plan's own action while futures orders are paused. */
+  paused_action?: string;
   event_rules: FuturesEventRules;
   long_setup?: FuturesSetup | null;
   short_setup?: FuturesSetup | null;
@@ -1539,6 +1541,9 @@ export interface FuturesPlanResponse {
   date: string;
   generated_at: string;
   is_today: boolean;
+  /** Set while the owner has paused futures orders: the reason. Each plan's
+   *  today_action then reads STAND_ASIDE, its own action in paused_action. */
+  orders_paused?: string;
   plans: Record<string, FuturesInstrumentPlan | null>;
 }
 

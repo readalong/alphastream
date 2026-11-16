@@ -314,7 +314,7 @@ function MetricTable({
         <tr className="h-5">
           <th
             colSpan={colCount}
-            scope="colgroup"
+            scope="col"
             className="bg-[var(--bg-card)] px-1 text-left font-sans text-xs font-semibold text-[var(--text-primary)]"
           >
             {meta.label}

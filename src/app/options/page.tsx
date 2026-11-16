@@ -207,6 +207,7 @@ function InstrumentDetail({ alert, ticker }: { alert: GexAlert | null; ticker: s
 
   return (
     <div className="space-y-4">
+      <div className="space-y-4 max-w-4xl">
       <LevelLadder levels={alert.levels} spot={alert.spot} />
 
       {alert.proximity_alerts.length > 0 && (
@@ -223,10 +224,11 @@ function InstrumentDetail({ alert, ticker }: { alert: GexAlert | null; ticker: s
           ))}
         </div>
       )}
+      </div>
 
       <ExposureTable ticker={ticker} />
 
-      <details className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+      <details className="max-w-4xl rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
         <summary className="cursor-pointer text-xs text-[var(--text-muted)]">
           Heatmap image (the same data, other colours: in the image negative is cyan and positive is magenta)
         </summary>
@@ -248,7 +250,7 @@ function InstrumentDetail({ alert, ticker }: { alert: GexAlert | null; ticker: s
         </div>
       </details>
 
-      <p className="text-sm text-[var(--text-muted)]">{alert.summary}</p>
+      <p className="max-w-4xl text-sm text-[var(--text-muted)]">{alert.summary}</p>
     </div>
   );
 }
@@ -281,7 +283,10 @@ export default function OptionsPage() {
   }
 
   return (
-    <div className="space-y-4 max-w-4xl">
+    // The narrative stays at reading width; the four exposure tables
+    // (desktop only) use the full width below it.
+    <div className="space-y-4">
+      <div className="space-y-4 max-w-4xl">
       <header className="flex items-baseline justify-between gap-3 flex-wrap">
         <h1 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)]">Options</h1>
         <span className="text-sm text-[var(--text-muted)]">{data.date}</span>
@@ -294,6 +299,7 @@ export default function OptionsPage() {
       )}
 
       <RegimeStrip alerts={data.alerts} active={active} onSelect={setActive} />
+      </div>
 
       <InstrumentDetail alert={data.alerts[active] ?? null} ticker={active} />
     </div>

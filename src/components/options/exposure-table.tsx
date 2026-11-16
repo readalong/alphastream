@@ -95,7 +95,7 @@ function Legend({ metric }: { metric: (typeof METRICS)[number] }) {
       </span>
       <span>
         Bar = share of that column&apos;s largest; cells below the column&apos;s top 10% are dimmed;
-        ★ = the column&apos;s largest. Colour shows the sign of the number, not a bullish or bearish call.
+        ★ = the column&apos;s largest. All relative to the strikes shown. Colour shows the sign of the number, not a bullish or bearish call.
       </span>
     </div>
   );
@@ -193,9 +193,14 @@ export function ExposureTable({ ticker }: { ticker: string }) {
               type="button"
               aria-pressed={allExpiries}
               onClick={() => setAllExpiries((x) => !x)}
-              className="border border-[var(--border)] px-2 py-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              className={cn(
+                "border border-[var(--border)] px-2 py-0.5 text-xs",
+                allExpiries
+                  ? "bg-[var(--accent)]/10 text-[var(--accent)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              )}
             >
-              {allExpiries ? `Next ${NEXT_EXPIRIES} expiries` : `All ${data.expiries.length} expiries`}
+              All {data.expiries.length} expiries
             </button>
           )}
         </div>
@@ -324,7 +329,6 @@ function ExposureRowView({
             key={expiries[c]}
             v={v}
             col={cols[c]}
-            strike={row.strike}
             metric={metric}
             title={`${row.strike} · ${expiries[c]} (${dtes[c]}d) · ${fmtFull(v, metric)}`}
           />
@@ -332,7 +336,6 @@ function ExposureRowView({
         <Cell
           v={row.total}
           col={total}
-          strike={row.strike}
           metric={metric}
           title={`${row.strike} · all expiries · ${fmtFull(row.total, metric)}`}
           className="border-l border-[var(--border)]"
@@ -345,21 +348,20 @@ function ExposureRowView({
 function Cell({
   v,
   col,
-  strike,
   metric,
   title,
   className,
 }: {
   v: number;
   col: ColumnStat;
-  strike: number;
   metric: ExposureMetric;
   title: string;
   className?: string;
 }) {
   const text = fmtCompact(v, metric);
   const { bar, strong } = cellStyle(v, col);
-  const star = col.star === strike && text !== "0";
+  // Every cell tied at the column's largest gets the star (ties do occur in OI).
+  const star = col.max > 0 && Math.abs(v) === col.max && text !== "0";
   return (
     <td
       className={cn(
@@ -371,7 +373,12 @@ function Cell({
       title={star ? `${title} · the largest in this column` : title}
     >
       {text === "0" ? <span className="text-[var(--text-faint)]">·</span> : text}
-      {star && <span aria-label="largest in column"> ★</span>}
+      {star && (
+        <>
+          <span aria-hidden="true"> ★</span>
+          <span className="sr-only">, largest in column</span>
+        </>
+      )}
     </td>
   );
 }

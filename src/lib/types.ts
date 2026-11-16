@@ -1649,6 +1649,14 @@ export interface DealerFlowSnapshot {
     vanna_regime: { regime: string; net_vex_near_spot: number | null };
     conditional_statement: string | null;
   };
+  /** app/dealer_flow quality block. sparse_expiries (engine #64) is a warning:
+   *  expiries that came back with under half the usual strikes near spot. */
+  quality?: {
+    status: "full" | "partial";
+    lost_share?: number;
+    expiries_affected?: string[];
+    sparse_expiries?: string[];
+  };
 }
 
 /* ── Backtest reviews (app/backtest_review.py) ── */

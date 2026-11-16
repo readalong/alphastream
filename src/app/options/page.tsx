@@ -195,7 +195,7 @@ function InstrumentDetail({ alert, ticker }: { alert: GexAlert | null; ticker: s
 
   if (!alert) {
     return (
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-6 text-center">
+      <div className="max-w-4xl rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-6 text-center">
         <p className="text-sm text-[var(--text-muted)]">
           No dealer-flow snapshot for {ticker} today. Run{" "}
           <code className="font-mono text-[var(--text-primary)]">python main.py --gex-alert</code>{" "}
@@ -208,22 +208,22 @@ function InstrumentDetail({ alert, ticker }: { alert: GexAlert | null; ticker: s
   return (
     <div className="space-y-4">
       <div className="space-y-4 max-w-4xl">
-      <LevelLadder levels={alert.levels} spot={alert.spot} />
+        <LevelLadder levels={alert.levels} spot={alert.spot} />
 
-      {alert.proximity_alerts.length > 0 && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-2">
-          <p className="text-xs text-[var(--text-muted)] mb-1">Proximity alerts</p>
-          {alert.proximity_alerts.map((p, i) => (
-            <div key={i} className="flex items-start gap-2 text-sm">
-              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-[var(--caution)]" />
-              <span className="text-[var(--text-primary)]">
-                Price is within {p.pct_away.toFixed(2)}% of {fmtStrike(p.strike)} ({p.direction}) —{" "}
-                {p.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+        {alert.proximity_alerts.length > 0 && (
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-2">
+            <p className="text-xs text-[var(--text-muted)] mb-1">Proximity alerts</p>
+            {alert.proximity_alerts.map((p, i) => (
+              <div key={i} className="flex items-start gap-2 text-sm">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-[var(--caution)]" />
+                <span className="text-[var(--text-primary)]">
+                  Price is within {p.pct_away.toFixed(2)}% of {fmtStrike(p.strike)} ({p.direction}) —{" "}
+                  {p.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <ExposureTable ticker={ticker} />
@@ -287,18 +287,18 @@ export default function OptionsPage() {
     // (desktop only) use the full width below it.
     <div className="space-y-4">
       <div className="space-y-4 max-w-4xl">
-      <header className="flex items-baseline justify-between gap-3 flex-wrap">
-        <h1 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)]">Options</h1>
-        <span className="text-sm text-[var(--text-muted)]">{data.date}</span>
-      </header>
+        <header className="flex items-baseline justify-between gap-3 flex-wrap">
+          <h1 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)]">Options</h1>
+          <span className="text-sm text-[var(--text-muted)]">{data.date}</span>
+        </header>
 
-      {data.note && (
-        <p className="rounded border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 text-sm text-[var(--text-muted)]">
-          {data.note}
-        </p>
-      )}
+        {data.note && (
+          <p className="rounded border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 text-sm text-[var(--text-muted)]">
+            {data.note}
+          </p>
+        )}
 
-      <RegimeStrip alerts={data.alerts} active={active} onSelect={setActive} />
+        <RegimeStrip alerts={data.alerts} active={active} onSelect={setActive} />
       </div>
 
       <InstrumentDetail alert={data.alerts[active] ?? null} ticker={active} />

@@ -104,10 +104,12 @@ function MetricHeading({ metric }: { metric: (typeof METRICS)[number] }) {
   return (
     // Fixed height: the four tables must start on the same line so their
     // rows (one strike each) stay aligned across all four.
-    <div className="h-14 space-y-0.5 overflow-hidden pb-2" title={`${metric.label}: ${metric.unit}`}>
+    // w-0 min-w-full: the heading wraps to its table's width instead of
+    // widening the column to fit its legend on one line.
+    <div className="h-16 w-0 min-w-full space-y-0.5 overflow-hidden pb-2" title={`${metric.label}: ${metric.unit}`}>
       <p className="text-xs font-semibold text-[var(--text-primary)]">
         {metric.glossary ? (
-          <GlossaryLink term={metric.glossary} className="hover:text-[var(--accent)]">
+          <GlossaryLink term={metric.glossary} className="inline-flex items-center gap-1 hover:text-[var(--accent)]">
             {metric.label}
           </GlossaryLink>
         ) : (
@@ -168,7 +170,7 @@ export function ExposureTable({ ticker }: { ticker: string }) {
   const expiries = allExpiries ? data.expiries : data.expiries.slice(0, NEXT_EXPIRIES);
   const pulled = data.retrieved_at ? new Date(data.retrieved_at) : null;
   const flip = data.totals?.gamma_flip_strike;
-  const sparse = data.quality?.sparse_expiries ?? [];
+  const sparse = (data.quality?.sparse_expiries ?? []).filter((e) => expiries.includes(e));
 
   const toggle = (on: boolean) =>
     cn(
@@ -308,18 +310,28 @@ function MetricTable({
         {ticker} {meta.label} by strike and expiry, {meta.unit}
       </caption>
       <thead className="sticky top-0 z-20 bg-[var(--bg-card)]">
+        {/* The table's name stays in view when the shared area scrolls. */}
+        <tr className="h-5">
+          <th
+            colSpan={colCount}
+            scope="colgroup"
+            className="bg-[var(--bg-card)] px-1 text-left font-sans text-xs font-semibold text-[var(--text-primary)]"
+          >
+            {meta.label}
+          </th>
+        </tr>
         <tr className="h-9 border-b border-[var(--border)] text-[var(--text-muted)]">
-          <th scope="col" className="bg-[var(--bg-card)] px-1.5 py-1 text-left font-normal">
+          <th scope="col" className="bg-[var(--bg-card)] px-1 py-1 text-left font-normal">
             Strike
           </th>
           {expiries.map((e, c) => (
-            <th key={e} scope="col" className="bg-[var(--bg-card)] px-1.5 py-1 text-right font-normal whitespace-nowrap">
+            <th key={e} scope="col" className="bg-[var(--bg-card)] px-1 py-1 text-right font-normal whitespace-nowrap">
               <span className="block font-sans text-[var(--text-primary)]">{fmtExpiry(e)}</span>
               <span className="block">{dtes[c]}d</span>
             </th>
           ))}
           {showTotals && (
-            <th scope="col" className="border-l border-[var(--border)] bg-[var(--bg-card)] px-1.5 py-1 text-right font-normal">
+            <th scope="col" className="border-l border-[var(--border)] bg-[var(--bg-card)] px-1 py-1 text-right font-normal">
               <span className="block font-sans text-[var(--text-primary)]">All</span>
               <span className="block">≤{Math.max(...dtes)}d</span>
             </th>
@@ -352,7 +364,7 @@ function SpotLine({ spot, colCount }: { spot: number; colCount: number }) {
     <tr className="h-5" aria-label={`spot ${spot}`}>
       <td
         colSpan={colCount}
-        className="border-y-2 border-[var(--accent)] px-1.5 py-0.5 text-left font-semibold text-[var(--accent)]"
+        className="border-y-2 border-[var(--accent)] px-1 py-0.5 text-left font-semibold text-[var(--accent)]"
       >
         spot {spot.toLocaleString("en-US", { maximumFractionDigits: 2 })}
       </td>
@@ -387,7 +399,7 @@ function ExposureRowView({
       <tr className="h-5 border-b border-[var(--border)]/40">
         <th
           scope="row"
-          className="px-1.5 py-0.5 text-left font-semibold text-[var(--text-primary)] whitespace-nowrap"
+          className="px-1 py-0.5 text-left font-semibold text-[var(--text-primary)] whitespace-nowrap"
         >
           {row.strike.toLocaleString("en-US")}
           {flip && (
@@ -439,7 +451,7 @@ function Cell({
   return (
     <td
       className={cn(
-        "px-1.5 py-0.5 text-right whitespace-nowrap",
+        "px-1 py-0.5 text-right whitespace-nowrap",
         strong ? "font-semibold text-[var(--text-primary)]" : "text-[var(--text-muted)]",
         className
       )}

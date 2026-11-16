@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 import { ContextLine } from "./context-line";
@@ -12,6 +13,9 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // /options shows four strike x expiry tables side by side (desktop):
+  // wider than the 1440px reading cap, so that page uses the full width.
+  const wide = usePathname()?.startsWith("/options") ?? false;
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
@@ -27,7 +31,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
         <Topbar onMenuClick={() => setSidebarOpen(true)} onOpenPalette={openPalette} />
         <ContextLine />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 pb-20 lg:pb-6">
-          <div className="mx-auto max-w-[1440px]">{children}</div>
+          <div className={wide ? "mx-auto" : "mx-auto max-w-[1440px]"}>{children}</div>
         </main>
       </div>
       <MobileBottomNav />
